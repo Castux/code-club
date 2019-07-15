@@ -1,0 +1,55 @@
+
+
+
+	
+
+function add(a,b)
+	b ~> a
+	return a
+end
+
+function add_low(a,b)
+	while b
+		b-
+		a+
+	end
+	return a
+end
+
+function double(a | t1)
+	a -> t1
+	t1 ~> a
+	return a
+end
+
+function triple(a | t1,t2,t3)
+	a ~> t1,t2,t3
+	t1 ~> a
+	t2 ~> a
+	t3 ~> a
+	return a
+end
+
+function echo(a)
+	
+	in a
+	while a
+		out a
+		in a
+	end
+	
+end
+
+function main(a,b,c, cond)
+	
+	10 -> a
+	20 -> b
+	add(a,b) -> c
+	
+	lt(c,20) -> cond
+	while cond
+		0 -> cond
+		out c
+	end
+	
+end
