@@ -1,13 +1,17 @@
 #!/usr/bin/env lua
 
 local bf = require "bf"
+local hlbf = require "hlbf"
 
 local args = {...}
 
 local path = args[1]
 if not path then
-	error("Usage: ./interpreter source")
+	error("Usage: ./interpreter source -hl")
 end
+
+local hl = args[2]
+hl = hl == "-hl"
 
 local fp = io.open(path, "r")
 if not fp then
@@ -17,4 +21,8 @@ end
 local src = fp:read "*a"
 fp:close()
 
-bf.run(src)
+if hl then
+	hlbf.run(src)
+else
+	hl.run(src)
+end

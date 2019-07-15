@@ -1,7 +1,7 @@
 local function run(src)
 
 	local program = {}
-	for c in src:gmatch "[<>%+%-%[%]%.,%*]" do
+	for c in src:gmatch "[<>%+%-%[%]%.,%?]" do
 		table.insert(program, c)
 	end
 
@@ -101,7 +101,7 @@ local function run(src)
 			else
 				pc = pc + 1
 			end
-		elseif op == '*' then
+		elseif op == '?' then
 			dump()
 			pc = pc + 1
 		end
