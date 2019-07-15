@@ -130,6 +130,7 @@ local function inline(blocks)
 			elseif delta < 0 then 
 				table.insert(out, string.rep("<", -delta))
 			end
+			currentPosition = target
 		end
 		
 		for _,v in ipairs(block) do

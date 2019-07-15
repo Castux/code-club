@@ -10,13 +10,17 @@ Basically macros/text insertion. Can't be recursive!
 
 Basically give names to the N memory cells under the cursor and to the right at the time the macro is invoked.
 
-Then have commands that use these addresses:
+Then have a "move to `a`" commands that moves the cursor to that cell. This gives:
 
-- move cursor to `a`
-- set `a` to constant
-- (in/de)crease `a` by constant
+- `a++			@a +`
+- `a--			@a -`
+- `while(a>0)	@a [ ... @a ]`
+- `a = 0        @a !res`
+- `a += 5       @a !5`
+- `a = a + b    @a !add`
+- ...
 
-Each macro can announce what cells it will modify, to what, and if touches anything else, like temporary use cells ("registers").
+All moves/copies still require knowing the relative positions of the cells.
 
 ## 3. Loops using variables
 
