@@ -1,0 +1,20 @@
+#!/usr/bin/env lua
+
+local bf = require "bf"
+
+local args = {...}
+
+local path = args[1]
+if not path then
+	error("Usage: ./interpreter source")
+end
+
+local fp = io.open(path, "r")
+if not fp then
+	error("Couldn't open file " .. path)
+end
+
+local src = fp:read "*a"
+fp:close()
+
+bf.run(src)
