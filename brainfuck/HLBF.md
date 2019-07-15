@@ -22,10 +22,12 @@ Then have a "move to `a`" commands that moves the cursor to that cell. This give
 
 All moves/copies still require knowing the relative positions of the cells.
 
-## 3. Loops using variables
+## 3. Arbitrary move between variables
 
-- while `a`
-- if then else?
+And constants as well while we're at it
+
+- `a <- b`
+- `a <- 5`
 
 ## 4. Stacked macro call convention
 
