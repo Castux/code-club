@@ -25,9 +25,18 @@ local lexRules =
 
 local tokens, err = lk.lex(source, lexRules)
 if err then
-	print("gasp: " .. err.value) 
+	local line, txt, under = lk.context(err)
+	print("Lexer error: " .. err.source.origin .. ":" .. line .. ": unexpected character")
+	print(txt)
+	print(under)
+	
+	return
 end
 
 for i,v in ipairs(tokens) do
-	print(i, v.name, v.value)
+	local line, txt, under = lk.context(v)
+	print(line)
+	print(txt)
+	print(under)
+	
 end

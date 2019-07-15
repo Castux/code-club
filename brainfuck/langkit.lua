@@ -1,17 +1,22 @@
 local function splitLines(text)
 	local lines = {}
+	local ranges = {}
 	local i = 1
 	
 	while true do
 		local j = text:find("\n", i)
 		if j then
 			table.insert(lines, text:sub(i,j-1))
+			table.insert(ranges, {i,j-1})
 			i = j + 1
 		else
 			table.insert(lines, text:sub(i))
+			table.insert(ranges, {i,#text})
 			break
 		end
 	end
+	
+	lines.ranges = ranges
 	
 	return lines
 end
@@ -104,9 +109,35 @@ local function lex(source, rules)
 	return tokens
 end
 
+local function lineColumn(source, index)
+	
+	for line,range in ipairs(source.lines.ranges) do
+		if index >= range[1] and index <= range[2] then
+			return line, index - range[1] + 1
+		end
+	end
+	
+	return nil
+end
+
+local function context(token, marker)
+	
+	local line,from = lineColumn(token.source, token.from)
+	local line2,to = lineColumn(token.source, token.to)
+	
+	assert(line == line2)
+	
+	local txt = token.source.lines[line]
+	local white = txt:gsub("[^\t]", " ")
+	local under = white:sub(1,from-1) .. string.rep(marker or "^", to - from + 1) .. white:sub(to+1)
+	
+	return line, txt, under
+end
+
 return
 {
 	readString = readString,
 	readFile = readFile,
-	lex = lex
+	lex = lex,
+	context = context
 }
