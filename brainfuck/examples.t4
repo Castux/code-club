@@ -27,9 +27,7 @@ function isPrime(n | k,tmp,cond,prime)
 	return prime
 end
 
-function main(a,b,cond,tmp)
-	
-	500 -> b
+function primesUpTo(n | a,cond,tmp)
 	1 -> a
 	1 -> cond
 	
@@ -42,11 +40,39 @@ function main(a,b,cond,tmp)
 			outSpace()
 		end
 		
-		lt(a,b) -> cond
+		lt(a,n) -> cond
+	end
+	
+	outNewline()
+end
+
+function fibonacciUpTo(n | a,b,c,cond)
+
+	1 -> a,b,cond
+	
+	outDecimal(a)
+	outSpace()
+	outDecimal(b)
+	outSpace()
+
+	add(a,b) -> c
+	
+	lt(c,n) -> cond
+	while cond
+	
+		outDecimal(c)
+		outSpace()
+		
+		add(a,b) -> c
+		b -> a
+		c -> b
+		
+		lt(c,n) -> cond
 	end
 end
 
-function main(a,b,c,d)
-
-	a ~> b,c,d
+function main(a,b,cond,tmp)
+	
+	primesUpTo(50)
+	fibonacciUpTo(500)
 end

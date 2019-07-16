@@ -178,6 +178,24 @@ Occasionally, the compiler will use memory above the current frame (denoted "reg
 
 # The T4 language
 
+T4 is a:
+
+- high level-ish
+- purely functional (if we ignore input and output)
+- compiled (if we consider BF to be an architecture)
+- toy
+
+language.
+
+It has:
+
+- functions
+- variables
+- assignments
+- flow control structures
+- call by value semantics
+- a simple grammar
+
 ## Grammar
 
 The lexical elements are the usual:
