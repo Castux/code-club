@@ -183,7 +183,7 @@ local function compileCall(env, op)
 	compileFunction(env, op.func.value, op.func)
 	
 	-- Pointer is now at r1. Relatively to us, we need to add the size of our frame
-	env.pointers[#env.pointers] = env.pointers[#env.pointers] + #env.frames[#env.frames]
+	env.pointers[#env.pointers] = getRegisterIndex(env, 1)
 	
 	-- Return value is in r1
 	
@@ -293,7 +293,6 @@ local function compile(path)
 	}
 
 	local success,result = pcall(compileFunction, env, "main")
-	--compileFunction(env, "main")
 	print("Internal", result)
 	if not success then
 		print(env.errorMessage)
