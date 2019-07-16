@@ -205,6 +205,7 @@ The lexical elements are the usual:
 - number literals: sequence of digits (integers only)
 - symbols: see grammar
 - all whitespace between tokens is ignored
+- `#` starts a comment that continues until the end of the line
 
 ```
 Program :=  { Function }
