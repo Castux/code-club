@@ -210,13 +210,13 @@ The lexical elements are the usual:
 ```
 Program :=  { Function }
 
-Function := 'function' identifier '(' [ ArgumentList ] [ LocalsList ] ')'
+Function := 'function' identifier '(' [ Arguments ] [ Locals ] ')'
     { Operation }
     [ Return ]
     'end'
 
-ArgumentList := IdentifierList
-LocalsList := '|' [ IdentifierList ]
+Arguments := IdentifierList
+Locals := '|' [ IdentifierList ]
 
 Operation := Io | Increment | Decrement | Set | Move | Copy | Call | While | Debug
 
@@ -234,6 +234,8 @@ Return := 'return' identifier
 
 IdentifierList := identifier { ',' identifier }
 ```
+
+The grammar is LL(2) and currently parsed by a hand-written recursive-descent parser.
 
 ## Semantics
 
