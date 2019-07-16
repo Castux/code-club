@@ -7,7 +7,7 @@ local args = {...}
 
 local path = args[1]
 if not path then
-	error("Usage: ./interpreter source -hl")
+	error("Usage: ./interpreter source [-hl]")
 end
 
 local hl = args[2]
