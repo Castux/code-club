@@ -166,7 +166,7 @@ might generate the following stack:
 Since we know how many cells each function needs, we can have a convention for passing arguments and returning values on a stack.
 
 - Copy arguments in the first cells above the current frame (4 and 5)
-- Move pointer in the first cell above the current frame (5)
+- Move pointer in the first cell above the current frame (4)
 - Call function `f2`. It is not allowed to write anything below its own frame (which starts at 4).
 - Compute stuff
 - Place return value in cell 4
