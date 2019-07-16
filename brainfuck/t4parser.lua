@@ -8,7 +8,7 @@ local lexRules =
 	{
 		"function", "while", "return", "end", "in", "out",
 		"~>", "->",
-		"(", ")", ",", "|", "-", "+"
+		"(", ")", ",", "|", "-", "+", "?"
 	},
 
 	dynamic =
@@ -105,6 +105,11 @@ local function parseWhile(p)
 	return {op = "while", variable = var, body = ops}
 end
 
+local function parseDebug(p)
+	p:expect "?"
+	return {op = "?"}
+end
+
 parseOperation = function(p)
 
 	if p:peek "number" then
@@ -117,6 +122,10 @@ parseOperation = function(p)
 
 	if p:peek "while" then
 		return parseWhile(p)
+	end
+	
+	if p:peek "?" then
+		return parseDebug(p)
 	end
 
 	if p:peek "identifier" then
