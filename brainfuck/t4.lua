@@ -17,14 +17,18 @@ local function emit(env, op)
 	table.insert(env.ops, op)
 end
 
-local function movePointer(env, dest)
+local function getIndex(env, variable)
 	
 	local frame = env.frames[#env.frames]
-	local index = frame[dest.value]
+	local index = frame[variable.value]
 	if not index then
-		setError(env, "unknown variable " .. dest.value, dest)
+		setError(env, "unknown variable " .. variable.value, variable)
 	end
 	
+	return index
+end
+
+local function movePointer(env, index)
 	local currentIndex = env.pointers[#env.pointers]
 	local diff = index - currentIndex
 	
@@ -37,13 +41,36 @@ local function movePointer(env, dest)
 	env.pointers[#env.pointers] = index	
 end
 
+local function movePointerToVariable(env, dest)
+	
+	movePointer(env, getIndex(env, dest))
+end
+
 local function compileSet(env, op)
 	
 	for _,dest in ipairs(op.right) do
-		movePointer(env, dest)
+		movePointerToVariable(env, dest)
 		emit(env, "[-]")
 		emit(env, string.rep("+", tonumber(op.value.value)))
 	end
+	
+end
+
+local function compileMove(env, op)
+	
+	local indices = {}
+	for i,v in ipairs(op.right) do
+		indices[i] = getIndex(env, v)
+	end
+	
+	movePointerToVariable(env, op.left)
+	emit(env, "[-")
+	for i,v in ipairs(indices) do
+		movePointer(env, v)
+		emit(env, "+")
+	end
+	movePointerToVariable(env, op.left)	
+	emit(env, "]")
 	
 end
 
@@ -51,6 +78,8 @@ local function compileOperation(env, op)
 	
 	if op.op == "set" then
 		compileSet(env,op)
+	elseif op.op == "~>" then
+		compileMove(env,op)
 	end
 	
 end

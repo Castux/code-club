@@ -1,6 +1,7 @@
 #!/usr/bin/env lua
 
 local t4 = require "t4"
+local bf = require "bf"
 
 local args = {...}
 
@@ -10,5 +11,7 @@ if not path then
 	return
 end
 
-local bf = t4.compile(path)
-print(bf)
+local src = t4.compile(path)
+if src then
+	bf.run(src)
+end

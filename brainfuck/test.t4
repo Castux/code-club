@@ -1,4 +1,5 @@
-function main(a,b)
+function main(a,b,c,d)
 	10 -> a
-	20 -> b
+	5 -> b
+	a ~> a
 end
