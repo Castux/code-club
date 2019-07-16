@@ -90,8 +90,7 @@ Seeing how most of the difficulty was to assign meaning to certain cells, and ke
 
 Basically, when invoking a macro, we give names to the N memory cells under the cursor and to the right at the time the macro is invoked.
 
-Variables as listed after the macro's name, and we add the `@name` command which signified: move the pointer to `a`.
-at moves the cursor to that cell.
+Variables are listed after the macro's name, and we add the `@name` command which signifies: move the pointer to `a`.
 
 This has many practical uses:
 
