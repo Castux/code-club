@@ -77,7 +77,7 @@ local function parseIncrDecr(p)
 		count = count + 1
 	end
 
-	return {op = op, variable = var, count = count}
+	return {op = op.value, variable = var, count = count}
 end
 
 local function parseIO(p)

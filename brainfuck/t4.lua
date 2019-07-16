@@ -134,6 +134,16 @@ local function compileOperation(env, op)
 		compileMove(env,op)
 	elseif op.op == "->" then
 		compileCopy(env,op)
+	elseif op.op == "+" or op.op == "-" then
+		movePointerToVariable(env, op.variable)
+		emit(env, string.rep(op.op, op.count))
+	elseif op.op == "in" then
+		movePointerToVariable(env, op.variable)
+		emit(env, ",")
+	elseif op.op == "out" then
+		movePointerToVariable(env, op.variable)
+		emit(env, ".")
+	
 	end
 	
 end
