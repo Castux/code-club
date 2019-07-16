@@ -122,6 +122,10 @@ end
 
 local function context(token, marker)
 	
+	if not token then
+		return nil,nil,nil
+	end
+	
 	local line,from = lineColumn(token.source, token.from)
 	local line2,to = lineColumn(token.source, token.to)
 	
@@ -134,10 +138,62 @@ local function context(token, marker)
 	return line, txt, under
 end
 
+local function newParser(tokens)
+	
+	local p =
+	{
+		tokens = tokens,
+		pos = 1,
+		errorMessage = nil,
+		
+		head = function(self)
+			return self.tokens[self.pos]
+		end,
+		
+		peek = function(self,name)
+			local token = self.tokens[self.pos]
+			if token then
+				return token.name == name
+			end
+			
+			return false
+		end,
+		
+		eof = function(self)
+			return self.pos > #self.tokens
+		end,
+		
+		expect = function(self, name)
+			
+			local t = self:head()
+			if t.name == name then
+				self.pos = self.pos + 1
+				return t
+			else
+				local line,txt,under = context(t)
+				local msg = string.format("%s:%d: expected %s, found %s instead:\n%s\n%s\n", t.source.origin, line, name, t.name, txt, under)
+				self.errorMessage = msg
+				error()
+			end
+		end,
+		
+		accept = function(self, name)
+			local t = self:head()
+			if t.name == name then
+				self.pos = self.pos + 1
+				return t
+			end
+		end
+	}
+	
+	return p
+end
+
 return
 {
 	readString = readString,
 	readFile = readFile,
 	lex = lex,
-	context = context
+	context = context,
+	newParser = newParser
 }

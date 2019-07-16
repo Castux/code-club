@@ -1,0 +1,13 @@
+#!/usr/bin/env lua
+
+local t4 = require "t4"
+
+local args = {...}
+
+local path = args[1]
+if not path then
+	print("Usage: ./t4 source")
+	return
+end
+
+t4.run(path)
