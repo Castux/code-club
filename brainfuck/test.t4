@@ -13,6 +13,30 @@ function sub(a,b)
 	return a
 end
 
+function diff(a,b | cond)		# absolute difference
+	
+	# Decrement both simultaneously
+	# until one is zero
+	
+	and(a,b) -> cond
+	while cond
+		a-
+		b-
+		and(a,b) -> cond
+	end
+	
+	# If a == 0, return b, a otherwise
+	
+	a -> cond
+	not(cond) -> cond
+	while cond
+		0 -> cond
+		b -> a
+	end
+	
+	return a
+end
+
 function mul(a,b | tmp)
 	
 	0 -> tmp					# with tmp = 0
@@ -54,6 +78,26 @@ function pow2(n | tmp)
 		mul2(tmp) -> tmp?
 	end
 	return tmp
+end
+
+function max(a,b | bool)
+
+	gt(b,a) -> bool
+	while bool
+		0 -> bool
+		b -> a
+	end
+	return a
+end
+
+function min(a,b | bool)
+
+	lt(b,a) -> bool
+	while bool
+		0 -> bool
+		b -> a
+	end
+	return a
 end
 
 # Booleans and logic
@@ -124,20 +168,33 @@ end
 
 function eq(a,b | cond)
 
-	# Decrement simultaneously until one is 0
-	
-	and(a,b) -> cond
-	while cond
-		a-
-		b-
-		and(a,b) -> cond
-	end
-	
-	# Are they both zero? not a and not b == not (a or b)
-	
-	or(a,b) -> cond
+	diff(a,b) -> cond
 	not(cond) -> cond
 	return cond
+end
+
+function eqz(a | res)
+	
+	# this is really just the boolean not
+	
+	1 -> res
+	while a
+		0 -> a
+		0 -> res
+	end
+	return res
+end
+
+function neqz(a | res)
+	
+	# this does nothing except normalize truthy values to 1
+	
+	0 -> res
+	while a
+		0 -> a
+		1 -> res
+	end
+	return res
 end
 
 function gt(a,b | cond)
@@ -175,7 +232,8 @@ end
 
 function main(a,b,c)
 	
-	lt(15,1) -> a
-	eq(15,1) -> b
-	gt(15,1) -> c?
+	max(13,20) -> a
+	neqz(5,1) -> b
+	
+	?
 end
