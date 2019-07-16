@@ -14,48 +14,48 @@ function sub(a,b)
 end
 
 function diff(a,b | cond)		# absolute difference
-	
+
 	# Decrement both simultaneously
 	# until one is zero
-	
+
 	and(a,b) -> cond
 	while cond
 		a-
 		b-
 		and(a,b) -> cond
 	end
-	
+
 	# If a == 0, return b, a otherwise
-	
+
 	a -> cond
 	not(cond) -> cond
 	while cond
 		0 -> cond
 		b -> a
 	end
-	
+
 	return a
 end
 
 function mul(a,b | tmp)
-	
+
 	0 -> tmp					# with tmp = 0
 	while a						# a times do
-		a-						
+		a-
 		add(b,tmp) -> tmp		# tmp += b
 	end
-	
+
 	return tmp
 end
 
 function pow(a,b | tmp)
-	
+
 	1 -> tmp					# with tmp = 1
 	while a						# a times do
 		a-
 		mul(b,tmp) -> tmp		# tmp *= b
 	end
-	
+
 	return tmp
 end
 
@@ -67,8 +67,7 @@ end
 
 function mul4(a | b)
 	a ~> b,b,b,b
-	b ~> a
-	return a
+	return b
 end
 
 function pow2(n | tmp)
@@ -101,27 +100,27 @@ function min(a,b | bool)
 end
 
 function div(a,b | res, cond)
-	
+
 	0 -> res
 	gte(a,b) -> cond
 	while cond
 		sub(a,b) -> a
 		res+
-		
+
 		gte(a,b) -> cond
 	end
-	
+
 	return res
 end
 
 function mod(a,b | cond)
-	
+
 	gte(a,b) -> cond
 	while cond
 		sub(a,b) -> a
 		gte(a,b) -> cond
 	end
-	
+
 	return a
 end
 
@@ -140,7 +139,7 @@ end
 function not(bool | res)
 
 	1 -> res
-	
+
 	while bool
 		0 -> bool
 		0 -> res
@@ -149,7 +148,7 @@ function not(bool | res)
 end
 
 function and(a,b | cond)
-	
+
 	# if a then b else a
 
 	a -> cond
@@ -163,29 +162,29 @@ end
 function or(a,b | cond,not_cond)
 
 	# a or b = not(not a and not b)
-	
+
 	# not(a) -> a
 	# not(b) -> b
 
 	# and(a,b) -> res
 	# not(res) -> res
 	# return res
-	
+
 	# if a then a else b
-	
+
 	a -> cond
 	1 -> not_cond
-	
+
 	while cond
 		0 -> cond
 		0 -> not_cond
 	end
-	
+
 	while not_cond
 		0 -> not_cond
 		b -> a
 	end
-	
+
 	return a
 end
 
@@ -199,9 +198,9 @@ function eq(a,b | cond)
 end
 
 function eqz(a | res)
-	
+
 	# this is really just the boolean not
-	
+
 	1 -> res
 	while a
 		0 -> a
@@ -211,9 +210,9 @@ function eqz(a | res)
 end
 
 function neqz(a | res)
-	
+
 	# this does nothing except normalize truthy values to 1
-	
+
 	0 -> res
 	while a
 		0 -> a
@@ -223,34 +222,34 @@ function neqz(a | res)
 end
 
 function gt(a,b | cond)
-	
+
 	# Decrement simultaneously until one is 0
-	
+
 	and(a,b) -> cond
 	while cond
 		a-
 		b-
 		and(a,b) -> cond
 	end
-	
+
 	# Is a non zero?
-	
+
 	return a
 end
 
 function lt(a,b | cond)
-	
+
 	# Decrement simultaneously until one is 0
-	
+
 	and(a,b) -> cond
 	while cond
 		a-
 		b-
 		and(a,b) -> cond
 	end
-	
+
 	# Is b non zero?
-	
+
 	return b
 end
 
@@ -258,7 +257,7 @@ function gte(a,b | t1,t2)
 
 	gt(a,b) -> t1
 	eq(a,b) -> t2
-	
+
 	or(t1,t2) -> t1
 	return t1
 end
@@ -266,13 +265,13 @@ end
 function lte(a,b | t1,t2)
 	lt(a,b) -> t1
 	eq(a,b) -> t2
-	
+
 	or(t1,t2) -> t1
 	return t1
 end
 
 function if(cond,t,f)
-	
+
 	while cond
 		0 -> cond
 		t -> f
@@ -303,7 +302,7 @@ function outNewline(| tmp)
 end
 
 function digitCount(n | count)
-	0 -> count	
+	0 -> count
 	while n
 		div(n,10) -> n
 		count+
@@ -317,7 +316,7 @@ function getDigit(n,d)
 		d-
 		div(n,10) -> n
 	end
-	
+
 	mod(n,10) -> n
 	return n
 end

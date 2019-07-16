@@ -199,7 +199,7 @@ Function := 'function' identifier '(' [ ArgumentList ] [ LocalsList ] ')'
 ArgumentList := IdentifierList
 LocalsList := '|' [ IdentifierList ]
 
-Operation := Io | Increment | Decrement | Set | Move | Copy | Call | While
+Operation := Io | Increment | Decrement | Set | Move | Copy | Call | While | Debug
 
 Io := ('in' | 'out' ) identifier
 Increment := identifier '+' { '+' }
@@ -209,6 +209,7 @@ Move := identifier '~>' IdentifierList
 Copy := identifier '->' IdentifierList
 Call := identifier '(' [ IdentifierList ] ')' [ '->' IdentifierList ]
 While := 'while' identifier { Operation } 'end'
+Debug := '?'
 
 Return := 'return' identifier
 
@@ -270,7 +271,7 @@ end
 ```
 
 - Both arguments and locals can be omitted, but they must be separated by `|` if they are both present.
-- These variables are the only ones accessible in the body of the function, and they are accessible only from here.
+- These variables are the only ones accessible in the body of the function, and they are accessible only from there.
 - No name collision checking is performed. A later name will shadow an earlier one.
 
 ### Return value
@@ -352,3 +353,13 @@ while not_bool
     # else body
 end
 ```
+
+### Debug `?`
+
+- The `?` command is translated directly as `?` in BF. When using the provided `bf.lua` module, this prints out the current state of the memory.
+
+## Prelude
+
+The file `prelude.t4` provides various arithmetics, logic, and text functions built on top of the basic constructs of the language.
+
+For logic functions, it uses the convention that 0 is false and non-zero is true.
