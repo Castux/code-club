@@ -106,9 +106,6 @@ local function run(src)
 			pc = pc + 1
 		end
 	end
-
-	dump()
-
 end
 
 return

@@ -31,13 +31,14 @@ end
 local function getRegisterIndex(env, n)
 
 	-- Not really registers, but cells above the current frame
+	-- r1, r2, r3, etc.
 
 	local frame = env.frames[#env.frames]
-	return #frame + n
+	return frame["@top"] + n
 end
 
 local function movePointer(env, index)
-	local currentIndex = env.pointers[#env.pointers]
+	local currentIndex = env.pointer
 	local diff = index - currentIndex
 
 	if diff > 0 then
@@ -46,7 +47,7 @@ local function movePointer(env, index)
 		emit(env, string.rep("<", -diff))
 	end
 
-	env.pointers[#env.pointers] = index	
+	env.pointer = index
 end
 
 local function movePointerToVariable(env, dest)
@@ -178,15 +179,11 @@ local function compileCall(env, op)
 	-- Point to the base of the next frame
 	local r1 = getRegisterIndex(env,1)
 	movePointer(env, r1)
-
-	-- And that's it?
+	
+	-- And that's it!
 	compileFunction(env, op.func.value, op.func)
 	
-	-- Pointer is now at r1. Relatively to us, we need to add the size of our frame
-	env.pointers[#env.pointers] = getRegisterIndex(env, 1)
-	
 	-- Return value is in r1
-	
 	if #op.right > 0 then
 		
 		local destinations = {}
@@ -198,6 +195,17 @@ local function compileCall(env, op)
 		emitCopy(env, r1, destinations, r2)
 	end
 
+end
+
+local function compileReturn(env, op)
+	
+	-- We leave the return value in the first cell of the frame
+	-- Which will be r1 for the caller
+	
+	local bottom = env.frames[#env.frames]["@bottom"]
+	
+	emitCopy(env, getIndex(env, op.variable), {bottom}, getRegisterIndex(env,1))
+	
 end
 
 compileOperation = function(env, op)
@@ -219,11 +227,10 @@ compileOperation = function(env, op)
 		emit(env, ".")
 	elseif op.op == "while" then
 		compileWhile(env, op)
-	elseif op.op == "return" then
-		emitCopy(env, getIndex(env, op.variable), {1}, getRegisterIndex(env,1))
-		movePointer(env, 1)
 	elseif op.op == "call" then
 		compileCall(env, op)
+	elseif op.op == "return" then
+		compileReturn(env, op)
 	elseif op.op == "?" then
 		emit(env, "?")
 	end
@@ -249,16 +256,26 @@ compileFunction = function(env, name, token)
 		table.insert(variables, v.value)
 	end
 
+	-- Base pointer for the frame
+	
+	local frameIndex = env.pointer
+
 	-- Name to index lookup
 
+	local frame = {}
+
 	for i,v in ipairs(variables) do
-		variables[v] = i
+		frame[v] = frameIndex + i - 1
 	end
 
+	-- Where is the frame
+	
+	frame["@bottom"] = frameIndex
+	frame["@top"] = frameIndex + #variables - 1
+	
 	-- Push stack
 
-	table.insert(env.frames, variables)
-	table.insert(env.pointers, 1)
+	table.insert(env.frames, frame)
 
 	-- Rock'n'roll
 
@@ -269,7 +286,7 @@ compileFunction = function(env, name, token)
 	-- Tear down
 
 	table.remove(env.frames)
-	table.remove(env.pointers)
+	
 
 end
 
@@ -287,16 +304,17 @@ local function compile(path)
 	{
 		functions = functions,
 		frames = {},
-		pointers = {},
+		pointer = 1,
 		ops = {},
 		errorMessage = nil
 	}
 
 	local success,result = pcall(compileFunction, env, "main")
-	print("Internal", result)
 	if not success then
 		print(env.errorMessage)
 		return
+	else
+		
 	end
 
 	return table.concat(env.ops)
