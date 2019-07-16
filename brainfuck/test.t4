@@ -1,5 +1,6 @@
 function main(a,b,c,d)
 	10 -> a
 	5 -> b
-	a ~> a
+	b -> a,c,d
+	d ~> a,b,c
 end

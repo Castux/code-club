@@ -28,6 +28,14 @@ local function getIndex(env, variable)
 	return index
 end
 
+local function getRegisterIndex(env, n)
+	
+	-- Not really registers, but cells above the current frame
+	
+	local frame = env.frames[#env.frames]
+	return #frame + n
+end
+
 local function movePointer(env, index)
 	local currentIndex = env.pointers[#env.pointers]
 	local diff = index - currentIndex
@@ -63,13 +71,57 @@ local function compileMove(env, op)
 		indices[i] = getIndex(env, v)
 	end
 	
-	movePointerToVariable(env, op.left)
+	local from = getIndex(env, op.left)
+	
+	movePointer(env, from)
 	emit(env, "[-")
 	for i,v in ipairs(indices) do
 		movePointer(env, v)
 		emit(env, "+")
 	end
-	movePointerToVariable(env, op.left)	
+	movePointer(env, from)
+	emit(env, "]")
+	
+end
+
+local function compileCopy(env, op)
+	
+	local indices = {}
+	for i,v in ipairs(op.right) do
+		indices[i] = getIndex(env, v)
+	end
+	
+	-- Also r1 as tmp destination
+	local r1 = getRegisterIndex(env, 1)
+	table.insert(indices, r1)
+	
+	local from = getIndex(env, op.left)
+	
+	-- First clear all destinations
+	
+	for i,v in ipairs(indices) do
+		movePointer(env,v)
+		emit(env, "[-]")
+	end
+	
+	-- Destructively move source to destinations + r1
+	
+	movePointer(env, from)
+	emit(env, "[-")
+	for i,v in ipairs(indices) do
+		movePointer(env, v)
+		emit(env, "+")
+	end
+	movePointer(env, from)
+	emit(env, "]")
+	
+	-- Move back r1 to origin
+	
+	movePointer(env, r1)
+	emit(env, "[-")
+	movePointer(env, from)
+	emit(env, "+")
+	movePointer(env, r1)	
 	emit(env, "]")
 	
 end
@@ -80,6 +132,8 @@ local function compileOperation(env, op)
 		compileSet(env,op)
 	elseif op.op == "~>" then
 		compileMove(env,op)
+	elseif op.op == "->" then
+		compileCopy(env,op)
 	end
 	
 end
