@@ -101,6 +101,36 @@ local function compileSet(env, op)
 	end
 end
 
+local function emitMove(env, from, indices, reset)
+
+	-- skip if moving only to self
+	
+	if #indices == 1 and from == indices[1] then
+		return
+	end
+
+	if reset then
+		for i,v in ipairs(indices) do
+			if v ~= from then
+				movePointer(env, v)
+				emit(env, "[-]")
+			end
+		end
+	end
+
+	movePointer(env, from)
+	emit(env, "[-")
+	for i,v in ipairs(indices) do
+		if v ~= from then
+			movePointer(env, v)
+			emit(env, "+")
+		end
+	end
+	movePointer(env, from)
+	emit(env, "]")
+
+end
+
 local function compileMove(env, op)
 
 	local indices = {}
@@ -115,23 +145,8 @@ local function compileMove(env, op)
 
 	local from = getIndex(env, op.left)
 	
-	-- skip if moving only to self
 	
-	if #indices == 1 and from == indices[1] then
-		return
-	end
-
-	movePointer(env, from)
-	emit(env, "[-")
-	for i,v in ipairs(indices) do
-		if v ~= from then
-			movePointer(env, v)
-			emit(env, "+")
-		end
-	end
-	movePointer(env, from)
-	emit(env, "]")
-
+	emitMove(env, from, indices)
 end
 
 local function emitCopy(env, from, destinations, tmpIndex)
@@ -261,10 +276,8 @@ local function compileCall(env, op)
 			names[i] = v.value
 		end
 		
-		emitDebug(env, "copy ret to %s", table.concat(names, " "))
-		
-		local r2 = getRegisterIndex(env,2)
-		emitCopy(env, r1, destinations, r2)
+		emitDebug(env, "move ret to %s", table.concat(names, " "))
+		emitMove(env, r1, destinations, "reset")
 	end
 
 	emitDebug(env, "exit %s", op.func.value)
@@ -279,7 +292,7 @@ local function compileReturn(env, op)
 	
 	local bottom = env.frames[#env.frames]["@bottom"]
 	
-	emitCopy(env, getIndex(env, op.variable), {bottom}, getRegisterIndex(env,1))
+	emitMove(env, getIndex(env, op.variable), {bottom}, "reset")
 end
 
 compileOperation = function(env, op)
