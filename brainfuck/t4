@@ -9,11 +9,11 @@ local debug = false
 local run = false
 
 local function printUsage()
-	print("Usage: /t4 [-debug] [-run] source1 [ source2 ... ]")
+	print("Usage: ./t4 [-debug] [-run] source1 [ source2 ... ]")
 end
 
 if #args < 1 then
-	
+
 end
 
 local files = {}

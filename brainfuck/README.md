@@ -10,6 +10,8 @@ Files in the repository:
     > `Usage: ./interpreter source [-hl]`
 - `tier1.bf` and `tier2.bf`: examples files to run respectively with the BF or HLBF modules
 
+`bf.lua` and the interpreter require either Lua 5.2, Lua 5.3 or luajit.
+
 As a distinct subproject:
 
 - `t4.lua`: a Lua module that interprets an even higher level language "T4" and compiles it to basic BF.
@@ -18,8 +20,6 @@ As a distinct subproject:
 - `langkit.lua`: a Lua module providing basic facilities for lexing and parsing text
 - `prelude.t4`: a library of basic functions written for T4
 - `examples.t4`: more demonstrations of what T4 looks like and what it can do
-
-This is essentially a kind of assembly language for BF, mapping directly to the
 
 # Motivation
 
@@ -261,6 +261,7 @@ These operations map directly to BF `+` and `-`
 - Arguments can be variable names or number literals
 - `func(a,b,c) -> d,e`: The return value of the call can optionally be stored into one or more variables using the same syntax as copy. Here as well the variables do not have to be different, in which case the return value will accumulate in them.
 - The number of arguments passed is not checked. Behavior is undefined when the wrong number of arguments is passed (depending on whatever is on the stack at invocation).
+- There is no check for recursive function calls. The compiler will generate an internal error if the source attempts recursion.
 
 ### Function definition
 
@@ -363,3 +364,37 @@ end
 The file `prelude.t4` provides various arithmetics, logic, and text functions built on top of the basic constructs of the language.
 
 For logic functions, it uses the convention that 0 is false and non-zero is true.
+
+## The `t4` utility
+
+`Usage: ./t4 [-debug] [-run] source1 [ source2 ... ]`
+
+Takes in one or more T4 source files, and compiles the `main` function into BF, printing it out to standard output.
+
+- Requires Lua 5.2, Lua 5.3 or luajit
+- `-debug` will output the BF code with annotations of which sections correspond to which functions. Since these annotations do not contain any BF characters, they will be safely ignored by most interpreters.
+- `-run` will execute the BF code with the `bf.lua` library instead of printing it.
+
+## Performance considerations
+
+T4 was created as essentially a high level assembler for BF. It is more expressive, readable, and safe than working directly in BF, but at the cost of expensive and inefficient stack manipulations.
+
+- The basic move `a ~> b` has linear complexity O(a) in the **value** of a, since it basically increases b and decreases a one unit at a time.
+- The basic copy `a -> b` is basically equivalent to `a ~> b,tmp` followed by `tmp ~> a`
+- All operations in T4 are based on these two elementary operations
+- Even if most variables are close in memory, that is still a lot of jumping around between fixed place memory cells, incrementing/decrementing them one unit at a time
+
+Even a basic task like printing (and displaying in decimal) the primes under 300 takes about a minute on my computer.
+
+The BF architecture is simply not meant to be a realistic one. Some optimizations could be made on the code generation, such as combining successive moves, but it is unlikely to make a lot of difference.
+
+An optimizing interpreter could recognize the typical move/zero/copy pattern from the stream of BF operations and convert them in direct moves and copies in its internal representation. This would likely reduce the highest issue with BF, turning it into a regular stack based language.
+
+## Possible extensions
+
+- A character literal `"c"` converted to its ASCII value
+- A raw BF literal to insert optimized code in the comfort of the higher level environment, for instance: `/>>[->>+<<]<</`
+- Static array notation for locals: `a[10]`
+- if-then, if-then-else, repeat-until, do-while constructs
+- global variables, stored for instance in the negative indices of the tape, or above a max stack height
+- Some way to make the functions re-entrant to allow recursive style, or at least a way for the compiler to unfold it to iterative

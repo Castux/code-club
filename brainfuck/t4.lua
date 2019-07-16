@@ -343,7 +343,7 @@ local function compile(files, debug)
 
 	local success,result = pcall(compileFunction, env, "main")
 	if not success then
-		print(env.errorMessage)
+		print(env.errorMessage or "internal error")
 		return
 	else
 		
