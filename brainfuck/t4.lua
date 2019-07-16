@@ -257,7 +257,9 @@ compileFunction = function(env, name, token)
 		setError(env, "unknown function " .. name, token)
 	end
 	
-	emit(env, "\nbegin " .. name .. "\n")
+	if env.debug then
+		emit(env, "\nbegin " .. name .. "\n")
+	end
 
 	-- Collect variables
 
@@ -300,10 +302,12 @@ compileFunction = function(env, name, token)
 
 	table.remove(env.frames)
 	
-	emit(env, "\nend " .. name .. "\n")
+	if env.debug then
+		emit(env, "\nend " .. name .. "\n")
+	end
 end
 
-local function compile(files)
+local function compile(files, debug)
 
 	local functions = {}
 
@@ -320,7 +324,8 @@ local function compile(files)
 		frames = {},
 		pointer = 1,
 		ops = {},
-		errorMessage = nil
+		errorMessage = nil,
+		debug = debug
 	}
 
 	local success,result = pcall(compileFunction, env, "main")
