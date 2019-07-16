@@ -17,6 +17,22 @@ local function emit(env, op)
 	table.insert(env.ops, op)
 end
 
+local function emitDebug(env, str, ...)
+	
+	if not env.debug then
+		return
+	end
+	
+	local tabs = string.rep("|   ", env.debugIndent)
+	
+	local str = "\n" .. tabs .. str:format(...) .. "        "
+	emit(env, str)
+end
+
+local function emitIndent(env, delta)
+	env.debugIndent = env.debugIndent + delta
+end
+
 local function getIndex(env, variable)
 
 	local frame = env.frames[#env.frames]
@@ -56,7 +72,7 @@ local function movePointerToVariable(env, dest)
 end
 
 local function setToConstant(env, index, value)
-
+	
 	movePointer(env, index)
 	emit(env, "[-]")
 	emit(env, string.rep("+", value))
@@ -65,9 +81,14 @@ end
 local function compileSet(env, op)
 
 	local indices = {}
+	local names = {}
+	
 	for i,v in ipairs(op.right) do
 		indices[i] = getIndex(env, v)
+		names[i] = v.value
 	end
+	
+	emitDebug(env, "set %s to %s", op.value.value, table.concat(names, " "))
 
 	for _,dest in ipairs(indices) do
 		movePointer(env, dest)
@@ -83,9 +104,14 @@ end
 local function compileMove(env, op)
 
 	local indices = {}
+	local names = {}
+	
 	for i,v in ipairs(op.right) do
 		indices[i] = getIndex(env, v)
+		names[i] = v.value
 	end
+
+	emitDebug(env, "move %s to %s", op.left.value, table.concat(names, " "))
 
 	local from = getIndex(env, op.left)
 	
@@ -153,9 +179,14 @@ end
 local function compileCopy(env, op)
 
 	local indices = {}
+	local names = {}
+	
 	for i,v in ipairs(op.right) do
 		indices[i] = getIndex(env, v)
+		names[i] = v.value
 	end
+
+	emitDebug(env, "copy %s to %s", op.left.value, table.concat(names, " "))
 
 	local from = getIndex(env, op.left)
 
@@ -165,7 +196,10 @@ end
 local compileOperation
 
 local function compileWhile(env, op)
-
+	
+	emitDebug(env, "while %s", op.variable.value)
+	emitIndent(env, 1)
+	
 	local conditionIndex = getIndex(env, op.variable)
 
 	movePointer(env, conditionIndex)
@@ -173,6 +207,9 @@ local function compileWhile(env, op)
 	for i,v in ipairs(op.body) do
 		compileOperation(env, v)
 	end
+
+	emitIndent(env, -1)
+	emitDebug(env, "while %s", op.variable.value)
 
 	movePointer(env, conditionIndex)
 	emit(env, "]")
@@ -183,13 +220,20 @@ local compileFunction
 
 local function compileCall(env, op)
 
+	emitDebug(env, "call %s", op.func.value)
+	emitIndent(env, 1)
+
 	-- Copy the arguments to the frame above us
 	-- Same indices as r1, r2, ...
 
 	for i,arg in ipairs(op.arguments) do
 		if arg.name == "number" then
+			
+			emitDebug(env, "setup arg %d", arg.value)
 			setToConstant(env, getRegisterIndex(env, i), tonumber(arg.value))
 		else
+			emitDebug(env, "setup arg %s", arg.value)
+			
 			local from = getIndex(env, arg)
 			local to = getRegisterIndex(env, i)
 			local using = getRegisterIndex(env, i+1)
@@ -204,21 +248,31 @@ local function compileCall(env, op)
 	-- And that's it!
 	compileFunction(env, op.func.value, op.func)
 	
+	emitIndent(env, -1)
+	
 	-- Return value is in r1
 	if #op.right > 0 then
 		
 		local destinations = {}
+		local names = {}
+		
 		for i,v in ipairs(op.right) do
 			table.insert(destinations, getIndex(env,v))
+			names[i] = v.value
 		end
+		
+		emitDebug(env, "copy ret to %s", table.concat(names, " "))
 		
 		local r2 = getRegisterIndex(env,2)
 		emitCopy(env, r1, destinations, r2)
 	end
 
+	emitDebug(env, "exit %s", op.func.value)
 end
 
 local function compileReturn(env, op)
+	
+	emitDebug(env, "return %s", op.variable.value)
 	
 	-- We leave the return value in the first cell of the frame
 	-- Which will be r1 for the caller
@@ -226,7 +280,6 @@ local function compileReturn(env, op)
 	local bottom = env.frames[#env.frames]["@bottom"]
 	
 	emitCopy(env, getIndex(env, op.variable), {bottom}, getRegisterIndex(env,1))
-	
 end
 
 compileOperation = function(env, op)
@@ -238,12 +291,15 @@ compileOperation = function(env, op)
 	elseif op.op == "->" then
 		compileCopy(env,op)
 	elseif op.op == "+" or op.op == "-" then
+		emitDebug(env, op.op == '+' and "incr %s" or "decr %s", op.variable.value)
 		movePointerToVariable(env, op.variable)
 		emit(env, string.rep(op.op, op.count))
 	elseif op.op == "in" then
+		emitDebug(env, "in %s" , op.variable.value)
 		movePointerToVariable(env, op.variable)
 		emit(env, ",")
 	elseif op.op == "out" then
+		emitDebug(env, "out %s" , op.variable.value)
 		movePointerToVariable(env, op.variable)
 		emit(env, ".")
 	elseif op.op == "while" then
@@ -253,6 +309,7 @@ compileOperation = function(env, op)
 	elseif op.op == "return" then
 		compileReturn(env, op)
 	elseif op.op == "?" then
+		emitDebug(env, "debug")
 		emit(env, "?")
 	end
 
@@ -267,10 +324,6 @@ compileFunction = function(env, name, token)
 		setError(env, "unknown function " .. name, token)
 	end
 	
-	if env.debug then
-		emit(env, "\nbegin " .. name .. "\n")
-	end
-
 	-- Collect variables
 
 	local variables = {}
@@ -311,10 +364,6 @@ compileFunction = function(env, name, token)
 	-- Tear down
 
 	table.remove(env.frames)
-	
-	if env.debug then
-		emit(env, "\nend " .. name .. "\n")
-	end
 end
 
 local function compile(files, debug)
@@ -338,12 +387,13 @@ local function compile(files, debug)
 		pointer = 1,
 		ops = {},
 		errorMessage = nil,
-		debug = debug
+		debug = debug,
+		debugIndent = 0
 	}
 
 	local success,result = pcall(compileFunction, env, "main")
 	if not success then
-		print(env.errorMessage or "internal error")
+		print(env.errorMessage or "internal error: " .. result)
 		return
 	else
 		
