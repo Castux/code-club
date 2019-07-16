@@ -41,10 +41,10 @@ local function parseFunction(p)
 		until not p:accept ","
 	end
 	
-	
 	p:expect ")"
+	p:expect "end"
 	
-	return {name = name, arguments = arguments}
+	return {name = name, arguments = arguments, locals = locals}
 end
 
 local function parse(p)
@@ -77,10 +77,8 @@ local function run(path)
 	
 	local parser = langkit.newParser(tokens)
 	
-	local success,res = pcall(parse, parser)
-	if res then
-		print(res)
-	end
+	local success,program = pcall(parse, parser)
+	print(program)
 	if not success then
 		print(parser.errorMessage)
 		return
