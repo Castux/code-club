@@ -88,11 +88,20 @@ local function lex(source, rules)
 			index = index + #whitespace
 			goto continue
 		end
+		
+		for _,kw in ipairs(rules.keywords) do
+			local value = source.text:match("^(" .. kw .. ")[^%a%d_]", index) or
+				source.text:match("^" .. kw .. "$", index)
+			if value then
+				add(kw, kw)
+				goto continue
+			end
+		end
 
-		for _,pattern in ipairs(rules.static) do
-			local found = source.text:find(pattern, index, true)
+		for _,symbol in ipairs(rules.symbols) do
+			local found = source.text:find(symbol, index, true)
 			if found == index then
-				add(pattern, pattern)
+				add(symbol, symbol)
 				goto continue
 			end
 		end

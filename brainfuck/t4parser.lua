@@ -4,9 +4,9 @@ local lexRules =
 {
 	comment = "#[^\n]*",
 	whitespace = "%s*",
-	static = 
+	keywords = { "function", "while", "return", "end", "in", "out" },
+	symbols = 
 	{
-		"function", "while", "return", "end", "in", "out",
 		"~>", "->",
 		"(", ")", ",", "|", "-", "+", "?"
 	},
