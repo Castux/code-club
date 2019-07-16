@@ -195,7 +195,7 @@ local function run(path)
 	local tokens, err = langkit.lex(source, lexRules)
 	if err then
 		local line, txt, under = langkit.context(err)
-		print("Lexer error: " .. err.source.origin .. ":" .. line .. ": unexpected character")
+		print(err.source.origin .. ":" .. line .. ": unexpected character")
 		print(txt)
 		print(under)
 		return
@@ -204,7 +204,6 @@ local function run(path)
 	local parser = langkit.newParser(tokens)
 
 	local success,program = pcall(parse, parser)
-	print(program)
 	if not success then
 		print(parser.errorMessage)
 		return

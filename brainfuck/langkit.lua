@@ -185,10 +185,7 @@ local function newParser(tokens)
 				self.pos = self.pos + 1
 				return t
 			else
-				local line,txt,under = context(t)
-				local msg = string.format("%s:%d: expected %s, found %s instead:\n%s\n%s\n", t.source.origin, line, name, t.name, txt, under)
-				self.errorMessage = msg
-				error()
+				self:error(string.format("expected %s, found %s instead", name, t.name))
 			end
 		end,
 
