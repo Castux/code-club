@@ -271,13 +271,50 @@ function lte(a,b | t1,t2)
 	return t1
 end
 
+# Text utils
+
+function outDigit(d)
+	add(d,48) -> d
+	out d
+end
+
+function outNewline(| tmp)
+	10 -> tmp
+	out tmp
+end
+
+function digitCount(n | count)
+	0 -> count	
+	while n
+		div(n,10) -> n
+		count+
+	end
+	return count
+end
+
+function getDigit(n,d)
+
+	while d
+		d-
+		div(n,10) -> n
+	end
+	
+	mod(n,10) -> n
+	return n
+end
+
+function outDecimal(n | count,tmp)
+
+	digitCount(n) -> count
+	while count
+		count-
+		getDigit(n,count) -> tmp
+		outDigit(tmp)
+	end
+end
 
 function main(a,b,c,d)
 	
-	mod(9,3) -> a
-	mod(10,3) -> b
-	mod(11,3) -> c
-	mod(12,3) -> d
-	?
-	
+	outDecimal(253)
+	outNewline()
 end
