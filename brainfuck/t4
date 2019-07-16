@@ -5,18 +5,26 @@ local bf = require "bf"
 
 local args = {...}
 
-local path = args[1]
-if not path then
-	print("Usage: ./t4 source [-debug]")
-	return
+local debug = false
+
+local files = {}
+for i,v in ipairs(args) do
+	if v == "-debug" then
+			debug = true
+	else
+		table.insert(files, v)
+	end
 end
 
-local src = t4.compile(path)
+
+local src = t4.compile(files)
 
 if src then
-	
-	if args[2] == "-debug" then
+
+	if debug then
 		print(src)
 	end
 	bf.run(src)
+else
+	print("Usage: ./t4 [-debug] source1 source2 source3 ...")
 end

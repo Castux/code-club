@@ -1,0 +1,12 @@
+function divides(n,k | res)
+
+	mod(n,k) -> res
+	eqz(res) -> res
+	return res
+end
+
+
+function main()
+	outDecimal(101)
+	outNewline()
+end

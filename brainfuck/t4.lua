@@ -303,14 +303,15 @@ compileFunction = function(env, name, token)
 	emit(env, "\nend " .. name .. "\n")
 end
 
-local function compile(path)
-
-	local program = parser.run(path)
+local function compile(files)
 
 	local functions = {}
 
-	for i,func in ipairs(program) do
-		functions[func.name.value] = func
+	for _,file in ipairs(files) do
+		local funcs = parser.run(file)
+		for i,func in ipairs(funcs) do
+			functions[func.name.value] = func
+		end
 	end
 
 	local env =

@@ -312,9 +312,3 @@ function outDecimal(n | count,tmp)
 		outDigit(tmp)
 	end
 end
-
-function main(a,b,c,d)
-	
-	outDecimal(253)
-	outNewline()
-end

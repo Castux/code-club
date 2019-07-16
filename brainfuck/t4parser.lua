@@ -194,7 +194,7 @@ end
 
 local function run(path)
 
-	local source = langkit.readFile "test.t4"
+	local source = langkit.readFile(path)
 	if not source then
 		print("Could not open file: "..path)
 		return
