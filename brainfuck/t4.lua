@@ -126,7 +126,24 @@ local function compileCopy(env, op)
 	
 end
 
-local function compileOperation(env, op)
+local compileOperation
+
+local function compileWhile(env, op)
+	
+	local conditionIndex = getIndex(env, op.variable)
+	
+	movePointer(env, conditionIndex)
+	emit(env, "[")
+	for i,v in ipairs(op.body) do
+		compileOperation(env, v)
+	end
+	
+	movePointer(env, conditionIndex)
+	emit(env, "]")
+	
+end
+
+compileOperation = function(env, op)
 	
 	if op.op == "set" then
 		compileSet(env,op)
@@ -143,7 +160,12 @@ local function compileOperation(env, op)
 	elseif op.op == "out" then
 		movePointerToVariable(env, op.variable)
 		emit(env, ".")
-	
+	elseif op.op == "while" then
+		compileWhile(env, op)
+	elseif op.op == "return" then
+		movePointerToVariable(env, op.variable)
+	else
+		setError("UNIMPLEMENTED " .. op.op)
 	end
 	
 end
