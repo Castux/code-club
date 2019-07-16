@@ -10,4 +10,5 @@ if not path then
 	return
 end
 
-t4.run(path)
+local bf = t4.compile(path)
+print(bf)

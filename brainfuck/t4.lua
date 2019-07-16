@@ -1,216 +1,128 @@
 local langkit = require "langkit"
+local parser = require "t4parser"
 
-local lexRules =
-{
-	comment = "#[^\n]*",
-	whitespace = "%s*",
-	static = 
-	{
-		"function", "while", "return", "end", "in", "out",
-		"~>", "->",
-		"(", ")", ",", "|", "-", "+"
-	},
-
-	dynamic =
-	{
-		identifier = "[%a_][%a%d_]*",
-		number = "%d+"
-	}
-}
-
-local function parseIdentifierList(p)
-	local ids = {}
-	repeat
-		table.insert(ids, p:expect "identifier")
-	until not p:accept ","
-	return ids
-end
-
-local function parseMoveCopy(p)
-
-	local left = p:expect "identifier"
-	local op = p:accept "~>" or p:expect "->"
-	local right = parseIdentifierList(p)
-
-	return {op = op, left = left, right = right}
-end
-
-local function parseSet(p)
+local function setError(env, msg, token)
 	
-	local value = p:expect "number"
-	p:expect "->"
-	local right = parseIdentifierList(p)
-
-	return {op = "set", value = value, right = right}
-	
-end
-
-local function parseCall(p)
-	
-	local func = p:expect "identifier"
-	p:expect "("
-	
-	local arguments = {}
-	if not p:peek ")" then
-		repeat
-			table.insert(arguments, p:accept "number" or p:expect "identifier")
-		until not p:accept ","
+	if token then
+		local line,txt,under = langkit.context(token)
+		env.errorMessage = string.format("%s:%d: %s:\n%s\n%s\n", token.source.origin, line, msg, txt, under)
+	else
+		env.errorMessage = msg
 	end
 	
-	p:expect ")"
+	error()
+end
+
+local function emit(env, op)
+	table.insert(env.ops, op)
+end
+
+local function movePointer(env, dest)
 	
-	local right = {}
-	if p:accept "->" then
-		right = parseIdentifierList(p)
+	local frame = env.frames[#env.frames]
+	local index = frame[dest.value]
+	if not index then
+		setError(env, "unknown variable " .. dest.value, dest)
 	end
 	
-	return {op = "call", func = func, arguments = arguments, right = right}
+	local currentIndex = env.pointers[#env.pointers]
+	local diff = index - currentIndex
+	
+	if diff > 0 then
+		emit(env, string.rep(">", diff))
+	elseif diff < 0 then
+		emit(env, string.rep("<", -diff))
+	end
+	
+	env.pointers[#env.pointers] = index	
 end
 
-local function parseIncrDecr(p)
-
-	local var = p:expect "identifier"
-
-	local op = p:accept "-" or p:expect "+"
-
-	local count = 1
-	while p:accept(op.name) do
-		count = count + 1
+local function compileSet(env, op)
+	
+	for _,dest in ipairs(op.right) do
+		movePointer(env, dest)
+		emit(env, "[-]")
+		emit(env, string.rep("+", tonumber(op.value.value)))
 	end
-
-	return {op = op, variable = var, count = count}
+	
 end
 
-local function parseIO(p)
-
-	local op = p:accept "in" or p:expect "out"
-	local var = p:expect "identifier"
-
-	return {op = op.name, variable = var}
+local function compileOperation(env, op)
+	
+	if op.op == "set" then
+		compileSet(env,op)
+	end
+	
 end
 
-local parseOperation
-
-local function parseWhile(p)
-
-	p:expect "while"
-	local var = p:expect "identifier"
-
-	local ops = {}
-	while not p:peek "end" do
-		table.insert(ops, parseOperation(p))
+local function compileFunction(env, name, token)
+	
+	-- Does it exist?
+	
+	local func = env.functions[name]
+	if not func then
+		setError(env, "unknown function " .. name, token)
 	end
-
-	p:expect "end"
-
-	return {op = "while", variable = var, body = ops}
+	
+	-- Collect variables
+	
+	local variables = {}
+	for _,v in ipairs(func.arguments) do
+		table.insert(variables, v.value)
+	end
+	for _,v in ipairs(func.locals) do
+		table.insert(variables, v.value)
+	end
+	
+	-- Name to index lookup
+	
+	for i,v in ipairs(variables) do
+		variables[v] = i
+	end
+	
+	-- Push stack
+	
+	table.insert(env.frames, variables)
+	table.insert(env.pointers, 1)
+	
+	-- Rock'n'roll
+	
+	for _,op in ipairs(func.ops) do
+		compileOperation(env, op)
+	end
+	
 end
 
-parseOperation = function(p)
-
-	if p:peek "number" then
-		return parseSet(p)
-	end
-
-	if p:peek "in" or p:peek "out" then
-		return parseIO(p)
-	end
-
-	if p:peek "while" then
-		return parseWhile(p)
-	end
-
-	if p:peek "identifier" then
-		if p:peek2 "->" or p:peek2 "~>" then
-			return parseMoveCopy(p)
-		elseif p:peek2 "+" or p:peek2 "-" then
-			return parseIncrDecr(p)
-		elseif p:peek2 "(" then
-			return parseCall(p)
-		end
-	end
-
-	p:error("invalid operation")
-end
-
-local function parseReturn(p)
-
-	p:expect "return"
-	local id = p:expect "identifier"
-
-	return {op = "return", variable = id}
-end
-
-local function parseFunction(p)
-
-	p:expect "function"
-	local name = p:expect "identifier"
-	p:expect "("
-
-	local arguments = {}
-	if p:peek "identifier" then
-		arguments = parseIdentifierList(p)
-	end
-
-	local locals = {}
-	if p:accept "|" then
-		locals = parseIdentifierList(p)
-	end
-
-	p:expect ")"
-
-	local ops = {}
-	while not p:peek "end" and not p:peek "return" do
-		table.insert(ops, parseOperation(p))
-	end
-
-	if p:peek "return" then
-		table.insert(ops, parseReturn(p))
-	end
-
-	p:expect "end"
-
-	return {name = name, arguments = arguments, locals = locals}
-end
-
-local function parse(p)
-
+local function compile(path)
+	
+	local program = parser.run(path)
+	
 	local functions = {}
-
-	while not p:eof() do
-		table.insert(functions, parseFunction(p))		
+	
+	for i,func in ipairs(program) do
+		functions[func.name.value] = func
 	end
-
-	return functions
-end
-
-local function run(path)
-
-	local source = langkit.readFile "test.t4"
-	if not source then
-		print("Could not open file: "..path)
-		return
-	end
-
-	local tokens, err = langkit.lex(source, lexRules)
-	if err then
-		local line, txt, under = langkit.context(err)
-		print(err.source.origin .. ":" .. line .. ": unexpected character")
-		print(txt)
-		print(under)
-		return
-	end
-
-	local parser = langkit.newParser(tokens)
-
-	local success,program = pcall(parse, parser)
+	
+	local env =
+	{
+		functions = functions,
+		frames = {},
+		pointers = {},
+		ops = {},
+		errorMessage = nil
+	}
+	
+	local success,result = pcall(compileFunction, env, "main")
+	print("Internal", result)
 	if not success then
-		print(parser.errorMessage)
+		print(env.errorMessage)
 		return
 	end
+	
+	return table.concat(env.ops)
 end
 
 return
 {
-	run = run
+	compile = compile
 }
