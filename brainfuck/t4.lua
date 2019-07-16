@@ -2,6 +2,7 @@ local langkit = require "langkit"
 
 local lexRules =
 {
+	comment = "#[^\n]*",
 	whitespace = "%s*",
 	static = 
 	{

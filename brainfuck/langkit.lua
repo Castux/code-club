@@ -77,6 +77,12 @@ local function lex(source, rules)
 	
 	while index <= #source.text do
 		
+		local comment = source.text:match("^" .. rules.comment, index)
+		if comment then
+			index = index + #comment
+			goto continue
+		end
+		
 		local whitespace = source.text:match("^" .. rules.whitespace, index)
 		if whitespace and #whitespace > 0 then
 			index = index + #whitespace
