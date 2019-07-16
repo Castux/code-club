@@ -94,12 +94,13 @@ Variables are listed after the macro's name, and we add the `@name` command whic
 
 This has many practical uses:
 
-- `a++			@a +`
-- `a--			@a -`
-- `while(a>0)	@a [ ... @a ]`
-- `a = 0        @a !res`
-- `a += 5       @a !5`
-- ...
+| Pseudo-code  | HLBF            |
+|:-------------|:----------------|
+| `a++`        | `@a +`          |
+| `a--`        | `@a -`          |
+| `while(a>0)` | `@a [ ... @a ]` |
+| `a = 0`      | `@a !res`       |
+| `a += 5`     | `@a !5`         |
 
 For instance setting a cell to 0:
 
