@@ -50,6 +50,9 @@ local function run(src)
 			pc = pc + 1
 		elseif op == '-' then
 			memory[pointer] = memory[pointer] - 1
+			if memory[pointer] < 0 then
+				error("Integer underflow")
+			end
 			pc = pc + 1
 		elseif op == '.' then
 			io.write(string.char(memory[pointer]))

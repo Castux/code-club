@@ -75,7 +75,7 @@ function pow2(n | tmp)
 	1 -> tmp
 	while n
 		n-
-		mul2(tmp) -> tmp?
+		mul2(tmp) -> tmp
 	end
 	return tmp
 end
@@ -97,6 +97,31 @@ function min(a,b | bool)
 		0 -> bool
 		b -> a
 	end
+	return a
+end
+
+function div(a,b | res, cond)
+	
+	0 -> res
+	gte(a,b) -> cond
+	while cond
+		sub(a,b) -> a
+		res+
+		
+		gte(a,b) -> cond
+	end
+	
+	return res
+end
+
+function mod(a,b | cond)
+	
+	gte(a,b) -> cond
+	while cond
+		sub(a,b) -> a
+		gte(a,b) -> cond
+	end
+	
 	return a
 end
 
@@ -229,11 +254,30 @@ function lt(a,b | cond)
 	return b
 end
 
+function gte(a,b | t1,t2)
 
-function main(a,b,c)
+	gt(a,b) -> t1
+	eq(a,b) -> t2
 	
-	max(13,20) -> a
-	neqz(5,1) -> b
+	or(t1,t2) -> t1
+	return t1
+end
+
+function lte(a,b | t1,t2)
+	lt(a,b) -> t1
+	eq(a,b) -> t2
 	
+	or(t1,t2) -> t1
+	return t1
+end
+
+
+function main(a,b,c,d)
+	
+	mod(9,3) -> a
+	mod(10,3) -> b
+	mod(11,3) -> c
+	mod(12,3) -> d
 	?
+	
 end
