@@ -6,11 +6,14 @@ local bf = require "bf"
 local args = {...}
 
 local debug = false
+local run = false
 
 local files = {}
 for i,v in ipairs(args) do
 	if v == "-debug" then
-			debug = true
+		debug = true
+	elseif v == "-run" then
+		run = true
 	else
 		table.insert(files, v)
 	end
@@ -20,11 +23,9 @@ end
 local src = t4.compile(files)
 
 if src then
-
-	if debug then
+	if run then
+		bf.run(src)
+	else
 		print(src)
 	end
-	bf.run(src)
-else
-	print("Usage: ./t4 [-debug] source1 source2 source3 ...")
 end

@@ -5,8 +5,6 @@ local function run(src)
 		table.insert(program, c)
 	end
 
-	print(table.concat(program))
-
 	local memory = {0}
 	local pointer = 1
 	local pc = 1

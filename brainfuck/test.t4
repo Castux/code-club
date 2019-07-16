@@ -1,12 +1,47 @@
 function divides(n,k | res)
-
 	mod(n,k) -> res
 	eqz(res) -> res
 	return res
 end
 
+function isPrime(n | k,tmp,cond,prime)
 
-function main()
-	outDecimal(101)
-	outNewline()
+	1 -> k
+	1 -> prime
+	1 -> cond
+	
+	while cond
+		k+
+		
+		divides(n,k) -> tmp
+		while tmp
+			0 -> tmp
+			0 -> prime
+		end
+		
+		mul(k,k) -> tmp
+		lt(tmp,n) -> cond
+		and(cond,prime) -> cond
+	end
+	
+	return prime
+end
+
+function main(a,b,cond,tmp)
+	
+	100 -> b
+	1 -> a
+	1 -> cond
+	
+	while cond
+		a+
+		isPrime(a) -> tmp
+		while tmp
+			0 -> tmp
+			outDecimal(a)
+			outSpace()
+		end
+		
+		lt(a,b) -> cond
+	end
 end

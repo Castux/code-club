@@ -271,11 +271,30 @@ function lte(a,b | t1,t2)
 	return t1
 end
 
+function if(cond,t,f)
+	
+	while cond
+		0 -> cond
+		t -> f
+	end
+	return f
+end
+
 # Text utils
+
+function outBoolean(b)
+	if(b, 84, 70) -> b
+	out b
+end
 
 function outDigit(d)
 	add(d,48) -> d
 	out d
+end
+
+function outSpace(| tmp)
+	32 -> tmp
+	out tmp
 end
 
 function outNewline(| tmp)
