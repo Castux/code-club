@@ -162,7 +162,9 @@ local function parseFunction(p)
 
 	local locals = {}
 	if p:accept "|" then
-		locals = parseIdentifierList(p)
+		if p:peek "identifier" then
+			locals = parseIdentifierList(p)
+		end
 	end
 
 	p:expect ")"

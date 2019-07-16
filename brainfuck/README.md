@@ -174,6 +174,8 @@ Since we know how many cells each function needs, we can have a convention for p
 
 By using exclusively named variables, and enforcing the call convention in the compiler, we got a rather "safe" language, quite expressive, but still close to the underlying reality of the BF instruction set.
 
+Occasionally, the compiler will use memory above the current frame (denoted "registers" in the code) to hold temporary data. It can only be used for local operations, since that data might be overwritten by the next function call. This is not accessible from the language.
+
 # The T4 language
 
 ## Grammar
@@ -184,20 +186,169 @@ The lexical elements are the usual:
 - reserved keywords: see grammar
 - number literals: sequence of digits (integers only)
 - symbols: see grammar
+- all whitespace between tokens is ignored
 
 ```
 Program :=  { Function }
 
 Function := 'function' identifier '(' [ ArgumentList ] [ LocalsList ] ')'
     { Operation }
+    [ Return ]
     'end'
 
 ArgumentList := IdentifierList
 LocalsList := '|' [ IdentifierList ]
 
-Operation := 
+Operation := Io | Increment | Decrement | Set | Move | Copy | Call | While
 
+Io := ('in' | 'out' ) identifier
+Increment := identifier '+' { '+' }
+Decrement := identifier '-' { '-' }
+Set := number '->' IdentifierList
+Move := identifier '~>' IdentifierList
+Copy := identifier '->' IdentifierList
+Call := identifier '(' [ IdentifierList ] ')' [ '->' IdentifierList ]
+While := 'while' identifier { Operation } 'end'
+
+Return := 'return' identifier
 
 IdentifierList := identifier { ',' identifier }
+```
 
+## Semantics
+
+### Entry
+
+The compiler expects to find a function named `main`, and proceeds to convert it into BF, inlining all the calls to other functions recursively according to the call convention outlined earlier.
+
+No name conflicts checks are performed. A later function will replace a previous function with the same name.
+
+### Increment and decrement
+
+These operations map directly to BF `+` and `-`
+
+- `a+` and `a-` increment and decrement variable `a`
+- Any number of increments or decrements (but not both) can be specified: `a++++`, `a--`
+
+### Input and output
+
+- `in a` reads one byte from the standard input and places its value in `a`
+- `out a` write the character contained in `a` to the standard output
+
+### Constant setting `->`
+
+- `number -> a` sets variable `a` to `number`, regardless of the previous value
+- `number -> a,b,c`: several variables can be specified as destination. They do not need to be different, in which case the value will accumulate.
+
+### Move operator `~>`
+
+- `a ~> b` add `a` to `b`, leaving the cells respectively at `0` and `a+b`. If `b` was zero, this is equivalent to moving the value in memory.
+- `a ~> b,c,d` several variables can be specified as destination. They do not need to be different, in which case the value will accumulate.
+- `a ~> a` does nothing
+- `a ~> a,b,c` is equivalent to `a ~> b,c`
+
+### Copy operator `->`
+
+- `a -> b` copies `a` to `b`, leaving both cells to contain `a`.
+- `a -> b,c,d`: several variables can be specified as destination. They do not need to be different, in which case the value will accumulate.
+- `a -> a` does nothing
+- `a -> a,b,c` is equivalent to `a -> b,c`
+
+### Function call
+
+- `func(arg1, arg2, ...)` performs the proper stack shuffling according to the call convention, passes the given arguments, and executes the body of the function
+- Arguments can be variable names or number literals
+- `func(a,b,c) -> d,e`: The return value of the call can optionally be stored into one or more variables using the same syntax as copy. Here as well the variables do not have to be different, in which case the return value will accumulate in them.
+- The number of arguments passed is not checked. Behavior is undefined when the wrong number of arguments is passed (depending on whatever is on the stack at invocation).
+
+### Function definition
+
+```
+function name(arg1, arg2, arg3 | local1, local2)
+    # ...
+end
+```
+
+- Both arguments and locals can be omitted, but they must be separated by `|` if they are both present.
+- These variables are the only ones accessible in the body of the function, and they are accessible only from here.
+- No name collision checking is performed. A later name will shadow an earlier one.
+
+### Return value
+
+- `return var` will setup the stack so that the value of `var` is returned to the caller
+- `return` can only be the last operation in a function
+- `return` is optional. The caller is responsible for using the return value or not. Taking a return value from a function that does not return one is undefined (although by the call convention, it will be equal to the last value of the first variable of the function).
+
+### While loop
+
+```
+while var
+    # ...
+end
+```
+
+- Upon entry, the `while` loop checks the value of variable `var`. If it is non-zero, the body of the loop is executed. If it is zero, the body is skipped.
+- Reaching the end of the body, the loop checks again the value of `var`. If it is still non-zero, the body is executed again. Otherwise, control continues after the loop.
+- This maps directly to BF `move to var [ body, move to var ]`
+
+The while loop can emulate many higher level constructs:
+
+The usual while loop: `while(f()) do ... end`:
+
+```
+f() -> cond
+while cond
+    # ...
+    f() -> cond
+end
+```
+
+A do-while which executes the body once before performing the check:
+
+```
+1 -> cond
+while cond
+    # ...
+    f() -> cond
+end
+```
+
+A numerical for loop `for(i = 0; i < 100 ;i++) {}`
+
+```
+0 -> n
+lt(n,100) -> cond
+while cond
+    # ...
+    n+
+    lt(n,100) -> cond
+end
+```
+
+An if statement:
+
+```
+while bool
+    0 -> bool
+
+    # body
+end
+```
+
+And if-then-else statement:
+
+```
+1 -> not_bool
+while bool
+    0 -> bool
+    0 -> not_bool
+
+    # then body
+end
+
+while not_bool
+    0 -> not_bool
+
+    # else body
+end
 ```
