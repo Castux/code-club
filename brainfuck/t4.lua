@@ -64,10 +64,20 @@ end
 
 local function compileSet(env, op)
 
-	for _,dest in ipairs(op.right) do
-		setToConstant(env, getIndex(env, dest), tonumber(op.value.value))
+	local indices = {}
+	for i,v in ipairs(op.right) do
+		indices[i] = getIndex(env, v)
 	end
 
+	for _,dest in ipairs(indices) do
+		movePointer(env, dest)
+		emit(env, "[-]")
+	end
+		
+	for _,dest in ipairs(indices) do
+		movePointer(env, dest)
+		emit(env, string.rep("+", tonumber(op.value.value)))
+	end
 end
 
 local function compileMove(env, op)
@@ -313,6 +323,9 @@ local function compile(files, debug)
 
 	for _,file in ipairs(files) do
 		local funcs = parser.run(file)
+		if not funcs then
+			return
+		end
 		for i,func in ipairs(funcs) do
 			functions[func.name.value] = func
 		end
