@@ -28,11 +28,21 @@ end
 
 local function parseMoveCopy(p)
 
-	local left = p:accept "number" or p:expect "identifier"
+	local left = p:expect "identifier"
 	local op = p:accept "~>" or p:expect "->"
 	local right = parseIdentifierList(p)
 
 	return {op = op, left = left, right = right}
+end
+
+local function parseSet(p)
+	
+	local value = p:expect "number"
+	p:expect "->"
+	local right = parseIdentifierList(p)
+
+	return {op = "set", value = value, right = right}
+	
 end
 
 local function parseCall(p)
@@ -49,12 +59,12 @@ local function parseCall(p)
 	
 	p:expect ")"
 	
-	local destinations = {}
+	local right = {}
 	if p:accept "->" then
-		destinations = parseIdentifierList(p)
+		right = parseIdentifierList(p)
 	end
 	
-	return {op = "call", func = func, arguments = arguments, destinations = destinations}
+	return {op = "call", func = func, arguments = arguments, right = right}
 end
 
 local function parseIncrDecr(p)
@@ -99,7 +109,7 @@ end
 parseOperation = function(p)
 
 	if p:peek "number" then
-		return parseMoveCopy(p)
+		return parseSet(p)
 	end
 
 	if p:peek "in" or p:peek "out" then

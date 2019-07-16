@@ -19,7 +19,7 @@ end
 
  function double(a | t1)
  	a -> t1
- 	t1 ~> a
+	t1 ~> a
  	return a
  end
 
