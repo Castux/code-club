@@ -29,7 +29,7 @@ end
 
 function main(a,b,cond,tmp)
 	
-	100 -> b
+	500 -> b
 	1 -> a
 	1 -> cond
 	
@@ -44,4 +44,9 @@ function main(a,b,cond,tmp)
 		
 		lt(a,b) -> cond
 	end
+end
+
+function main(a,b,c,d)
+
+	a ~> b,c,d
 end
