@@ -120,7 +120,62 @@ function or(a,b | cond,not_cond)
 	return a
 end
 
-function main(a)
+# Comparisons
+
+function eq(a,b | cond)
+
+	# Decrement simultaneously until one is 0
 	
-	or(1,1) -> a
+	and(a,b) -> cond
+	while cond
+		a-
+		b-
+		and(a,b) -> cond
+	end
+	
+	# Are they both zero? not a and not b == not (a or b)
+	
+	or(a,b) -> cond
+	not(cond) -> cond
+	return cond
+end
+
+function gt(a,b | cond)
+	
+	# Decrement simultaneously until one is 0
+	
+	and(a,b) -> cond
+	while cond
+		a-
+		b-
+		and(a,b) -> cond
+	end
+	
+	# Is a non zero?
+	
+	return a
+end
+
+function lt(a,b | cond)
+	
+	# Decrement simultaneously until one is 0
+	
+	and(a,b) -> cond
+	while cond
+		a-
+		b-
+		and(a,b) -> cond
+	end
+	
+	# Is b non zero?
+	
+	return b
+end
+
+
+function main(a,b,c)
+	
+	lt(15,1) -> a
+	eq(15,1) -> b
+	gt(15,1) -> c?
 end
