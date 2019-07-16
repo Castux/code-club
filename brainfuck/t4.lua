@@ -18,43 +18,144 @@ local lexRules =
 	}
 }
 
+--[[
+
+id ( -> | ~> ) id (, id)* 
+id '(' (id (, id)*) ')' [ -> id ]
+
+--]]
+
+local function parseIdentifierList(p)
+	local ids = {}
+	repeat
+		table.insert(ids, p:expect "identifier")
+	until not p:accept ","
+	return ids
+end
+
+local function parseMoveCopy(p)
+
+	local left = p:accept "number" or p:expect "identifier"
+	local op = p:accept "~>" or p:expect "->"
+	local right = parseIdentifierList(p)
+
+	return {op = op, left = left, right = right}
+end
+
+local function parseIncrDecr(p)
+
+	local var = p:expect "identifier"
+
+	local op = p:accept "-" or p:expect "+"
+
+	local count = 1
+	while p:accept(op.name) do
+		count = count + 1
+	end
+
+	return {op = op, variable = var, count = count}
+end
+
+local function parseIO(p)
+
+	local op = p:accept "in" or p:expect "out"
+	local var = p:expect "identifier"
+
+	return {op = op.name, variable = var}
+end
+
+local parseOperation
+
+local function parseWhile(p)
+
+	p:expect "while"
+	local var = p:expect "identifier"
+
+	local ops = {}
+	while not p:peek "end" do
+		table.insert(ops, parseOperation(p))
+	end
+
+	p:expect "end"
+
+	return {op = "while", variable = var, body = ops}
+end
+
+parseOperation = function(p)
+
+	if p:peek "number" then
+		return parseMoveCopy(p)
+	end
+
+	if p:peek "in" or p:peek "out" then
+		return parseIO(p)
+	end
+
+	if p:peek "while" then
+		return parseWhile(p)
+	end
+
+	if p:peek "identifier" then
+		if p:peek2 "->" or p:peek2 "~>" then
+			return parseMoveCopy(p)
+		elseif p:peek2 "+" or p:peek2 "-" then
+			return parseIncrDecr(p)
+		elseif p:peek2 "(" then
+			return parseCall(p)
+		end
+	end
+
+	p:error("invalid operation")
+end
+
+local function parseReturn(p)
+
+	p:expect "return"
+	local id = p:expect "identifier"
+
+	return {op = "return", variable = id}
+end
+
 local function parseFunction(p)
-	
+
 	p:expect "function"
 	local name = p:expect "identifier"
 	p:expect "("
-	
+
 	local arguments = {}
 	if p:peek "identifier" then
-		
-		repeat
-			table.insert(arguments, p:expect "identifier")
-		until not p:accept ","
-		
+		arguments = parseIdentifierList(p)
 	end
-	
+
 	local locals = {}
 	if p:accept "|" then
-		
-		repeat
-			table.insert(locals, p:expect "identifier")
-		until not p:accept ","
+		locals = parseIdentifierList(p)
 	end
-	
+
 	p:expect ")"
+
+	local ops = {}
+	while not p:peek "end" and not p:peek "return" do
+		table.insert(ops, parseOperation(p))
+	end
+
+	if p:peek "return" then
+		table.insert(ops, parseReturn(p))
+	end
+
 	p:expect "end"
-	
+
 	return {name = name, arguments = arguments, locals = locals}
 end
 
 local function parse(p)
 
 	local functions = {}
-	
+
 	while not p:eof() do
 		table.insert(functions, parseFunction(p))		
 	end
-	
+
 	return functions
 end
 
@@ -65,7 +166,7 @@ local function run(path)
 		print("Could not open file: "..path)
 		return
 	end
-	
+
 	local tokens, err = langkit.lex(source, lexRules)
 	if err then
 		local line, txt, under = langkit.context(err)
@@ -74,9 +175,9 @@ local function run(path)
 		print(under)
 		return
 	end
-	
+
 	local parser = langkit.newParser(tokens)
-	
+
 	local success,program = pcall(parse, parser)
 	print(program)
 	if not success then
