@@ -7,11 +7,16 @@ local args = {...}
 
 local path = args[1]
 if not path then
-	print("Usage: ./t4 source")
+	print("Usage: ./t4 source [-debug]")
 	return
 end
 
 local src = t4.compile(path)
+
 if src then
+	
+	if args[2] == "-debug" then
+		print(src)
+	end
 	bf.run(src)
 end

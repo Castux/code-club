@@ -1,31 +1,126 @@
+# Arithmetics
+
 function add(a,b)
 	b ~> a
 	return a
 end
 
-function mul(a,b | c)
-	
-	0 -> c
-	while a
+function sub(a,b)
+	while b
+		b-
 		a-
-		add(b,c) -> c
 	end
-	
-	return c
-end
-
-function twenty(|a)
-	20 -> a
 	return a
 end
 
-function nop(a)
+function mul(a,b | tmp)
+	
+	0 -> tmp					# with tmp = 0
+	while a						# a times do
+		a-						
+		add(b,tmp) -> tmp		# tmp += b
+	end
+	
+	return tmp
 end
 
-function main(|a,b,c)
+function pow(a,b | tmp)
 	
-	3 -> a
-	7 -> b
+	1 -> tmp					# with tmp = 1
+	while a						# a times do
+		a-
+		mul(b,tmp) -> tmp		# tmp *= b
+	end
 	
-	add(a,b)
+	return tmp
+end
+
+function mul2(a | b)
+	a -> b
+	b ~> a
+	return a
+end
+
+function mul4(a | b)
+	a ~> b,b,b,b
+	b ~> a
+	return a
+end
+
+function pow2(n | tmp)
+	1 -> tmp
+	while n
+		n-
+		mul2(tmp) -> tmp?
+	end
+	return tmp
+end
+
+# Booleans and logic
+
+function true(| res)
+	1 -> res
+	return res
+end
+
+function false(| res)
+	0 -> res
+	return res
+end
+
+function not(bool | res)
+
+	1 -> res
+	
+	while bool
+		0 -> bool
+		0 -> res
+	end
+	return res
+end
+
+function and(a,b | cond)
+	
+	# if a then b else a
+
+	a -> cond
+	while cond
+		0 -> cond
+		b -> a
+	end
+	return a
+end
+
+function or(a,b | cond,not_cond)
+
+	# a or b = not(not a and not b)
+	
+	# not(a) -> a
+	# not(b) -> b
+
+	# and(a,b) -> res
+	# not(res) -> res
+	# return res
+	
+	# if a then a else b
+	
+	a -> cond
+	1 -> not_cond
+	
+	while cond
+		0 -> cond
+		0 -> not_cond
+	end
+	
+	while not_cond
+		0 -> not_cond
+		b -> a
+	end
+	
+	return a
+end
+
+function main(a)
+	
+	or(1,1) -> a
 end

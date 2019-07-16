@@ -78,6 +78,12 @@ local function compileMove(env, op)
 	end
 
 	local from = getIndex(env, op.left)
+	
+	-- skip if moving only to self
+	
+	if #indices == 1 and from == indices[1] then
+		return
+	end
 
 	movePointer(env, from)
 	emit(env, "[-")
@@ -93,6 +99,11 @@ local function compileMove(env, op)
 end
 
 local function emitCopy(env, from, destinations, tmpIndex)
+
+	-- Skip the whole thing if copying only on self
+	if #destinations == 1 and from == destinations[1] then
+		return
+	end
 
 	table.insert(destinations, tmpIndex)
 
@@ -245,6 +256,8 @@ compileFunction = function(env, name, token)
 	if not func then
 		setError(env, "unknown function " .. name, token)
 	end
+	
+	emit(env, "\nbegin " .. name .. "\n")
 
 	-- Collect variables
 
@@ -287,7 +300,7 @@ compileFunction = function(env, name, token)
 
 	table.remove(env.frames)
 	
-
+	emit(env, "\nend " .. name .. "\n")
 end
 
 local function compile(path)
