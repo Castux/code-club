@@ -18,13 +18,6 @@ local lexRules =
 	}
 }
 
---[[
-
-id ( -> | ~> ) id (, id)* 
-id '(' (id (, id)*) ')' [ -> id ]
-
---]]
-
 local function parseIdentifierList(p)
 	local ids = {}
 	repeat
@@ -40,6 +33,28 @@ local function parseMoveCopy(p)
 	local right = parseIdentifierList(p)
 
 	return {op = op, left = left, right = right}
+end
+
+local function parseCall(p)
+	
+	local func = p:expect "identifier"
+	p:expect "("
+	
+	local arguments = {}
+	if not p:peek ")" then
+		repeat
+			table.insert(arguments, p:accept "number" or p:expect "identifier")
+		until not p:accept ","
+	end
+	
+	p:expect ")"
+	
+	local destinations = {}
+	if p:accept "->" then
+		destinations = parseIdentifierList(p)
+	end
+	
+	return {op = "call", func = func, arguments = arguments, destinations = destinations}
 end
 
 local function parseIncrDecr(p)

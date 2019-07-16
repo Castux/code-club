@@ -32,6 +32,11 @@ end
  	return a
  end
 
+function tripleLol(a | t1)
+	a ~> t1,t1,t1
+	return t1
+end
+
  function echo(|a)
 
  	in a
@@ -46,9 +51,10 @@ end
 
  	10 -> a
  	20 -> b
-# 	add(a,b) -> c
-#
-# 	lt(c,20) -> cond
+	echo()
+ 	add(a,b) -> c
+
+ 	lt(c,20) -> cond
  	while cond
  		0 -> cond
  		out c
