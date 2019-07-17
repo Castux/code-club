@@ -166,7 +166,7 @@ local function compileMoveCopy(env, op)
 		names[i] = v.value
 	end
 	
-	emitDebug(env, "%s%s to %s", restoreSource and "copy" or "move", resetDest and "reset" or "add", table.concat(names, " "))
+	emitDebug(env, "%s%s %s to %s", restoreSource and "copy" or "move", resetDest and "reset" or "add", op.left.value, table.concat(names, " "))
 
 	-- Clean up destinations
 

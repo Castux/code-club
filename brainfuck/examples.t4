@@ -6,9 +6,7 @@ end
 
 function isPrime(n | k,tmp,cond,prime)
 
-	1 ~> k
-	1 ~> prime
-	1 ~> cond
+	1 ~> k,prime,cond
 	
 	while cond
 		k+
@@ -70,9 +68,34 @@ function fibonacciUpTo(n | a,b,c,cond)
 	end
 end
 
+function checker(w,h | x,y,tmp,cond)
+
+	1 ~> x,cond
+	
+	lte(x,w) ~> cond
+	while cond
+		
+		1 ~> y
+		
+		lte(y,h) ~> cond
+		while cond
+			
+			add(x,y) ~> tmp
+			mod(tmp,2) ~> tmp
+			if(tmp, 32, 42) ~> tmp
+			out tmp
+		
+			y+
+			lte(y,h) ~> cond
+		end
+		
+		outNewline()
+		x+
+		lte(x,w) ~> cond
+	end
+end
+
 function main(a)
 
-	primesUpTo(100) outNewline()
-	
-	fibonacciUpTo(100)
+	checker(20,20)
 end
