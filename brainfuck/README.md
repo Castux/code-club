@@ -261,30 +261,35 @@ These operations map directly to BF `+` and `-`
 - `in a` reads one byte from the standard input and places its value in `a`
 - `out a` write the character contained in `a` to the standard output
 
-### Constant setting `->`
+### Move and copy
 
-- `number -> a` sets variable `a` to `number`, regardless of the previous value
-- `number -> a,b,c`: several variables can be specified as destination. They do not need to be different, in which case the value will accumulate.
+T4 has four related operators to move, copy and add variables.
 
-### Move operator `~>`
+|                               | Adds to destination(s) | Replaces destination(s) |
+|------------------------------:|:----------------------:|:-----------------------:|
+|   **Copy (preserves source)** |         `->>`          |          `->`           |
+| **Move (resets source to 0)** |         `~>>`          |          `~>`           |
 
-- `a ~> b` add `a` to `b`, leaving the cells respectively at `0` and `a+b`. If `b` was zero, this is equivalent to moving the value in memory.
-- `a ~> b,c,d` several variables can be specified as destination. They do not need to be different, in which case the value will accumulate.
-- `a ~> a` does nothing
-- `a ~> a,b,c` is equivalent to `a ~> b,c`
+- `a -> b`:  `a` and `b` become `a` and `a`
+- `a ->> b`:  `a` and `b` become `a` and `a+b`
+- `a ~> b`:  `a` and `b` become `0` and `b`
+- `a ~>> b`:  `a` and `b` become `0` and `a+b`
 
-### Copy operator `->`
+Several destinations can be specified for simultaneous move/copy.
 
-- `a -> b` copies `a` to `b`, leaving both cells to contain `a`.
-- `a -> b,c,d`: several variables can be specified as destination. They do not need to be different, in which case the value will accumulate.
-- `a -> a` does nothing
-- `a -> a,b,c` is equivalent to `a -> b,c`
+- Occurrences of the source in the list of destinations will be ignored
+- If a destination appears several times, it will accumulate the value
+
+### Constant add/set
+
+- `number ~> variable` sets the variable to the number
+- `number ~>> variable` adds the number to the variable
 
 ### Function call
 
 - `func(arg1, arg2, ...)` performs the proper stack shuffling according to the call convention, passes the given arguments, and executes the body of the function
 - Arguments can be variable names or number literals
-- `func(a,b,c) -> d,e`: The return value of the call can optionally be stored into one or more variables using the same syntax as copy. Here as well the variables do not have to be different, in which case the return value will accumulate in them.
+- `func(a,b,c) ~> d,e`: The return value of the call can optionally be stored into one or more variables using the same syntax as move. Here as well the variables do not have to be different, in which case the return value will accumulate in them. The `~>>` operator can also be used, in which case the variable(s) are not reset before the return value is added to them.
 - The number of arguments passed is not checked. Behavior is undefined when the wrong number of arguments is passed (depending on whatever is on the stack at invocation).
 - There is no check for recursive function calls. The compiler will generate an internal error if the source attempts recursion.
 
@@ -323,32 +328,32 @@ The while loop can emulate many higher level constructs:
 The usual while loop: `while(f()) do ... end`:
 
 ```
-f() -> cond
+f() ~> cond
 while cond
     # ...
-    f() -> cond
+    f() ~> cond
 end
 ```
 
 A do-while which executes the body once before performing the check:
 
 ```
-1 -> cond
+1 ~> cond
 while cond
     # ...
-    f() -> cond
+    f() ~> cond
 end
 ```
 
 A numerical for loop `for(i = 0; i < 100 ;i++) {}`
 
 ```
-0 -> n
-lt(n,100) -> cond
+0 ~> n
+lt(n,100) ~> cond
 while cond
     # ...
     n+
-    lt(n,100) -> cond
+    lt(n,100) ~> cond
 end
 ```
 
@@ -356,7 +361,7 @@ An if statement:
 
 ```
 while bool
-    0 -> bool
+    0 ~> bool
 
     # body
 end
@@ -365,16 +370,16 @@ end
 And if-then-else statement:
 
 ```
-1 -> not_bool
+1 ~> not_bool
 while bool
-    0 -> bool
-    0 -> not_bool
+    0 ~> bool
+    0 ~> not_bool
 
     # then body
 end
 
 while not_bool
-    0 -> not_bool
+    0 ~> not_bool
 
     # else body
 end
@@ -404,8 +409,8 @@ Takes in one or more T4 source files, and compiles the `main` function into BF, 
 
 T4 was created as essentially a high level assembler for BF. It is more expressive, readable, and safe than working directly in BF, but at the cost of expensive and inefficient stack manipulations.
 
-- The basic move `a ~> b` has linear complexity O(a) in the **value** of a, since it basically increases b and decreases a one unit at a time.
-- The basic copy `a -> b` is basically equivalent to `a ~> b,tmp` followed by `tmp ~> a`
+- The basic move `a ~>> b` has linear complexity O(a) in the **value** of a, since it basically increases b and decreases a one unit at a time.
+- The basic copy `a ->> b` is equivalent to `a ~>> b,tmp` followed by `tmp ~>> a`
 - All operations in T4 are based on these two elementary operations
 - Even if most variables are close in memory, that is still a lot of jumping around between fixed place memory cells, incrementing/decrementing them one unit at a time
 
@@ -425,10 +430,7 @@ An optimizing interpreter could recognize the typical move/zero/copy pattern fro
 - Some way to make the functions re-entrant to allow recursive style, or at least a way for the compiler to unfold it to iterative
 - More flexible operators. Currently we have two of the 4 move/copy possibilities, and the prelude mainly uses the copy `->` operator, which is also the heaviest. Giving the two others would help generate leaner BF.
 
-|                      | Adds to destination(s) | Replaces destination(s) |
-|---------------------:|:----------------------:|:-----------------------:|
-| **Preserves source** |                        |          `->`           |
-|    **Resets source** |          `~>`          |                         |
+
 
 ## Possible optimizations
 
