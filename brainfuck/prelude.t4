@@ -301,32 +301,86 @@ function outNewline(| tmp)
 	out tmp
 end
 
-function digitCount(n | count)
-	0 -> count
-	while n
-		div(n,10) -> n
-		count+
+function outDecimal(n | c, d6, d5, d4, d3, d2, d1)
+	
+	# Limited to 6-digits numbers!
+	
+	1 -> c
+	
+	mod(n,10) -> d1
+	div(n,10) -> n
+	mod(n,10) -> d2
+	div(n,10) -> n
+	mod(n,10) -> d3
+	div(n,10) -> n
+	mod(n,10) -> d4
+	div(n,10) -> n
+	mod(n,10) -> d5
+	div(n,10) -> n
+	mod(n,10) -> d6
+	
+	while d6
+		outDigit(d6)
+		outDigit(d5)
+		outDigit(d4)
+		outDigit(d3)
+		outDigit(d2)
+		outDigit(d1)
+		
+		0 -> d6
+		0 -> d5
+		0 -> d4
+		0 -> d3
+		0 -> d2
+		0 -> c
 	end
-	return count
-end
-
-function getDigit(n,d)
-
-	while d
-		d-
-		div(n,10) -> n
+	
+	while d5
+		outDigit(d5)
+		outDigit(d4)
+		outDigit(d3)
+		outDigit(d2)
+		outDigit(d1)
+		
+		0 -> d5
+		0 -> d4
+		0 -> d3
+		0 -> d2
+		0 -> c
 	end
-
-	mod(n,10) -> n
-	return n
-end
-
-function outDecimal(n | count,tmp)
-
-	digitCount(n) -> count
-	while count
-		count-
-		getDigit(n,count) -> tmp
-		outDigit(tmp)
+	
+	while d4
+		outDigit(d4)
+		outDigit(d3)
+		outDigit(d2)
+		outDigit(d1)
+		
+		0 -> d4
+		0 -> d3
+		0 -> d2
+		0 -> c
+	end
+	
+	while d3
+		outDigit(d3)
+		outDigit(d2)
+		outDigit(d1)
+		
+		0 -> d3
+		0 -> d2
+		0 -> c
+	end
+	
+	while d2
+		outDigit(d2)
+		outDigit(d1)
+		
+		0 -> d2
+		0 -> c
+	end
+	
+	while c
+		outDigit(d1)
+		0 -> c
 	end
 end
