@@ -29,37 +29,35 @@ local function run(src)
 			break
 		end
 
-		--print(pc, program[pc], pointer, memory[pointer])
-
 		if op == '<' then
 			pointer = pointer - 1
 			if not memory[pointer] then
 				memory[pointer] = 0
 			end
-			pc = pc + 1
+
 		elseif op == '>' then
 			pointer = pointer + 1
 			if not memory[pointer] then
 				memory[pointer] = 0
 			end
-			pc = pc + 1
+
 		elseif op == '+' then
 			memory[pointer] = memory[pointer] + 1
-			pc = pc + 1
+
 		elseif op == '-' then
 			memory[pointer] = memory[pointer] - 1
 			if memory[pointer] < 0 then
 				error("Integer underflow")
 			end
-			pc = pc + 1
+
 		elseif op == '.' then
 			io.write(string.char(memory[pointer]))
 			io.flush()
-			pc = pc + 1
+
 		elseif op == ',' then
 			local c = io.read(1)
 			memory[pointer] = c and string.byte(c) or 0
-			pc = pc + 1
+
 		elseif op == '[' then
 			if memory[pointer] == 0 then
 
@@ -79,7 +77,6 @@ local function run(src)
 					end
 				end
 			end
-			pc = pc + 1
 			
 		elseif op == ']' then
 			if memory[pointer] ~= 0 then
@@ -100,12 +97,12 @@ local function run(src)
 					end
 				end
 			end
-			pc = pc + 1
 			
 		elseif op == '?' then
 			dump()
-			pc = pc + 1
 		end
+		
+		pc = pc + 1
 	end
 end
 
