@@ -1,78 +1,78 @@
 function divides(n,k | res)
-	mod(n,k) -> res
-	eqz(res) -> res
+	mod(n,k) ~> res
+	eqz(res) ~> res
 	return res
 end
 
 function isPrime(n | k,tmp,cond,prime)
 
-	1 -> k
-	1 -> prime
-	1 -> cond
+	1 ~> k
+	1 ~> prime
+	1 ~> cond
 	
 	while cond
 		k+
 		
-		divides(n,k) -> tmp
+		divides(n,k) ~> tmp
 		while tmp
-			0 -> tmp
-			0 -> prime
+			0 ~> tmp
+			0 ~> prime
 		end
 		
-		mul(k,k) -> tmp
-		lt(tmp,n) -> cond
-		and(cond,prime) -> cond
+		mul(k,k) ~> tmp
+		lt(tmp,n) ~> cond
+		and(cond,prime) ~> cond
 	end
 	
 	return prime
 end
 
 function primesUpTo(n | a,cond,tmp)
-	1 -> a
-	1 -> cond
+	1 ~> a
+	1 ~> cond
 	
 	while cond
 		a+
-		isPrime(a) -> tmp
+		isPrime(a) ~> tmp
+		
 		while tmp
-			0 -> tmp
+			0 ~> tmp
 			outDecimal(a)
 			outSpace()
 		end
 		
-		lt(a,n) -> cond
+		lt(a,n) ~> cond
 	end
-	
-	outNewline()
 end
 
 function fibonacciUpTo(n | a,b,c,cond)
 
-	1 -> a,b,cond
+	1 ~> a,b,cond
 	
 	outDecimal(a)
 	outSpace()
 	outDecimal(b)
 	outSpace()
 
-	add(a,b) -> c
+	add(a,b) ~> c
 	
-	lt(c,n) -> cond
+	lt(c,n) ~> cond
 	while cond
 	
 		outDecimal(c)
 		outSpace()
 		
-		add(a,b) -> c
+		add(a,b) ~> c
 		b -> a
 		c -> b
 		
-		lt(c,n) -> cond
+		lt(c,n) ~> cond
 	end
 end
 
-function main(a,b,cond,tmp)
+function main(a)
+
+	primesUpTo(100) outNewline()
 	
-	primesUpTo(50)
-	fibonacciUpTo(500)
+	fibonacciUpTo(100)
 end

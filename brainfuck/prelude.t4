@@ -286,7 +286,6 @@ end
 function outDecimal(n | c, d6, d5, d4, d3, d2, d1)
 
 	# Limited to 6-digits numbers!
-
 	1 ~> c
 
 	mod(n,10) ~> d1

@@ -220,8 +220,6 @@ local compileFunction
 
 local function compileCall(env, op)
 
-
-
 	-- Copy the arguments to the frame above us
 	-- Same indices as r1, r2, ...
 
@@ -237,10 +235,7 @@ local function compileCall(env, op)
 			local to = getRegisterIndex(env, i)
 			local using = getRegisterIndex(env, i+1)
 			
-			if i == 1 then
-				emitReset(env, {to,using})
-			end
-			
+			emitReset(env, {to,using})
 			emitMove(env, from, {to,using})
 			emitMove(env, using, {from})
 		end
