@@ -96,6 +96,7 @@ function gt(a,b | cond)
 
 	# Is a non zero?
 
+	neqz(a) ~> a
 	return a
 end
 
@@ -112,6 +113,7 @@ function lt(a,b | cond)
 
 	# Is b non zero?
 
+	neqz(b) ~> b
 	return b
 end
 
