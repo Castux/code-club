@@ -1,7 +1,161 @@
-# Arithmetics
+
+######################
+# Booleans and logic #
+######################
+
+function not(bool | res)
+
+	1 ~> res
+
+	while bool
+		0 ~> bool
+		0 ~> res
+	end
+	return res
+end
+
+function and(a,b | cond)
+
+	# if a then b else a
+
+	a ~> cond
+	while cond
+		0 ~> cond
+		b ~> a
+	end
+	return a
+end
+
+function or(a,b | cond,not_cond)
+
+	# if a then a else b
+
+	a -> cond
+	1 ~> not_cond
+
+	while cond
+		0 ~> cond
+		0 ~> not_cond
+	end
+
+	while not_cond
+		0 ~> not_cond
+		b ~> a
+	end
+
+	return a
+end
+
+function if(cond,t,f)
+
+	while cond
+		0 ~> cond
+		t ~> f
+	end
+	return f
+end
+
+###############
+# Comparisons #
+###############
+
+function eqz(a | res)
+
+	# this is really just the boolean not
+
+	1 ~> res
+	while a
+		0 ~> a
+		0 ~> res
+	end
+	return res
+end
+
+function neqz(a | res)
+
+	# this does nothing except normalize truthy values to 1
+
+	0 ~> res
+	while a
+		0 ~> a
+		1 ~> res
+	end
+	return res
+end
+
+function gt(a,b | cond)
+
+	# Decrement simultaneously until one is 0
+
+	and(a,b) ~> cond
+	while cond
+		a-
+		b-
+		and(a,b) ~> cond
+	end
+
+	# Is a non zero?
+
+	return a
+end
+
+function lt(a,b | cond)
+
+	# Decrement simultaneously until one is 0
+
+	and(a,b) ~> cond
+	while cond
+		a-
+		b-
+		and(a,b) ~> cond
+	end
+
+	# Is b non zero?
+
+	return b
+end
+
+function eq(a,b | cond)
+	
+	# Decrement simultaneously until one is 0
+
+	and(a,b) ~> cond
+	while cond
+		a-
+		b-
+		and(a,b) ~> cond
+	end
+
+	# Are both zero?
+	
+	or(a,b) ~> cond
+	not(cond) ~> cond
+	return cond
+end
+
+function gte(a,b | t1,t2)
+
+	gt(a,b) ~> t1
+	eq(a,b) ~> t2
+
+	or(t1,t2) ~> t1
+	return t1
+end
+
+function lte(a,b | t1,t2)
+	lt(a,b) ~> t1
+	eq(a,b) ~> t2
+
+	or(t1,t2) ~> t1
+	return t1
+end
+
+###############
+# Arithmetics #
+###############
 
 function add(a,b)
-	b ~> a
+	b ~>> a
 	return a
 end
 
@@ -18,20 +172,19 @@ function diff(a,b | cond)		# absolute difference
 	# Decrement both simultaneously
 	# until one is zero
 
-	and(a,b) -> cond
+	and(a,b) ~> cond
 	while cond
 		a-
 		b-
-		and(a,b) -> cond
+		and(a,b) ~> cond
 	end
 
 	# If a == 0, return b, a otherwise
 
-	a -> cond
-	not(cond) -> cond
+	eqz(a) ~> cond
 	while cond
-		0 -> cond
-		b -> a
+		0 ~> cond
+		b ~> a
 	end
 
 	return a
@@ -39,75 +192,55 @@ end
 
 function mul(a,b | tmp)
 
-	0 -> tmp					# with tmp = 0
-	while a						# a times do
+	0 ~> tmp
+	while a			# a times do
 		a-
-		add(b,tmp) -> tmp		# tmp += b
+		b ->> tmp	# copy-add b to tmp
 	end
-
+	
 	return tmp
 end
 
 function pow(a,b | tmp)
 
-	1 -> tmp					# with tmp = 1
-	while a						# a times do
-		a-
-		mul(b,tmp) -> tmp		# tmp *= b
+	1 ~> tmp					# with tmp = 1
+	while b						# b times do
+		b-
+		mul(a,tmp) ~> tmp		# tmp *= a
 	end
 
-	return tmp
-end
-
-function mul2(a | b)
-	a -> b
-	b ~> a
-	return a
-end
-
-function mul4(a | b)
-	a ~> b,b,b,b
-	return b
-end
-
-function pow2(n | tmp)
-	1 -> tmp
-	while n
-		n-
-		mul2(tmp) -> tmp
-	end
 	return tmp
 end
 
 function max(a,b | bool)
 
-	gt(b,a) -> bool
+	gt(b,a) ~> bool
 	while bool
-		0 -> bool
-		b -> a
+		0 ~> bool
+		b ~> a
 	end
 	return a
 end
 
 function min(a,b | bool)
 
-	lt(b,a) -> bool
+	lt(b,a) ~> bool
 	while bool
-		0 -> bool
-		b -> a
+		0 ~> bool
+		b ~> a
 	end
 	return a
 end
 
 function div(a,b | res, cond)
 
-	0 -> res
-	gte(a,b) -> cond
+	0 ~> res
+	gte(a,b) ~> cond
 	while cond
-		sub(a,b) -> a
+		sub(a,b) ~> a
 		res+
 
-		gte(a,b) -> cond
+		gte(a,b) ~> cond
 	end
 
 	return res
@@ -115,210 +248,57 @@ end
 
 function mod(a,b | cond)
 
-	gte(a,b) -> cond
+	gte(a,b) ~> cond
 	while cond
-		sub(a,b) -> a
-		gte(a,b) -> cond
+		sub(a,b) ~> a
+		gte(a,b) ~> cond
 	end
 
 	return a
 end
 
-# Booleans and logic
-
-function true(| res)
-	1 -> res
-	return res
-end
-
-function false(| res)
-	0 -> res
-	return res
-end
-
-function not(bool | res)
-
-	1 -> res
-
-	while bool
-		0 -> bool
-		0 -> res
-	end
-	return res
-end
-
-function and(a,b | cond)
-
-	# if a then b else a
-
-	a -> cond
-	while cond
-		0 -> cond
-		b -> a
-	end
-	return a
-end
-
-function or(a,b | cond,not_cond)
-
-	# a or b = not(not a and not b)
-
-	# not(a) -> a
-	# not(b) -> b
-
-	# and(a,b) -> res
-	# not(res) -> res
-	# return res
-
-	# if a then a else b
-
-	a -> cond
-	1 -> not_cond
-
-	while cond
-		0 -> cond
-		0 -> not_cond
-	end
-
-	while not_cond
-		0 -> not_cond
-		b -> a
-	end
-
-	return a
-end
-
-# Comparisons
-
-function eq(a,b | cond)
-
-	diff(a,b) -> cond
-	not(cond) -> cond
-	return cond
-end
-
-function eqz(a | res)
-
-	# this is really just the boolean not
-
-	1 -> res
-	while a
-		0 -> a
-		0 -> res
-	end
-	return res
-end
-
-function neqz(a | res)
-
-	# this does nothing except normalize truthy values to 1
-
-	0 -> res
-	while a
-		0 -> a
-		1 -> res
-	end
-	return res
-end
-
-function gt(a,b | cond)
-
-	# Decrement simultaneously until one is 0
-
-	and(a,b) -> cond
-	while cond
-		a-
-		b-
-		and(a,b) -> cond
-	end
-
-	# Is a non zero?
-
-	return a
-end
-
-function lt(a,b | cond)
-
-	# Decrement simultaneously until one is 0
-
-	and(a,b) -> cond
-	while cond
-		a-
-		b-
-		and(a,b) -> cond
-	end
-
-	# Is b non zero?
-
-	return b
-end
-
-function gte(a,b | t1,t2)
-
-	gt(a,b) -> t1
-	eq(a,b) -> t2
-
-	or(t1,t2) -> t1
-	return t1
-end
-
-function lte(a,b | t1,t2)
-	lt(a,b) -> t1
-	eq(a,b) -> t2
-
-	or(t1,t2) -> t1
-	return t1
-end
-
-function if(cond,t,f)
-
-	while cond
-		0 -> cond
-		t -> f
-	end
-	return f
-end
-
-# Text utils
+##############
+# Text utils #
+##############
 
 function outBoolean(b)
-	if(b, 84, 70) -> b
+	if(b, 84, 70) ~> b
 	out b
 end
 
 function outDigit(d)
-	add(d,48) -> d
+	add(d,48) ~> d
 	out d
 end
 
 function outSpace(| tmp)
-	32 -> tmp
+	32 ~> tmp
 	out tmp
 end
 
 function outNewline(| tmp)
-	10 -> tmp
+	10 ~> tmp
 	out tmp
 end
 
 function outDecimal(n | c, d6, d5, d4, d3, d2, d1)
-	
+
 	# Limited to 6-digits numbers!
-	
-	1 -> c
-	
-	mod(n,10) -> d1
-	div(n,10) -> n
-	mod(n,10) -> d2
-	div(n,10) -> n
-	mod(n,10) -> d3
-	div(n,10) -> n
-	mod(n,10) -> d4
-	div(n,10) -> n
-	mod(n,10) -> d5
-	div(n,10) -> n
-	mod(n,10) -> d6
-	
+
+	1 ~> c
+
+	mod(n,10) ~> d1
+	div(n,10) ~> n
+	mod(n,10) ~> d2
+	div(n,10) ~> n
+	mod(n,10) ~> d3
+	div(n,10) ~> n
+	mod(n,10) ~> d4
+	div(n,10) ~> n
+	mod(n,10) ~> d5
+	div(n,10) ~> n
+	mod(n,10) ~> d6
+
 	while d6
 		outDigit(d6)
 		outDigit(d5)
@@ -326,61 +306,61 @@ function outDecimal(n | c, d6, d5, d4, d3, d2, d1)
 		outDigit(d3)
 		outDigit(d2)
 		outDigit(d1)
-		
-		0 -> d6
-		0 -> d5
-		0 -> d4
-		0 -> d3
-		0 -> d2
-		0 -> c
+
+		0 ~> d6
+		0 ~> d5
+		0 ~> d4
+		0 ~> d3
+		0 ~> d2
+		0 ~> c
 	end
-	
+
 	while d5
 		outDigit(d5)
 		outDigit(d4)
 		outDigit(d3)
 		outDigit(d2)
 		outDigit(d1)
-		
-		0 -> d5
-		0 -> d4
-		0 -> d3
-		0 -> d2
-		0 -> c
+
+		0 ~> d5
+		0 ~> d4
+		0 ~> d3
+		0 ~> d2
+		0 ~> c
 	end
-	
+
 	while d4
 		outDigit(d4)
 		outDigit(d3)
 		outDigit(d2)
 		outDigit(d1)
-		
-		0 -> d4
-		0 -> d3
-		0 -> d2
-		0 -> c
+
+		0 ~> d4
+		0 ~> d3
+		0 ~> d2
+		0 ~> c
 	end
-	
+
 	while d3
 		outDigit(d3)
 		outDigit(d2)
 		outDigit(d1)
-		
-		0 -> d3
-		0 -> d2
-		0 -> c
+
+		0 ~> d3
+		0 ~> d2
+		0 ~> c
 	end
-	
+
 	while d2
 		outDigit(d2)
 		outDigit(d1)
-		
-		0 -> d2
-		0 -> c
+
+		0 ~> d2
+		0 ~> c
 	end
-	
+
 	while c
 		outDigit(d1)
-		0 -> c
+		0 ~> c
 	end
 end
