@@ -7,6 +7,7 @@ Files in the repository:
 - `bf.lua`: a barebones BF interpreter as a Lua module. Uses an infinity memory storage in both directions. Generates an error on integer underflows (trying to decrement 0). Additional command `?` prints the current state of the tape (positive indices only).
 - `hlbl.lua`: a "higher level" BF interpreter that supports named blocks of code and named variables (see tiers 1 and 2 below)
 -    `interpreter`: a shell script to run either BF or HLBF:
+    
     > `Usage: ./interpreter source [-hl]`
 - `tier1.bf` and `tier2.bf`: examples files to run respectively with the BF or HLBF modules
 
@@ -417,5 +418,12 @@ An optimizing interpreter could recognize the typical move/zero/copy pattern fro
 - A raw BF literal to insert optimized code in the comfort of the higher level environment, for instance: `/>>[->>+<<]<</`
 - Static array notation for locals: `a[10]`
 - if-then, if-then-else, repeat-until, do-while constructs
-- global variables, stored for instance in the negative indices of the tape, or above a max stack height
+- Global variables, stored for instance in the negative indices of the tape, or above a max stack height
 - Some way to make the functions re-entrant to allow recursive style, or at least a way for the compiler to unfold it to iterative
+- More flexible operators. Currently we have two of the 4 move/copy possibilities, and the prelude mainly uses the copy `->` operator, which is also the heaviest. Giving the two others would help generate leaner BF.
+
+|                      | Adds to destination(s) | Replaces destination(s) |
+| -------------------: | :--------------------: | :---------------------: |
+| **Preserves source** |                        |          `->`           |
+|    **Resets source** |          `~>`          |                         |
+
