@@ -219,15 +219,18 @@ Function := 'function' identifier '(' [ Arguments ] [ Locals ] ')'
 Arguments := IdentifierList
 Locals := '|' [ IdentifierList ]
 
-Operation := Io | Increment | Decrement | Set | Move | Copy | Call | While | Debug
+Operation := MoveCopy | MoveConstant | Call | Io | Increment | Decrement | While | Debug
+
+MoveCopy := identifier (MoveOp | CopyOp) IdentifierList
+MoveConstant := number MoveOp IdentifierList
+Call := identifier '(' [ IdentifierList ] ')' [ MoveOp IdentifierList ]
+
+MoveOp := '~>' | '~>>'
+CopyOp := '->' | '->>'
 
 Io := ('in' | 'out' ) identifier
 Increment := identifier '+' { '+' }
 Decrement := identifier '-' { '-' }
-Set := number '->' IdentifierList
-Move := identifier '~>' IdentifierList
-Copy := identifier '->' IdentifierList
-Call := identifier '(' [ IdentifierList ] ')' [ '->' IdentifierList ]
 While := 'while' identifier { Operation } 'end'
 Debug := '?'
 

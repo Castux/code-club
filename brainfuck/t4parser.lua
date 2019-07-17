@@ -7,7 +7,7 @@ local lexRules =
 	keywords = { "function", "while", "return", "end", "in", "out" },
 	symbols = 
 	{
-		"~>", "->",
+		"~>>", "->>", "~>", "->",
 		"(", ")", ",", "|", "-", "+", "?"
 	},
 
@@ -29,7 +29,7 @@ end
 local function parseMoveCopy(p)
 
 	local left = p:expect "identifier"
-	local op = p:accept "~>" or p:expect "->"
+	local op = p:accept "~>" or p:accept "~>>" or p:accept "->>" or p:expect "->"
 	local right = parseIdentifierList(p)
 
 	return {op = op.value, left = left, right = right}
@@ -38,10 +38,15 @@ end
 local function parseSet(p)
 	
 	local value = p:expect "number"
-	p:expect "->"
+	
+	local moveOp = p:accept "~>" or p:accept "~>>"
+	if not moveOp then
+		p:expect "~> or ~>>"
+	end
+	
 	local right = parseIdentifierList(p)
-
-	return {op = "set", value = value, right = right}
+	
+	return {op = "set", value = value, moveOp = moveOp, right = right}
 end
 
 local function parseCall(p)
@@ -59,11 +64,16 @@ local function parseCall(p)
 	p:expect ")"
 	
 	local right = {}
-	if p:accept "->" then
+	local moveOp = p:accept "~>" or p:accept "~>>"
+	if moveOp then
 		right = parseIdentifierList(p)
+	else		
+		if p:peek "->" or p:peek "->>" then
+			p:error("Use ~> or ~>> to save a function's return value")
+		end
 	end
 	
-	return {op = "call", func = func, arguments = arguments, right = right}
+	return {op = "call", func = func, arguments = arguments, moveOp = move, right = right}
 end
 
 local function parseIncrDecr(p)
@@ -129,7 +139,7 @@ parseOperation = function(p)
 	end
 
 	if p:peek "identifier" then
-		if p:peek2 "->" or p:peek2 "~>" then
+		if p:peek2 "->" or p:peek2 "~>" or p:peek2 "~>>" or p:peek2 "->>" then
 			return parseMoveCopy(p)
 		elseif p:peek2 "+" or p:peek2 "-" then
 			return parseIncrDecr(p)

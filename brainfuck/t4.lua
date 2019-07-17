@@ -80,6 +80,8 @@ end
 
 local function compileSet(env, op)
 
+	local operator = op.moveOp.value
+
 	local indices = {}
 	local names = {}
 	
@@ -88,11 +90,13 @@ local function compileSet(env, op)
 		names[i] = v.value
 	end
 	
-	emitDebug(env, "set %s to %s", op.value.value, table.concat(names, " "))
+	emitDebug(env, "%s %s to %s", operator == "~>>" and "add" or "set", op.value.value, table.concat(names, " "))
 
-	for _,dest in ipairs(indices) do
-		movePointer(env, dest)
-		emit(env, "[-]")
+	if operator == "~>" then
+		for _,dest in ipairs(indices) do
+			movePointer(env, dest)
+			emit(env, "[-]")
+		end
 	end
 		
 	for _,dest in ipairs(indices) do
