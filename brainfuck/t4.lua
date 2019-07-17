@@ -220,8 +220,7 @@ local compileFunction
 
 local function compileCall(env, op)
 
-	emitDebug(env, "call %s", op.func.value)
-	emitIndent(env, 1)
+
 
 	-- Copy the arguments to the frame above us
 	-- Same indices as r1, r2, ...
@@ -247,10 +246,14 @@ local function compileCall(env, op)
 		end
 	end
 
+	emitDebug(env, "call %s", op.func.value)
+
 	-- Point to the base of the next frame
 	local r1 = getRegisterIndex(env,1)
 	movePointer(env, r1)
 
+	emitIndent(env, 1)
+		
 	-- And that's it!
 	compileFunction(env, op.func.value, op.func)
 
