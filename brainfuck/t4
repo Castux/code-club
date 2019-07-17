@@ -31,9 +31,8 @@ end
 local src = t4.compile(files, debug)
 
 if src then
+	print(src)	
 	if run then
 		bf.run(src)
-	else
-		print(src)
 	end
 end

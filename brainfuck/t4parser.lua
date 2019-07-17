@@ -32,7 +32,7 @@ local function parseMoveCopy(p)
 	local op = p:accept "~>" or p:accept "~>>" or p:accept "->>" or p:expect "->"
 	local right = parseIdentifierList(p)
 
-	return {op = op.value, left = left, right = right}
+	return {op = "movecopy", moveOp = op, left = left, right = right}
 end
 
 local function parseSet(p)

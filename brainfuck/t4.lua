@@ -18,13 +18,13 @@ local function emit(env, op)
 end
 
 local function emitDebug(env, str, ...)
-	
+
 	if not env.debug then
 		return
 	end
-	
+
 	local tabs = string.rep("|   ", env.debugIndent)
-	
+
 	local str = "\n" .. tabs .. str:format(...) .. "        "
 	emit(env, str)
 end
@@ -72,10 +72,18 @@ local function movePointerToVariable(env, dest)
 end
 
 local function setToConstant(env, index, value)
-	
+
 	movePointer(env, index)
 	emit(env, "[-]")
 	emit(env, string.rep("+", value))
+end
+
+local function emitReset(env, indices)
+	
+	for i,v in ipairs(indices) do
+		movePointer(env, v)
+		emit(env, "[-]")
+	end
 end
 
 local function compileSet(env, op)
@@ -84,141 +92,95 @@ local function compileSet(env, op)
 
 	local indices = {}
 	local names = {}
-	
+
 	for i,v in ipairs(op.right) do
 		indices[i] = getIndex(env, v)
 		names[i] = v.value
 	end
-	
+
 	emitDebug(env, "%s %s to %s", operator == "~>>" and "add" or "set", op.value.value, table.concat(names, " "))
 
 	if operator == "~>" then
-		for _,dest in ipairs(indices) do
-			movePointer(env, dest)
-			emit(env, "[-]")
-		end
+		emitReset(env, indices)
 	end
-		
+
 	for _,dest in ipairs(indices) do
 		movePointer(env, dest)
 		emit(env, string.rep("+", tonumber(op.value.value)))
 	end
 end
 
-local function emitMove(env, from, indices, reset)
-
-	-- skip if moving only to self
-	
-	if #indices == 1 and from == indices[1] then
-		return
-	end
-
-	if reset then
-		for i,v in ipairs(indices) do
-			if v ~= from then
-				movePointer(env, v)
-				emit(env, "[-]")
-			end
-		end
-	end
+local function emitMove(env, from, indices)
 
 	movePointer(env, from)
 	emit(env, "[-")
 	for i,v in ipairs(indices) do
-		if v ~= from then
-			movePointer(env, v)
-			emit(env, "+")
-		end
+		movePointer(env, v)
+		emit(env, "+")
 	end
 	movePointer(env, from)
 	emit(env, "]")
 
 end
 
-local function compileMove(env, op)
-
-	local indices = {}
-	local names = {}
+local function compileMoveCopy(env, op)
 	
-	for i,v in ipairs(op.right) do
-		indices[i] = getIndex(env, v)
-		names[i] = v.value
-	end
-
-	emitDebug(env, "move %s to %s", op.left.value, table.concat(names, " "))
-
-	local from = getIndex(env, op.left)
-	
-	
-	emitMove(env, from, indices)
-end
-
-local function emitCopy(env, from, destinations, tmpIndex)
-
-	-- Skip the whole thing if copying only on self
-	if #destinations == 1 and from == destinations[1] then
-		return
-	end
-
-	table.insert(destinations, tmpIndex)
-
-	-- First clear all destinations
-
-	for i,v in ipairs(destinations) do
-		if v ~= from then
-			movePointer(env,v)
-			emit(env, "[-]")
+		local operator = op.moveOp.value
+		local restoreSource
+		local resetDest
+		
+		if operator == "->" or operator == "~>" then
+			resetDest = true
 		end
-	end
-
-	-- Destructively move source to destinations + tmp
-
-	movePointer(env, from)
-	emit(env, "[-")
-	for i,v in ipairs(destinations) do
-		if v ~= from then
-			movePointer(env, v)
-			emit(env, "+")
+		
+		if operator == "->" or operator == "->>" then
+			restoreSource = true
 		end
-	end
-	movePointer(env, from)
-	emit(env, "]")
+		
+		local indices = {}
+		local names = {}
 
-	-- Move back tmp to origin
-
-	movePointer(env, tmpIndex)
-	emit(env, "[-")
-	movePointer(env, from)
-	emit(env, "+")
-	movePointer(env, tmpIndex)	
-	emit(env, "]")
-
-end
-
-local function compileCopy(env, op)
-
-	local indices = {}
-	local names = {}
-	
-	for i,v in ipairs(op.right) do
-		indices[i] = getIndex(env, v)
-		names[i] = v.value
-	end
-
-	emitDebug(env, "copy %s to %s", op.left.value, table.concat(names, " "))
-
-	local from = getIndex(env, op.left)
-
-	emitCopy(env, from, indices, getRegisterIndex(env, 1))
+		for i,v in ipairs(op.right) do
+			indices[i] = getIndex(env, v)
+			names[i] = v.value
+		end
+		
+		emitDebug(env, "%s%s to %s", restoreSource and "copy" or "move", resetDest and "reset" or "add", table.concat(names, " "))
+		
+		local from = getIndex(env, op.left)
+		
+		-- Clean up destinations
+		
+		if resetDest then
+			emitReset(env, indices)
+		end
+		
+		-- For a copy, prepare a temp storage
+		
+		local r1 = getRegisterIndex(env, 1)
+		if restoreSource then
+			emitReset(env, { r1 })
+			table.insert(indices, r1)
+		end
+		
+		-- Main move
+		
+		emitMove(env, from, indices)
+		
+		-- For a copy, restore the original
+		
+		if restoreSource then
+			emitMove(env, r1, { from })
+		end
 end
 
 local compileOperation
 
 local function compileWhile(env, op)
-	
+
 	emitDebug(env, "while %s", op.variable.value)
 	emitIndent(env, 1)
-	
+
 	local conditionIndex = getIndex(env, op.variable)
 
 	movePointer(env, conditionIndex)
@@ -247,12 +209,12 @@ local function compileCall(env, op)
 
 	for i,arg in ipairs(op.arguments) do
 		if arg.name == "number" then
-			
+
 			emitDebug(env, "setup arg %d", arg.value)
 			setToConstant(env, getRegisterIndex(env, i), tonumber(arg.value))
 		else
 			emitDebug(env, "setup arg %s", arg.value)
-			
+
 			local from = getIndex(env, arg)
 			local to = getRegisterIndex(env, i)
 			local using = getRegisterIndex(env, i+1)
@@ -263,23 +225,23 @@ local function compileCall(env, op)
 	-- Point to the base of the next frame
 	local r1 = getRegisterIndex(env,1)
 	movePointer(env, r1)
-	
+
 	-- And that's it!
 	compileFunction(env, op.func.value, op.func)
-	
+
 	emitIndent(env, -1)
-	
+
 	-- Return value is in r1
 	if #op.right > 0 then
-		
+
 		local destinations = {}
 		local names = {}
-		
+
 		for i,v in ipairs(op.right) do
 			table.insert(destinations, getIndex(env,v))
 			names[i] = v.value
 		end
-		
+
 		emitDebug(env, "move ret to %s", table.concat(names, " "))
 		emitMove(env, r1, destinations, "reset")
 	end
@@ -288,14 +250,14 @@ local function compileCall(env, op)
 end
 
 local function compileReturn(env, op)
-	
+
 	emitDebug(env, "return %s", op.variable.value)
-	
+
 	-- We leave the return value in the first cell of the frame
 	-- Which will be r1 for the caller
-	
+
 	local bottom = env.frames[#env.frames]["@bottom"]
-	
+
 	emitMove(env, getIndex(env, op.variable), {bottom}, "reset")
 end
 
@@ -303,10 +265,8 @@ compileOperation = function(env, op)
 
 	if op.op == "set" then
 		compileSet(env,op)
-	elseif op.op == "~>" then
-		compileMove(env,op)
-	elseif op.op == "->" then
-		compileCopy(env,op)
+	elseif op.op == "movecopy" then
+		compileMoveCopy(env,op)
 	elseif op.op == "+" or op.op == "-" then
 		emitDebug(env, op.op == '+' and "incr %s" or "decr %s", op.variable.value)
 		movePointerToVariable(env, op.variable)
@@ -340,7 +300,7 @@ compileFunction = function(env, name, token)
 	if not func then
 		setError(env, "unknown function " .. name, token)
 	end
-	
+
 	-- Collect variables
 
 	local variables = {}
@@ -352,7 +312,7 @@ compileFunction = function(env, name, token)
 	end
 
 	-- Base pointer for the frame
-	
+
 	local frameIndex = env.pointer
 
 	-- Name to index lookup
@@ -364,10 +324,10 @@ compileFunction = function(env, name, token)
 	end
 
 	-- Where is the frame
-	
+
 	frame["@bottom"] = frameIndex
 	frame["@top"] = frameIndex + #variables - 1
-	
+
 	-- Push stack
 
 	table.insert(env.frames, frame)
@@ -409,11 +369,12 @@ local function compile(files, debug)
 	}
 
 	local success,result = pcall(compileFunction, env, "main")
+	--compileFunction(env, "main")
 	if not success then
 		print(env.errorMessage or "internal error: " .. result)
 		return
 	else
-		
+
 	end
 
 	return table.concat(env.ops)
