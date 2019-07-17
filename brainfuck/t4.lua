@@ -237,7 +237,13 @@ local function compileCall(env, op)
 			local from = getIndex(env, arg)
 			local to = getRegisterIndex(env, i)
 			local using = getRegisterIndex(env, i+1)
-			emitCopy(env, from, {to}, using)
+			
+			if i == 1 then
+				emitReset(env, {to,using})
+			end
+			
+			emitMove(env, from, {to,using})
+			emitMove(env, using, {from})
 		end
 	end
 
@@ -263,8 +269,11 @@ local function compileCall(env, op)
 
 		local reset = op.moveOp.value == "~>"
 
-		emitDebug(env, "move%s to %s", reset and "reset" or "add", table.concat(names, " "))
-		emitMove(env, r1, destinations, reset)
+		emitDebug(env, "move%s ret to %s", reset and "reset" or "add", table.concat(names, " "))
+		if reset then
+			emitReset(env, destinations)
+		end
+		emitMove(env, r1, destinations)
 	end
 
 	emitDebug(env, "exit %s", op.func.value)
