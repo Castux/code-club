@@ -428,9 +428,6 @@ An optimizing interpreter could recognize the typical move/zero/copy pattern fro
 - if-then, if-then-else, repeat-until, do-while constructs
 - Global variables, stored for instance in the negative indices of the tape, or above a max stack height
 - Some way to make the functions re-entrant to allow recursive style, or at least a way for the compiler to unfold it to iterative
-- More flexible operators. Currently we have two of the 4 move/copy possibilities, and the prelude mainly uses the copy `->` operator, which is also the heaviest. Giving the two others would help generate leaner BF.
-
-
 
 ## Possible optimizations
 
