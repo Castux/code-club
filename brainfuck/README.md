@@ -4,10 +4,10 @@ An experiment around the [Brainfuck programming language](https://en.wikipedia.o
 
 Files in the repository:
 
-- `bf.lua`: a barebones BF interpreter as a Lua module. Uses an infinity memory storage in both directions. Generates an error on integer underflows (trying to decrement 0). Additional command `?` prints the current state of the tape (positive indices only).
+- `bf.lua`: a barebones BF interpreter as a Lua module. Uses an infinite memory storage in both directions. Generates an error on integer underflows (trying to decrement 0). Additional command `?` prints the current state of the tape (positive indices only).
 - `hlbl.lua`: a "higher level" BF interpreter that supports named blocks of code and named variables (see tiers 1 and 2 below)
 -    `interpreter`: a shell script to run either BF or HLBF:
-    
+
     > `Usage: ./interpreter source [-hl]`
 - `tier1.bf` and `tier2.bf`: examples files to run respectively with the BF or HLBF modules
 
@@ -423,7 +423,6 @@ An optimizing interpreter could recognize the typical move/zero/copy pattern fro
 - More flexible operators. Currently we have two of the 4 move/copy possibilities, and the prelude mainly uses the copy `->` operator, which is also the heaviest. Giving the two others would help generate leaner BF.
 
 |                      | Adds to destination(s) | Replaces destination(s) |
-| -------------------: | :--------------------: | :---------------------: |
+|---------------------:|:----------------------:|:-----------------------:|
 | **Preserves source** |                        |          `->`           |
 |    **Resets source** |          `~>`          |                         |
-
