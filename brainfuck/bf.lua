@@ -78,9 +78,9 @@ local function run(src)
 						depth = depth - 1
 					end
 				end
-			else
-				pc = pc + 1
 			end
+			pc = pc + 1
+			
 		elseif op == ']' then
 			if memory[pointer] ~= 0 then
 
@@ -99,9 +99,9 @@ local function run(src)
 						depth = depth + 1
 					end
 				end
-			else
-				pc = pc + 1
 			end
+			pc = pc + 1
+			
 		elseif op == '?' then
 			dump()
 			pc = pc + 1
