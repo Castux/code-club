@@ -426,3 +426,8 @@ An optimizing interpreter could recognize the typical move/zero/copy pattern fro
 |---------------------:|:----------------------:|:-----------------------:|
 | **Preserves source** |                        |          `->`           |
 |    **Resets source** |          `~>`          |                         |
+
+## Possible optimizations
+
+- Currently the returning from a function is rather redundant: the callee moves its return value to the first cell in its frame, and the caller moves it again from there to one of its own cells. The two moves could be combined.
+- The compiler could keep track of which cells are known to be zero, and skip `[-]` for them.
