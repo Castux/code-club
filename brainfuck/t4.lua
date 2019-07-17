@@ -79,7 +79,7 @@ local function setToConstant(env, index, value)
 end
 
 local function emitReset(env, indices)
-	
+
 	for i,v in ipairs(indices) do
 		movePointer(env, v)
 		emit(env, "[-]")
@@ -112,6 +112,25 @@ end
 
 local function emitMove(env, from, indices)
 
+	-- Remove all occurences of from in the indices
+
+	local i = 1
+	while i <= #indices do
+		if indices[i] == from then
+			table.remove(indices, i)
+		else
+			i = i +1
+		end
+	end
+
+	-- Ignore a nop
+
+	if #indices == 0 then
+		return
+	end
+
+	-- Perform move!
+
 	movePointer(env, from)
 	emit(env, "[-")
 	for i,v in ipairs(indices) do
@@ -124,54 +143,54 @@ local function emitMove(env, from, indices)
 end
 
 local function compileMoveCopy(env, op)
-	
-		local operator = op.moveOp.value
-		local restoreSource
-		local resetDest
-		
-		if operator == "->" or operator == "~>" then
-			resetDest = true
-		end
-		
-		if operator == "->" or operator == "->>" then
-			restoreSource = true
-		end
-		
-		local indices = {}
-		local names = {}
 
-		for i,v in ipairs(op.right) do
-			indices[i] = getIndex(env, v)
-			names[i] = v.value
-		end
-		
-		emitDebug(env, "%s%s to %s", restoreSource and "copy" or "move", resetDest and "reset" or "add", table.concat(names, " "))
-		
-		local from = getIndex(env, op.left)
-		
-		-- Clean up destinations
-		
-		if resetDest then
-			emitReset(env, indices)
-		end
-		
-		-- For a copy, prepare a temp storage
-		
-		local r1 = getRegisterIndex(env, 1)
-		if restoreSource then
-			emitReset(env, { r1 })
-			table.insert(indices, r1)
-		end
-		
-		-- Main move
-		
-		emitMove(env, from, indices)
-		
-		-- For a copy, restore the original
-		
-		if restoreSource then
-			emitMove(env, r1, { from })
-		end
+	local operator = op.moveOp.value
+	local restoreSource
+	local resetDest
+
+	if operator == "->" or operator == "~>" then
+		resetDest = true
+	end
+
+	if operator == "->" or operator == "->>" then
+		restoreSource = true
+	end
+
+	local from = getIndex(env, op.left)
+
+	local indices = {}
+	local names = {}
+
+	for i,v in ipairs(op.right) do
+		indices[i] = getIndex(env, v)
+		names[i] = v.value
+	end
+	
+	emitDebug(env, "%s%s to %s", restoreSource and "copy" or "move", resetDest and "reset" or "add", table.concat(names, " "))
+
+	-- Clean up destinations
+
+	if resetDest then
+		emitReset(env, indices)
+	end
+
+	-- For a copy, prepare a temp storage
+
+	local r1 = getRegisterIndex(env, 1)
+	if restoreSource then
+		emitReset(env, { r1 })
+		table.insert(indices, r1)
+	end
+
+	-- Main move
+
+	emitMove(env, from, indices)
+
+	-- For a copy, restore the original
+
+	if restoreSource then
+		emitMove(env, r1, { from })
+	end
 end
 
 local compileOperation
@@ -242,8 +261,10 @@ local function compileCall(env, op)
 			names[i] = v.value
 		end
 
-		emitDebug(env, "move ret to %s", table.concat(names, " "))
-		emitMove(env, r1, destinations, "reset")
+		local reset = op.moveOp.value == "~>"
+
+		emitDebug(env, "move%s to %s", reset and "reset" or "add", table.concat(names, " "))
+		emitMove(env, r1, destinations, reset)
 	end
 
 	emitDebug(env, "exit %s", op.func.value)

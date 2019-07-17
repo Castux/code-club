@@ -73,7 +73,7 @@ local function parseCall(p)
 		end
 	end
 	
-	return {op = "call", func = func, arguments = arguments, moveOp = move, right = right}
+	return {op = "call", func = func, arguments = arguments, moveOp = moveOp, right = right}
 end
 
 local function parseIncrDecr(p)
