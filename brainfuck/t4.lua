@@ -285,10 +285,16 @@ local function compileReturn(env, op)
 
 	-- We leave the return value in the first cell of the frame
 	-- Which will be r1 for the caller
-
+	
+	local from = getIndex(env, op.variable)
 	local bottom = env.frames[#env.frames]["@bottom"]
-
-	emitMove(env, getIndex(env, op.variable), {bottom}, "reset")
+	
+	if from == bottom then
+		return
+	end
+	
+	emitReset(env, {bottom})
+	emitMove(env, from, {bottom})
 end
 
 compileOperation = function(env, op)
