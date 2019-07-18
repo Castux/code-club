@@ -110,6 +110,66 @@ local function match_braces(src)
 	return src
 end
 
+-- The big'un. Detect standard moves between cells, such as:
+-- [-]  [->+-] [->>>++>+<<<<]
+-- The T4 language makes extensive use of these, so reducing them
+-- is a huge gain. It's in general a common BF technique and in any case,
+-- it cannot decrease performance.
+-- We transform the loops which move data back and forth between cells units at a time
+-- into a direct 'add' instructions, multiplied by the value in the first cell
+
+-- Condition 1: the loop only contains +-<> (no IO, no nested loop)
+-- Condition 2: the pointer comes back to the cell it started from (total offset 0)
+
+-- Conveniently, we'll only need to replace the [ and ] instructions, leaving the rest
+-- unchanged, so we won't even need to recount the loop matching!
+
+-- It's magic.
+
+local function is_valid_move(src, start)
+
+	local op = src[start]
+
+	if type(op) ~= "table" or op[1] ~= "loop" or op[2] < 0 then
+		return false
+	end
+
+	local closingBrace = src[start][2]
+	local totalOffset = 0
+
+	for i = 1,closingBrace-1 do
+
+		local op = src[start + i]
+		if op[1] ~= 'add' and op[1] ~= 'jump' then
+			return false
+		end
+
+		if op[1] == 'jump' then
+			totalOffset = totalOffset + op[2]
+		end
+	end
+
+	return totalOffset == 0
+end
+
+local function detect_moves(src)
+
+	for i,op in ipairs(src) do
+		if is_valid_move(src, i) then
+
+			local closingBrace = src[i + op[2]]
+
+			op[1] = 'setmul'
+			op[2] = ' '
+
+			closingBrace[1] = 'resetmul'
+			closingBrace[2] = ' '
+		end
+	end
+
+	return src
+end
+
 -- Flatten tables into 2-cell opcodes
 
 local function flatten(src)
@@ -141,6 +201,7 @@ local function execute(src)
 	local memory = {0}
 	local pointer = 1
 	local pc = 1
+	local multiplier = 1
 
 	local function dump()
 
@@ -176,7 +237,7 @@ local function execute(src)
 			dump()
 
 		elseif op == 'add' then
-			memory[pointer] = memory[pointer] + arg
+			memory[pointer] = memory[pointer] + arg * multiplier
 			if memory[pointer] < 0 then error("integer underflow") end
 
 		elseif op == 'jump' then
@@ -188,6 +249,12 @@ local function execute(src)
 			arg < 0 and memory[pointer] ~= 0 then
 				pc = pc + arg
 			end
+
+		elseif op == 'setmul' then
+			multiplier = memory[pointer]
+		
+		elseif op == 'resetmul' then
+			multiplier = 1
 
 		end	
 
@@ -209,11 +276,11 @@ end
 
 local function run(src)
 
-	local passes = { strip_comments, accumulate, unify, match_braces, flatten }
+	local passes = { strip_comments, accumulate, unify, match_braces, detect_moves, flatten }
 
 	for _,p in ipairs(passes) do
 		src = p(src)
---		dump(src)
+	--	dump(src)
 	end
 
 	execute(src)
