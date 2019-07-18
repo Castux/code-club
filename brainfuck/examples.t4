@@ -1,3 +1,51 @@
+function fizzbuzz(N | x, cond, tmp)
+
+	1 ~> x,cond
+	
+	while cond
+		
+		1 ~> tmp
+
+		mod(x,3) ~> cond
+		eqz(cond) ~> cond
+		while cond
+			0 ~> cond
+			
+			outChar(70)
+			outChar(105)
+			outChar(122)
+			outChar(122)
+			
+			0 ~> tmp
+		end
+
+		mod(x,5) ~> cond
+		eqz(cond) ~> cond
+		while cond
+			0 ~> cond
+			
+			outChar(66)
+			outChar(117)
+			outChar(122)
+			outChar(122)
+			
+			0 ~> tmp
+		end
+
+		while tmp
+			0 ~> tmp
+			outDecimal(x)
+		end
+		
+		outSpace()
+		
+		x+
+		lte(x,N) ~> cond
+	end
+	
+	outNewline()
+end
+
 function divides(n,k | res)
 	mod(n,k) ~> res
 	eqz(res) ~> res
@@ -135,10 +183,12 @@ function estimatePi(precision | c,rad2,N,x,y,cond,tmp1,tmp2,count)
 	return count
 end
 
+
+
 function main(a)
 
+	fizzbuzz(1000)
 	#primesUpTo(1000)
 	#fibonacciUpTo(10000)
-
-	estimatePi(100)
+	#estimatePi(100)
 end

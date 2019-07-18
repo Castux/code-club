@@ -263,6 +263,10 @@ end
 # Text utils #
 ##############
 
+function outChar(c)
+	out c
+end
+
 function outBoolean(b)
 	if(b, 84, 70) ~> b
 	out b
@@ -273,14 +277,12 @@ function outDigit(d)
 	out d
 end
 
-function outSpace(| tmp)
-	32 ~> tmp
-	out tmp
+function outSpace()
+	outChar(32)
 end
 
-function outNewline(| tmp)
-	10 ~> tmp
-	out tmp
+function outNewline()
+	outChar(10)
 end
 
 function outDecimal(n | c, d6, d5, d4, d3, d2, d1)
