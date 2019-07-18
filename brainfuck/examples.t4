@@ -101,17 +101,14 @@ function estimatePi(precision | c,rad2,N,x,y,cond,tmp1,tmp2,count)
 	precision -> c
 	mul(c,c) ~> rad2
 	
-	N+
-	
 	0 ~> count
-	1 ~> x,y,cond
 	
-	1 ~> x
-	lt(x,N) ~> cond
+	0 ~> x
+	lte(x,N) ~> cond
 	while cond
 		
-		1 ~> y
-		lt(y,N) ~> cond
+		0 ~> y
+		lte(y,N) ~> cond
 		while cond
 			
 			# Check (x-c)^2 + (y-c)^2 < rad^2
@@ -134,12 +131,16 @@ function estimatePi(precision | c,rad2,N,x,y,cond,tmp1,tmp2,count)
 			end
 	
 			y+
-			lt(y,N) ~> cond
+			lte(y,N) ~> cond
 		end
 		
+		?
 		x+
-		lt(x,N) ~> cond
+		lte(x,N) ~> cond
 	end
+	
+	# A = pi * r^2, so pi = A / r^2
+	# Multiplied by whatever number of digits we want to see
 	
 	mul(count,1000) ~> count
 	div(count,rad2) ~> count
