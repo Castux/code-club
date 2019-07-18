@@ -425,9 +425,10 @@ The `opt-bf` optimizing interpreter recognizes the typical move/zero/copy patter
 
 - A character literal `"c"` converted to its ASCII value
 - A raw BF literal to insert optimized code in the comfort of the higher level environment, for instance: `/>>[->>+<<]<</`
-- Static array notation for locals: `a[10]`
+- Static array notation for locals: `a[10]`. There are very nifty ways to dynamically index memory, see eg. http://www.inshame.com/2008/02/efficient-brainfuck-tables.html
 - if-then, if-then-else, repeat-until, do-while constructs
 - Global variables, stored for instance in the negative indices of the tape, or above a max stack height
+- "Heap" allocation, combining the left side of the tape and dynamic array indexing
 - Some way to make the functions re-entrant to allow recursive style, or at least a way for the compiler to unfold it to iterative
 
 ## Possible optimizations
