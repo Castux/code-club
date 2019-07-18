@@ -95,7 +95,61 @@ function checker(w,h | x,y,tmp,cond)
 	end
 end
 
+function estimatePi(precision | c,rad2,N,x,y,cond,tmp1,tmp2,count)
+	
+	mul(precision,2) ~> N
+	precision -> c
+	mul(c,c) ~> rad2
+	
+	N+
+	
+	0 ~> count
+	1 ~> x,y,cond
+	
+	1 ~> x
+	lt(x,N) ~> cond
+	while cond
+		
+		1 ~> y
+		lt(y,N) ~> cond
+		while cond
+			
+			# Check (x-c)^2 + (y-c)^2 < rad^2
+			
+			diff(x,c) ~> tmp1
+			mul(tmp1,tmp1) ~> tmp1
+			
+			diff(y,c) ~> tmp2
+			mul(tmp2,tmp2) ~> tmp2
+			
+			tmp2 ~>> tmp1
+			
+			lt(tmp1,rad2) ~> tmp1
+	
+			# If so, increase count
+			
+			while tmp1
+				0 ~> tmp1
+				count+
+			end
+	
+			y+
+			lt(y,N) ~> cond
+		end
+		
+		x+
+		lt(x,N) ~> cond
+	end
+	
+	mul(count,1000) ~> count
+	div(count,rad2) ~> count
+	
+	return count
+end
+
 function main(a)
 
-	checker(20,20)
+	estimatePi(50) ~> a
+	outDecimal(a)
+	outNewline()
 end

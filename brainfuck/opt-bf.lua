@@ -203,13 +203,16 @@ local function execute(src)
 	local pc = 1
 	local multiplier = 1
 
+	local top = 1
+
 	local function dump()
 
-		for i,v in ipairs(memory) do
+		for i = 1,top do
+			local cell = memory[i] or 0
 			if i == pointer then
-				io.write("[" .. v .. "] ")
+				io.write("[" .. cell .. "] ")
 			else
-				io.write(" " .. v .. "  ")
+				io.write(" " .. cell .. "  ")
 			end
 		end
 
@@ -243,6 +246,7 @@ local function execute(src)
 		elseif op == 'jump' then
 			pointer = pointer + arg
 			if not memory[pointer] then memory[pointer] = 0 end
+			top = math.max(top,pointer)
 
 		elseif op == 'loop' then
 			if arg > 0 and memory[pointer] == 0 or
