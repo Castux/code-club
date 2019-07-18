@@ -1,7 +1,7 @@
 #!/usr/bin/env lua
 
 local t4 = require "t4"
-local bf = require "bf"
+local optbf = require "opt-bf"
 
 local args = {...}
 
@@ -37,7 +37,7 @@ if src then
 			print(src)
 		end
 		
-		bf.run(src)
+		optbf.run(src)
 	else
 		print(src)
 	end

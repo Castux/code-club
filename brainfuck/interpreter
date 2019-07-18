@@ -2,16 +2,17 @@
 
 local bf = require "bf"
 local hlbf = require "hlbf"
+local optbf = require "opt-bf"
 
 local args = {...}
 
 local path = args[1]
 if not path then
-	error("Usage: ./interpreter source [-hl]")
+	error("Usage: ./interpreter source [-hl | -opt]")
 end
 
-local hl = args[2]
-hl = hl == "-hl"
+local hl = args[2] == "-hl"
+local opt = args[2] == "-opt"
 
 local fp = io.open(path, "r")
 if not fp then
@@ -23,6 +24,8 @@ fp:close()
 
 if hl then
 	hlbf.run(src)
+elseif opt then
+	optbf.run(src)
 else
 	bf.run(src)
 end
