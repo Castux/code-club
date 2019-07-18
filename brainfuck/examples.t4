@@ -41,6 +41,8 @@ function primesUpTo(n | a,cond,tmp)
 		
 		lt(a,n) ~> cond
 	end
+	
+	outNewline()
 end
 
 function fibonacciUpTo(n | a,b,c,cond)
@@ -66,33 +68,8 @@ function fibonacciUpTo(n | a,b,c,cond)
 		
 		lt(c,n) ~> cond
 	end
-end
-
-function checker(w,h | x,y,tmp,cond)
-
-	1 ~> x,cond
 	
-	lte(x,w) ~> cond
-	while cond
-		
-		1 ~> y
-		
-		lte(y,h) ~> cond
-		while cond
-			
-			add(x,y) ~> tmp
-			mod(tmp,2) ~> tmp
-			if(tmp, 32, 42) ~> tmp
-			out tmp
-		
-			y+
-			lte(y,h) ~> cond
-		end
-		
-		outNewline()
-		x+
-		lte(x,w) ~> cond
-	end
+	outNewline()
 end
 
 function estimatePi(precision | c,rad2,N,x,y,cond,tmp1,tmp2,count)
@@ -125,19 +102,27 @@ function estimatePi(precision | c,rad2,N,x,y,cond,tmp1,tmp2,count)
 	
 			# If so, increase count
 			
+			32 ~> tmp2
+			
 			while tmp1
 				0 ~> tmp1
+				42 ~> tmp2
 				count+
 			end
-	
+			
+			out tmp2
+				
 			y+
 			lte(y,N) ~> cond
 		end
 		
-		?
+		outNewline()
+		
 		x+
 		lte(x,N) ~> cond
 	end
+	
+	outDecimal(count) outNewline()
 	
 	# A = pi * r^2, so pi = A / r^2
 	# Multiplied by whatever number of digits we want to see
@@ -145,12 +130,15 @@ function estimatePi(precision | c,rad2,N,x,y,cond,tmp1,tmp2,count)
 	mul(count,1000) ~> count
 	div(count,rad2) ~> count
 	
+	outDecimal(count) outNewline()
+	
 	return count
 end
 
 function main(a)
 
-	estimatePi(50) ~> a
-	outDecimal(a)
-	outNewline()
+	#primesUpTo(1000)
+	#fibonacciUpTo(10000)
+
+	estimatePi(100)
 end
