@@ -6,12 +6,13 @@ Files in the repository:
 
 - `bf.lua`: a barebones BF interpreter as a Lua module. Uses an infinite memory storage in both directions. Generates an error on integer underflows (trying to decrement 0). Additional command `?` prints the current state of the tape (positive indices only).
 - `hlbl.lua`: a "higher level" BF interpreter that supports named blocks of code and named variables (see tiers 1 and 2 below)
--    `interpreter`: a shell script to run either BF or HLBF:
+- `opt-bf.lua`: an optimizing BF interpreter. It's particularly good at running the output of T4 (see below) by reducing standard "move a to b" loops to single instructions.
+-    `interpreter`: a shell script to run either BF, HLBF or opt-bf:
 
-    > `Usage: ./interpreter source [-hl]`
+    > `Usage: ./interpreter source [-hl | -opt]`
 - `tier1.bf` and `tier2.bf`: examples files to run respectively with the BF or HLBF modules
 
-`bf.lua` and the interpreter require either Lua 5.2, Lua 5.3 or luajit.
+The modules and the interpreter require either Lua 5.2, Lua 5.3 or luajit.
 
 As a distinct subproject:
 
@@ -403,7 +404,7 @@ Takes in one or more T4 source files, and compiles the `main` function into BF, 
 
 - Requires Lua 5.2, Lua 5.3 or luajit
 - `-debug` will output the BF code with annotations of which sections correspond to which functions. Since these annotations do not contain any BF characters, they will be safely ignored by most interpreters.
-- `-run` will execute the BF code with the `bf.lua` library instead of printing it.
+- `-run` will execute the BF code with the `opt-bf.lua` library instead of printing it.
 
 ## Performance considerations
 
@@ -418,7 +419,7 @@ Even a basic task like printing (and displaying in decimal) the primes under 300
 
 The BF architecture is simply not meant to be a realistic one. Some optimizations could be made on the code generation, such as combining successive moves, but it is unlikely to make a lot of difference.
 
-An optimizing interpreter could recognize the typical move/zero/copy pattern from the stream of BF operations and convert them in direct moves and copies in its internal representation. This would likely reduce the highest issue with BF, turning it into a regular stack based language.
+The `opt-bf` optimizing interpreter recognizes the typical move/zero/copy pattern from the stream of BF operations and converts them in direct moves and copies in its internal representation. This reduces the highest issue with BF, turning it into a regular stack based language.
 
 ## Possible extensions
 
