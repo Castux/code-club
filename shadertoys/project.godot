@@ -22,7 +22,3 @@ run/main_scene="res://Root.tscn"
 
 window/size/test_width=1024
 window/size/test_height=600
-
-[rendering]
-
-environment/default_environment="res://Mandelbrot/default_env.tres"
