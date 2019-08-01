@@ -16,7 +16,7 @@ _global_script_class_icons={
 [application]
 
 config/name="shadertoys"
-run/main_scene="res://Mandelbrot.tscn"
+run/main_scene="res://Mandelbrot/Mandelbrot.tscn"
 
 [display]
 
@@ -25,4 +25,4 @@ window/size/test_height=600
 
 [rendering]
 
-environment/default_environment="res://default_env.tres"
+environment/default_environment="res://Mandelbrot/default_env.tres"
