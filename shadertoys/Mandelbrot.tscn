@@ -1,49 +1,10 @@
 [gd_scene load_steps=4 format=2]
 
 [ext_resource path="res://Mandelbrot.gd" type="Script" id=1]
+[ext_resource path="res://Mandelbrot.shader" type="Shader" id=2]
 
-[sub_resource type="Shader" id=1]
-code = "shader_type canvas_item;
-render_mode unshaded;
-
-uniform vec2 center;
-uniform float zoom;
-uniform bool applySqrt;
-
-void fragment()
-{
-	int maxIter = 1000;
-	
-	highp vec2 c = (UV.xy - vec2(0.5,0.5)) * 2.0; // Centered on 0, -1 to 1
-	
-	
-	c = c / pow(10, zoom);
-	c = c + center;
-	
-	
-	vec2 x = vec2(0.0, 0.0);
-	int i = 0;
-	
-	while(i < maxIter && length(x) < 2.0)
-	{
-		x = vec2(x.x*x.x - x.y*x.y, 2.0 * x.x*x.y);
-		x = x + c;
-		i++;
-	}
-	
-	float shade = (float(i) / float(maxIter));
-	if(applySqrt)
-	{
-		shade = sqrt(shade);
-	}
-	
-	COLOR = vec4(shade,shade,shade,1);
-
-	
-}"
-
-[sub_resource type="ShaderMaterial" id=2]
-shader = SubResource( 1 )
+[sub_resource type="ShaderMaterial" id=1]
+shader = ExtResource( 2 )
 shader_param/center = null
 shader_param/zoom = null
 shader_param/applySqrt = null
@@ -59,7 +20,7 @@ anchor_bottom = 1.0
 color = Color( 0, 0, 0, 1 )
 
 [node name="Canvas" type="ColorRect" parent="."]
-material = SubResource( 2 )
+material = SubResource( 1 )
 margin_right = 600.0
 margin_bottom = 600.0
 color = Color( 0.45098, 0.172549, 0.172549, 1 )
