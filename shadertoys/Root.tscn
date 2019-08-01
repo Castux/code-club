@@ -1,0 +1,40 @@
+[gd_scene load_steps=4 format=2]
+
+[ext_resource path="res://Root.gd" type="Script" id=1]
+[ext_resource path="res://Mandelbrot/Mandelbrot.tscn" type="PackedScene" id=2]
+[ext_resource path="res://Primes/Primes.tscn" type="PackedScene" id=3]
+
+[node name="Root" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource( 1 )
+scenes = [ ExtResource( 2 ), ExtResource( 3 ) ]
+
+[node name="DummyScene" type="Node" parent="."]
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -97.0
+margin_top = -40.0
+alignment = 2
+
+[node name="Prev" type="Button" parent="HBoxContainer"]
+margin_left = 13.0
+margin_right = 53.0
+margin_bottom = 40.0
+rect_min_size = Vector2( 40, 0 )
+action_mode = 0
+text = "<"
+
+[node name="Next" type="Button" parent="HBoxContainer"]
+margin_left = 57.0
+margin_right = 97.0
+margin_bottom = 40.0
+rect_min_size = Vector2( 40, 0 )
+text = ">"
+
+[connection signal="pressed" from="HBoxContainer/Prev" to="." method="_on_Prev_pressed"]
+[connection signal="pressed" from="HBoxContainer/Next" to="." method="_on_Next_pressed"]
