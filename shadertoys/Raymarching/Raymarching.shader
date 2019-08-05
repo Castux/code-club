@@ -15,6 +15,22 @@ float distanceFunction(vec3 pos)
 	return sphere(pos, vec3(0,0,-5), 2);
 }
 
+float plane(vec3 pos, vec3 normal, float offset)
+{
+	return dot(pos, normal) - offset;
+}
+
+vec3 gradient(vec3 pos)
+{
+	float eps = 0.001;
+	
+	float dx = distanceFunction(pos + vec3(eps,0,0)) - distanceFunction(pos - vec3(eps,0,0));
+	float dy = distanceFunction(pos + vec3(0,eps,0)) - distanceFunction(pos - vec3(0,eps,0));
+	float dz = distanceFunction(pos + vec3(0,0,eps)) - distanceFunction(pos - vec3(0,0,eps));
+
+	return vec3(dx,dy,dz)/(2.0*eps);
+}
+
 vec3 march(vec3 start, vec3 ray, float precision, int maxIter, out bool maxedOut)
 {
 	vec3 pos = start;
@@ -34,6 +50,8 @@ vec3 march(vec3 start, vec3 ray, float precision, int maxIter, out bool maxedOut
 	maxedOut = true;
 	return pos;
 }
+
+uniform float ambiant = 0.15;
 
 void fragment()
 {
@@ -55,6 +73,16 @@ void fragment()
 	}
 	else
 	{
-		COLOR = vec4(1,1,1,1);
+		vec3 grad = normalize(gradient(intersection));
+		float shade = dot(normalize(grad), normalize(vec3(1,1,1)));
+		
+		if(shade < 0.0)
+		{
+			shade = 0.0;
+		}
+		
+		shade += ambiant;
+		
+		COLOR = vec4(shade,shade,shade,1);
 	}	
 }

@@ -8,6 +8,7 @@ shader = ExtResource( 2 )
 shader_param/position = null
 shader_param/direction = null
 shader_param/fov = 1.0
+shader_param/ambiant = 0.15
 
 [node name="Raymarching" type="Control"]
 anchor_right = 1.0
