@@ -14,22 +14,22 @@ func _process(delta):
 	
 	var res = 1.0 / pow(10, zoom)
 
-	if($Buttons/Up.pressed || Input.is_key_pressed(KEY_UP)):
+	if($Buttons/Up.pressed || Input.is_key_pressed(KEY_W)):
 		move(Vector2(0.0, -1.0) * speed * delta * res)
 	
-	if($Buttons/Down.pressed || Input.is_key_pressed(KEY_DOWN)):
+	if($Buttons/Down.pressed || Input.is_key_pressed(KEY_S)):
 		move(Vector2(0.0, 1.0) * speed * delta * res)
 	
-	if($Buttons/Left.pressed || Input.is_key_pressed(KEY_LEFT)):
+	if($Buttons/Left.pressed || Input.is_key_pressed(KEY_A)):
 		move(Vector2(-1.0, 0.0) * speed * delta * res)
 	
-	if($Buttons/Right.pressed || Input.is_key_pressed(KEY_RIGHT)):
+	if($Buttons/Right.pressed || Input.is_key_pressed(KEY_D)):
 		move(Vector2(1.0, 0.0) * speed * delta * res)
 	
-	if($Buttons/In.pressed || Input.is_key_pressed(KEY_Q)):
+	if($Buttons/In.pressed || Input.is_key_pressed(KEY_UP)):
 		zoom += zoomSpeed * delta
 	
-	if($Buttons/Out.pressed || Input.is_key_pressed(KEY_W)):
+	if($Buttons/Out.pressed || Input.is_key_pressed(KEY_DOWN)):
 		zoom -= zoomSpeed * delta
 	
 	$OutputLabel.text = str(center.x, ",", center.y, "\n", zoom)
