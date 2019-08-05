@@ -8,8 +8,35 @@ uniform float fov = 1;
 uniform int maxIter = 1000;
 uniform float precision = 0.001;
 uniform bool useMod = false;
+uniform float twist = 0.0;
 
 uniform int op = 0;
+
+mat3 rotationMatrix(vec3 axis, float angle)
+{
+    axis = normalize(axis);
+    float s = sin(angle);
+    float c = cos(angle);
+    float oc = 1.0 - c;
+    
+	vec3 col1 = vec3(
+		oc * axis.x * axis.x + c, 
+		oc * axis.x * axis.y + axis.z * s,
+		oc * axis.z * axis.x - axis.y * s);
+		
+	vec3 col2 = vec3(
+		oc * axis.x * axis.y - axis.z * s,
+		oc * axis.y * axis.y + c,
+		oc * axis.y * axis.z + axis.x * s);
+	
+	vec3 col3 = vec3(
+	oc * axis.z * axis.x + axis.y * s,
+	oc * axis.y * axis.z - axis.x * s,
+	oc * axis.z * axis.z + c);
+	
+	
+    return mat3(col1, col2, col3);
+}
 
 float union(float d1, float d2)
 {
@@ -44,6 +71,12 @@ float plane(vec3 pos, vec3 normal, float offset)
 
 float distanceFunction(vec3 pos)
 {
+	float twoPi = 6.28318530718;
+	
+	// twist!
+	pos = rotationMatrix(vec3(0,0,1), pos.z / 200.0 * twoPi * twist) * pos;
+
+	
 	if(useMod)
 	{
 		pos = mod(pos, vec3(6.0,0,6.0));

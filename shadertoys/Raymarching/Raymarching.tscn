@@ -12,6 +12,7 @@ shader_param/fov = 1.0
 shader_param/maxIter = 1000
 shader_param/precision = 0.001
 shader_param/useMod = false
+shader_param/twist = 0.0
 shader_param/op = 0
 shader_param/ambiant = 0.15
 
@@ -98,5 +99,12 @@ margin_right = 95.0
 margin_bottom = 186.0
 text = "Use mod()"
 
+[node name="Twist" type="CheckBox" parent="Buttons"]
+margin_top = 190.0
+margin_right = 95.0
+margin_bottom = 214.0
+text = "Twist!"
+
 [connection signal="mouse_entered" from="Background" to="." method="unfocus"]
 [connection signal="mouse_entered" from="Canvas" to="." method="unfocus"]
+[connection signal="toggled" from="Buttons/Twist" to="." method="_on_Twist_toggled"]
