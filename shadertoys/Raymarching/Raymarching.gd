@@ -2,7 +2,7 @@ extends Control
 
 var position = Vector3(8,3,5)
 var direction = Vector3(-0.77,-0.54,-0.30).normalized();
-var speed = 4
+var speed = 8
 var rotSpeed = 2 * PI * 0.25
 
 var lightPos = Vector3(10,20,30);
@@ -71,7 +71,7 @@ func _process(delta):
 	var twistAmount = 0
 	if(twistStart > 0):
 		twistAmount = OS.get_ticks_msec() - twistStart
-		twistAmount = sin(twistAmount / (8 * 1000.0) * 2 * PI) * (2 * PI / 6)
+		twistAmount = sin(twistAmount / (8 * 1000.0) * 2 * PI)
 		
 	$Canvas.material.set_shader_param("twist", twistAmount)	
 

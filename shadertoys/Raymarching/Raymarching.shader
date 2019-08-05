@@ -113,8 +113,10 @@ float distanceFunction(vec3 pos)
 	float twoPi = 6.28318530718;
 	
 	// twist!
-	pos = rotationMatrix(vec3(0,0,1), pos.z / 200.0 * twoPi * twist) * pos;
-
+	float sx = sin(pos.x * twoPi / 50.0);
+	float sz = sin(pos.z * twoPi / 50.0);
+	pos += (sx * sz) * vec3(0.0,2.0,0.0) * twist;
+	
 	vec3 mainObjPos = pos;
 	if(useMod)
 	{
