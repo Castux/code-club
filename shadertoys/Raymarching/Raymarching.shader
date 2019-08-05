@@ -115,7 +115,7 @@ float distanceFunction(vec3 pos)
 	vec3 mainObjPos = pos;
 	if(useMod)
 	{
-		mainObjPos = mod(pos, vec3(5.0,0,5.0));
+		mainObjPos = mod(pos, vec3(6.0,0,6.0));
 	}
 	
 	float s = sphere(mainObjPos - vec3(3,0,3), 1.2);
