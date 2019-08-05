@@ -9,6 +9,7 @@ uniform int maxIter = 1000;
 uniform float precision = 0.001;
 uniform bool useMod = false;
 uniform float twist = 0.0;
+uniform bool addTubes = true;
 
 uniform int op = 0;
 
@@ -98,6 +99,11 @@ float plane(vec3 pos, vec3 normal, float offset)
 	return dot(pos, normal) - offset;
 }
 
+float cylinder(vec3 pos, vec3 axis, float diameter)
+{
+	return length(pos - dot(pos,axis) * axis) - diameter;
+}
+
 float distanceFunction(vec3 pos)
 {
 	float twoPi = 6.28318530718;
@@ -108,7 +114,7 @@ float distanceFunction(vec3 pos)
 	vec3 mainObjPos = pos;
 	if(useMod)
 	{
-		mainObjPos = mod(pos, vec3(6.0,0,6.0));
+		mainObjPos = mod(pos, vec3(5.0,0,5.0));
 	}
 	
 	float s = sphere(mainObjPos - vec3(3,0,3), 1.2);
@@ -126,6 +132,12 @@ float distanceFunction(vec3 pos)
 	else if(op == 2)
 	{
 		mainObj = difference(c,s);
+	}
+	
+	if(addTubes)
+	{
+		mainObj = union(mainObj, cylinder(mainObjPos - vec3(3,0,3), vec3(1,0,0), 0.5));
+		mainObj = union(mainObj, cylinder(mainObjPos - vec3(3,0,3), vec3(0,0,1), 0.5));
 	}
 	
 	if(addPlane)

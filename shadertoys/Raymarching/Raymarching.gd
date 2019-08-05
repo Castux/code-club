@@ -55,6 +55,7 @@ func _process(delta):
 	$Canvas.material.set_shader_param("precision", float($Buttons/Precision.text))
 	$Canvas.material.set_shader_param("op", float($Buttons/Op.selected))
 	$Canvas.material.set_shader_param("useMod", float($Buttons/UseMod.pressed))
+	$Canvas.material.set_shader_param("addTubes", float($Buttons/Tubes.pressed))
 
 	var twistAmount = 0
 	if(twistStart > 0):
