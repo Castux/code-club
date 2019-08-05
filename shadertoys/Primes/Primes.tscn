@@ -3,9 +3,11 @@
 [ext_resource path="res://Primes/Primes.gd" type="Script" id=1]
 [ext_resource path="res://Primes/Primes.shader" type="Shader" id=2]
 
-[sub_resource type="ShaderMaterial" id=2]
+[sub_resource type="ShaderMaterial" id=1]
 shader = ExtResource( 2 )
 shader_param/res = 60
+shader_param/mode = 0
+shader_param/power = 2.0
 
 [node name="Primes" type="Control"]
 anchor_right = 1.0
@@ -18,15 +20,15 @@ anchor_bottom = 1.0
 color = Color( 0, 0, 0, 1 )
 
 [node name="Canvas" type="ColorRect" parent="."]
-material = SubResource( 2 )
+material = SubResource( 1 )
 anchor_bottom = 1.0
 margin_right = 600.0
 color = Color( 0.45098, 0.172549, 0.172549, 1 )
 
 [node name="Controls" type="VBoxContainer" parent="."]
-margin_left = 655.0
+margin_left = 654.0
 margin_top = 67.0
-margin_right = 835.0
+margin_right = 834.0
 margin_bottom = 389.0
 
 [node name="Label" type="Label" parent="Controls"]
@@ -39,4 +41,27 @@ margin_top = 18.0
 margin_right = 180.0
 margin_bottom = 42.0
 text = "60"
+
+[node name="Label2" type="Label" parent="Controls"]
+margin_top = 46.0
+margin_right = 180.0
+margin_bottom = 60.0
+text = "Mode:"
+
+[node name="Mode" type="OptionButton" parent="Controls"]
+margin_top = 64.0
+margin_right = 180.0
+margin_bottom = 84.0
+
+[node name="Label3 " type="Label" parent="Controls"]
+margin_top = 88.0
+margin_right = 180.0
+margin_bottom = 102.0
+text = "Coloring power:"
+
+[node name="Power" type="LineEdit" parent="Controls"]
+margin_top = 106.0
+margin_right = 180.0
+margin_bottom = 130.0
+text = "2"
 
