@@ -19,7 +19,7 @@ func _ready():
 func _process(delta):
 	
 	var up = Vector3.UP
-	var right = direction.cross(up)
+	var right = direction.cross(up).normalized()
 
 	if(Input.is_key_pressed(KEY_W)):
 		position += direction * speed * delta
@@ -38,6 +38,13 @@ func _process(delta):
 		
 	if(Input.is_key_pressed(KEY_RIGHT)):
 		direction = direction.rotated(Vector3.UP, -rotSpeed * delta)
+	
+	if(Input.is_key_pressed(KEY_UP)):
+		direction = direction.rotated(right, rotSpeed * delta)
+		
+	if(Input.is_key_pressed(KEY_DOWN)):
+		direction = direction.rotated(right, -rotSpeed * delta)
+	
 	
 	$OutputLabel.text = str(position)
 	$Canvas.material.set_shader_param("position", position)
