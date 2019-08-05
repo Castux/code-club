@@ -11,6 +11,7 @@ uniform float precision = 0.001;
 uniform bool useMod = false;
 uniform float twist = 0.0;
 uniform bool addTubes = true;
+uniform int shading = 0;
 
 uniform int op = 0;
 
@@ -162,13 +163,13 @@ vec3 gradient(vec3 pos)
 	return vec3(dx,dy,dz)/(2.0*eps);
 }
 
-vec3 march(vec3 start, vec3 ray, out bool maxedOut)
+vec3 march(vec3 start, vec3 ray, out bool maxedOut, out int iters)
 {
 	float dist = 0.0;
 	
 	maxedOut = false;
 	
-	for(int i = 0 ; i < maxIter && dist < clip ; i++)
+	for(iters = 0 ; iters < maxIter && dist < clip ; iters++)
 	{
 		vec3 pos = start + ray * dist;
 		
@@ -186,6 +187,40 @@ vec3 march(vec3 start, vec3 ray, out bool maxedOut)
 
 uniform float ambiant = 0.15;
 
+vec4 normalShade(vec3 inter)
+{
+	vec3 grad = normalize(gradient(inter));
+	float shade = dot(normalize(grad), normalize(vec3(1,1,1)));
+	
+	if(shade < 0.0)
+	{
+		shade = 0.0;
+	}
+	
+	shade += ambiant;
+	
+	return vec4(shade,shade,shade,1);
+}
+
+vec4 perfShade(int iters)
+{
+	float x = float(iters) / float(maxIter);
+	x = pow(x, 0.33);
+	return vec4(x, 0, 0, 1);
+}
+
+vec4 shade(vec3 inter, int iters)
+{
+	if(shading == 0)
+	{
+		return normalShade(inter);
+	}
+	else if(shading == 2)
+	{
+		return perfShade(iters);
+	}
+}
+
 void fragment()
 {
 	vec3 up = vec3(0,1,0);
@@ -198,7 +233,8 @@ void fragment()
 	ray = normalize(ray);
 	
 	bool maxedOut;
-	vec3 inter = march(position, ray, maxedOut);
+	int iters;
+	vec3 inter = march(position, ray, maxedOut, iters);
 	
 	if(maxedOut)
 	{
@@ -206,16 +242,6 @@ void fragment()
 	}
 	else
 	{
-		vec3 grad = normalize(gradient(inter));
-		float shade = dot(normalize(grad), normalize(vec3(1,1,1)));
-		
-		if(shade < 0.0)
-		{
-			shade = 0.0;
-		}
-		
-		shade += ambiant;
-		
-		COLOR = vec4(shade,shade,shade,1);
+		COLOR = shade(inter, iters);
 	}	
 }

@@ -15,6 +15,7 @@ shader_param/precision = 0.001
 shader_param/useMod = false
 shader_param/twist = 0.0
 shader_param/addTubes = true
+shader_param/shading = 0
 shader_param/op = 0
 shader_param/ambiant = 0.15
 
@@ -37,9 +38,9 @@ color = Color( 0.45098, 0.172549, 0.172549, 1 )
 
 [node name="OutputLabel" type="Label" parent="."]
 margin_left = 684.333
-margin_top = 348.333
+margin_top = 533.333
 margin_right = 800.333
-margin_bottom = 383.333
+margin_bottom = 568.333
 text = "Label "
 
 [node name="Buttons" type="VBoxContainer" parent="."]
@@ -126,6 +127,11 @@ margin_top = 264.0
 margin_right = 95.0
 margin_bottom = 288.0
 text = "Twist!"
+
+[node name="Shading" type="OptionButton" parent="Buttons"]
+margin_top = 292.0
+margin_right = 95.0
+margin_bottom = 312.0
 
 [connection signal="mouse_entered" from="Background" to="." method="unfocus"]
 [connection signal="mouse_entered" from="Canvas" to="." method="unfocus"]
