@@ -7,15 +7,32 @@ uniform float fov = 1;
 uniform int maxIter = 1000;
 uniform float precision = 0.01;
 
+uniform int op = 0;
 
 float union(float d1, float d2)
 {
 	return min(d1, d2);
 }
 
+float intersection(float d1, float d2)
+{
+	return max(d1, d2);
+}
+
+float difference(float d1, float d2)
+{
+	return max(d1, -d2);
+}
+
 float sphere(vec3 x, vec3 center, float rad)
 {
 	return length(x - center) - rad;
+}
+
+float cube(vec3 x, vec3 center, float size)
+{
+	vec3 tmp = abs(x - center) - vec3(size, size, size);
+	return max(tmp.x, max(tmp.y, tmp.z));
 }
 
 float plane(vec3 pos, vec3 normal, float offset)
@@ -25,11 +42,25 @@ float plane(vec3 pos, vec3 normal, float offset)
 
 float distanceFunction(vec3 pos)
 {
-	float s = sphere(pos, vec3(0,0,-5), 2);
+	float s = sphere(pos, vec3(0,0,-5), 1.5);
 	float p = plane(pos, vec3(0,1,0), -1);
+	float c = cube(pos, vec3(0,0,-5), 1);
 	
+	float mainObj;
+	if(op == 0)
+	{
+		mainObj = union(s,c);
+	}
+	else if(op == 1)
+	{
+		mainObj = intersection(s,c);
+	}
+	else if(op == 2)
+	{
+		mainObj = difference(s,c);
+	}
 	
-	return union(s,p);
+	return union(mainObj,p);
 }
 
 vec3 gradient(vec3 pos)
@@ -77,7 +108,7 @@ void fragment()
 	ray = normalize(ray);
 	
 	bool maxedOut;
-	vec3 intersection = march(position, ray, maxedOut);
+	vec3 inter = march(position, ray, maxedOut);
 	
 	if(maxedOut)
 	{
@@ -85,7 +116,7 @@ void fragment()
 	}
 	else
 	{
-		vec3 grad = normalize(gradient(intersection));
+		vec3 grad = normalize(gradient(inter));
 		float shade = dot(normalize(grad), normalize(vec3(1,1,1)));
 		
 		if(shade < 0.0)

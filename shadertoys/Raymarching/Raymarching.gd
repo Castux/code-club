@@ -7,6 +7,10 @@ var rotSpeed = 2 * PI * 0.25
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	$Buttons/Op.add_item("Union")
+	$Buttons/Op.add_item("Intersection")
+	$Buttons/Op.add_item("Difference")
+	
 	pass # Replace with function body.
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -39,6 +43,7 @@ func _process(delta):
 	
 	$Canvas.material.set_shader_param("maxIter", int($Buttons/MaxIter.text))
 	$Canvas.material.set_shader_param("precision", float($Buttons/Precision.text))
+	$Canvas.material.set_shader_param("op", float($Buttons/Op.selected))
 
 func unfocus():
 	set_focus_mode(Control.FOCUS_ALL);
