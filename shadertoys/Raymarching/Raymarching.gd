@@ -1,8 +1,8 @@
 extends Control
 
-var position = Vector3(3,1,0)
-var direction = Vector3(0,-0.5,1);
-var speed = 2
+var position = Vector3(8,3,5)
+var direction = Vector3(-0.77,-0.54,-0.30).normalized();
+var speed = 4
 var rotSpeed = 2 * PI * 0.25
 
 var twistStart = -1
@@ -46,7 +46,7 @@ func _process(delta):
 		direction = direction.rotated(right, -rotSpeed * delta)
 	
 	
-	$OutputLabel.text = str(position)
+	$OutputLabel.text = str(position, " ", direction)
 	$Canvas.material.set_shader_param("position", position)
 	$Canvas.material.set_shader_param("direction", direction)
 	

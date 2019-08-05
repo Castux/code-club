@@ -12,6 +12,35 @@ uniform float twist = 0.0;
 
 uniform int op = 0;
 
+float random (vec2 st)
+{
+    return fract(sin(dot(st.xy,
+                         vec2(12.9898,78.233)))
+                 * 43758.5453123);
+}
+
+float noise (in vec2 st) {
+    vec2 i = floor(st);
+    vec2 f = fract(st);
+
+    // Four corners in 2D of a tile
+    float a = random(i);
+    float b = random(i + vec2(1.0, 0.0));
+    float c = random(i + vec2(0.0, 1.0));
+    float d = random(i + vec2(1.0, 1.0));
+
+    // Smooth Interpolation
+
+    // Cubic Hermine Curve.  Same as SmoothStep()
+    vec2 u = f*f*(3.0-2.0*f);
+    // u = smoothstep(0.,1.,f);
+
+    // Mix 4 coorners percentages
+    return mix(a, b, u.x) +
+            (c - a)* u.y * (1.0 - u.x) +
+            (d - b) * u.x * u.y;
+}
+
 mat3 rotationMatrix(vec3 axis, float angle)
 {
     axis = normalize(axis);
@@ -53,14 +82,14 @@ float difference(float d1, float d2)
 	return max(d1, -d2);
 }
 
-float sphere(vec3 x, vec3 center, float rad)
+float sphere(vec3 x, float rad)
 {
-	return length(x - center) - rad;
+	return length(x) - rad;
 }
 
-float cube(vec3 x, vec3 center, float size)
+float cube(vec3 x, float size)
 {
-	vec3 tmp = abs(x - center) - vec3(size, size, size);
+	vec3 tmp = abs(x) - vec3(size, size, size);
 	return max(tmp.x, max(tmp.y, tmp.z));
 }
 
@@ -76,32 +105,37 @@ float distanceFunction(vec3 pos)
 	// twist!
 	pos = rotationMatrix(vec3(0,0,1), pos.z / 200.0 * twoPi * twist) * pos;
 
-	
+	vec3 mainObjPos = pos;
 	if(useMod)
 	{
-		pos = mod(pos, vec3(6.0,0,6.0));
+		mainObjPos = mod(pos, vec3(6.0,0,6.0));
 	}
 	
-	float s = sphere(pos, vec3(3,0,3), 1.5);
-	float c = cube(pos, vec3(3,0,3), 1);
+	float s = sphere(mainObjPos - vec3(3,0,3), 1.2);
+	float c = cube(mainObjPos - vec3(3,0,3), 1);
 	
 	float mainObj;
 	if(op == 0)
 	{
-		mainObj = union(s,c);
+		mainObj = union(c,s);
 	}
 	else if(op == 1)
 	{
-		mainObj = intersection(s,c);
+		mainObj = intersection(c,s);
 	}
 	else if(op == 2)
 	{
-		mainObj = difference(s,c);
+		mainObj = difference(c,s);
 	}
 	
 	if(addPlane)
 	{
-		mainObj = union(mainObj, plane(pos, vec3(0,1,0), -1));
+		float disp = noise(pos.xz / 4.0) * 0.5;
+			
+		float p = plane(pos, vec3(0,1,0), -1) + disp;
+		
+		
+		mainObj = union(mainObj, p);
 	}
 	
 	return mainObj;
@@ -143,9 +177,9 @@ uniform float ambiant = 0.15;
 void fragment()
 {
 	vec3 up = vec3(0,1,0);
-	vec3 right = cross(direction, up);
+	vec3 right = normalize(cross(direction, up));
 	
-	up = cross(right, direction);
+	up = normalize(cross(right, direction));
 	
 	vec2 pixel = UV - vec2(0.5, 0.5);	
 	vec3 ray = direction + pixel.x * right * fov - pixel.y * up * fov;
