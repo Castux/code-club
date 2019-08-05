@@ -7,6 +7,7 @@
 shader = ExtResource( 2 )
 shader_param/position = null
 shader_param/direction = null
+shader_param/clip = null
 shader_param/addPlane = false
 shader_param/fov = 1.0
 shader_param/maxIter = 1000
@@ -83,33 +84,47 @@ focus_mode = 1
 text = "0.001"
 focus_mode = 1
 
-[node name="Label3" type="Label" parent="Buttons"]
+[node name="Label4" type="Label" parent="Buttons"]
 margin_top = 120.0
 margin_right = 95.0
 margin_bottom = 134.0
+text = "Clip:"
+
+[node name="Clip" type="LineEdit" parent="Buttons"]
+margin_top = 138.0
+margin_right = 95.0
+margin_bottom = 162.0
+focus_mode = 1
+text = "1000"
+focus_mode = 1
+
+[node name="Label3" type="Label" parent="Buttons"]
+margin_top = 166.0
+margin_right = 95.0
+margin_bottom = 180.0
 text = "Operation:"
 
 [node name="Op" type="OptionButton" parent="Buttons"]
-margin_top = 138.0
+margin_top = 184.0
 margin_right = 95.0
-margin_bottom = 158.0
+margin_bottom = 204.0
 
 [node name="UseMod" type="CheckBox" parent="Buttons"]
-margin_top = 162.0
+margin_top = 208.0
 margin_right = 95.0
-margin_bottom = 186.0
+margin_bottom = 232.0
 text = "Use mod()"
 
 [node name="Tubes" type="CheckBox" parent="Buttons"]
-margin_top = 190.0
+margin_top = 236.0
 margin_right = 95.0
-margin_bottom = 214.0
+margin_bottom = 260.0
 text = "Add tubes"
 
 [node name="Twist" type="CheckBox" parent="Buttons"]
-margin_top = 218.0
+margin_top = 264.0
 margin_right = 95.0
-margin_bottom = 242.0
+margin_bottom = 288.0
 text = "Twist!"
 
 [connection signal="mouse_entered" from="Background" to="." method="unfocus"]

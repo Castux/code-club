@@ -3,6 +3,7 @@ render_mode unshaded;
 
 uniform vec3 position;
 uniform vec3 direction;
+uniform float clip;
 uniform bool addPlane = false;
 uniform float fov = 1;
 uniform int maxIter = 1000;
@@ -143,10 +144,7 @@ float distanceFunction(vec3 pos)
 	if(addPlane)
 	{
 		float disp = noise(pos.xz / 4.0) * 0.5;
-			
 		float p = plane(pos, vec3(0,1,0), -1) + disp;
-		
-		
 		mainObj = union(mainObj, p);
 	}
 	
@@ -166,22 +164,24 @@ vec3 gradient(vec3 pos)
 
 vec3 march(vec3 start, vec3 ray, out bool maxedOut)
 {
-	vec3 pos = start;
+	float dist = 0.0;
+	
 	maxedOut = false;
 	
-	for(int i = 0 ; i < maxIter ; i++)
+	for(int i = 0 ; i < maxIter && dist < clip ; i++)
 	{
+		vec3 pos = start + ray * dist;
+		
 		float d = distanceFunction(pos);
 		if(d < precision)
 		{
 			return pos;
 		}
 		
-		pos += ray * d;
+		dist += d;
 	}
 	
 	maxedOut = true;
-	return pos;
 }
 
 uniform float ambiant = 0.15;
