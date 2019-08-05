@@ -13,6 +13,8 @@ uniform float twist = 0.0;
 uniform bool addTubes = true;
 uniform int shading = 0;
 
+uniform vec3 lightPos = vec3(10, 20, 30);
+
 uniform int op = 0;
 
 float random (vec2 st)
@@ -145,7 +147,7 @@ float distanceFunction(vec3 pos)
 	if(addPlane)
 	{
 		float disp = noise(pos.xz / 4.0) * 0.5;
-		float p = plane(pos, vec3(0,1,0), -1) + disp;
+		float p = abs(pos.y + 2.0) - 0.5 + disp;
 		mainObj = union(mainObj, p);
 	}
 	
@@ -185,7 +187,7 @@ vec3 march(vec3 start, vec3 ray, out bool maxedOut, out int iters)
 	maxedOut = true;
 }
 
-uniform float ambiant = 0.15;
+uniform float ambiant = 0.1;
 
 vec4 normalShade(vec3 inter)
 {
@@ -206,7 +208,35 @@ vec4 perfShade(int iters)
 {
 	float x = float(iters) / float(maxIter);
 	x = pow(x, 0.33);
-	return vec4(x, 0, 0, 1);
+	return mix(vec4(0.1, 0.0, 0.1, 1), vec4(1.0, 0, 0, 1), x) ;
+}
+
+vec4 shadowsShade(vec3 inter)
+{
+	vec3 dir = lightPos - inter;
+	float lightDist = length(dir);
+	dir = normalize(dir);
+	
+	bool maxedOut;
+	int iters;
+	
+	vec3 normal = normalize(gradient(inter));
+	
+	// Direct illumination
+	
+	inter += normal * 0.001; 	// get out of the shape or it will intersect immediately!
+	march(inter, dir, maxedOut, iters);
+	float direct = maxedOut ? 1.0 : 0.0;
+	
+	// Orientation shading
+	
+	float orientation = dot(normalize(normal), dir) / 2.0 + 0.5;
+	
+	// Total
+	
+	float total = 0.4 * orientation + 0.6 * direct;
+	
+	return vec4(total, total, total, 1.0);
 }
 
 vec4 shade(vec3 inter, int iters)
@@ -214,6 +244,10 @@ vec4 shade(vec3 inter, int iters)
 	if(shading == 0)
 	{
 		return normalShade(inter);
+	}
+	else if(shading == 1)
+	{
+		return shadowsShade(inter);
 	}
 	else if(shading == 2)
 	{

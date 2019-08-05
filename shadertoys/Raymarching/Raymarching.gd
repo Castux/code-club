@@ -5,6 +5,7 @@ var direction = Vector3(-0.77,-0.54,-0.30).normalized();
 var speed = 4
 var rotSpeed = 2 * PI * 0.25
 
+var lightPos = Vector3(10,20,30);
 var twistStart = -1
 
 # Called when the node enters the scene tree for the first time.
@@ -21,6 +22,8 @@ func _ready():
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
+	
+	lightPos = lightPos.rotated(Vector3.UP, delta * 2.0 * PI / 20.0)
 	
 	var up = Vector3.UP
 	var right = direction.cross(up).normalized()
@@ -62,6 +65,8 @@ func _process(delta):
 	$Canvas.material.set_shader_param("useMod", float($Buttons/UseMod.pressed))
 	$Canvas.material.set_shader_param("addTubes", float($Buttons/Tubes.pressed))
 	$Canvas.material.set_shader_param("shading", $Buttons/Shading.selected)
+
+	$Canvas.material.set_shader_param("lightPos", lightPos)
 
 	var twistAmount = 0
 	if(twistStart > 0):
