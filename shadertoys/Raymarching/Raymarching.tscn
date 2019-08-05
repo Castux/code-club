@@ -8,6 +8,8 @@ shader = ExtResource( 2 )
 shader_param/position = null
 shader_param/direction = null
 shader_param/fov = 1.0
+shader_param/maxIter = 1000
+shader_param/precision = 0.01
 shader_param/ambiant = 0.15
 
 [node name="Raymarching" type="Control"]
@@ -43,3 +45,32 @@ margin_top = 38.0
 margin_right = -269.0
 margin_bottom = -429.0
 
+[node name="Label" type="Label" parent="Buttons"]
+margin_right = 95.0
+margin_bottom = 14.0
+text = "Max iterations:"
+
+[node name="MaxIter" type="LineEdit" parent="Buttons"]
+margin_top = 18.0
+margin_right = 95.0
+margin_bottom = 42.0
+focus_mode = 1
+text = "1000"
+focus_mode = 1
+
+[node name="Label2" type="Label" parent="Buttons"]
+margin_top = 46.0
+margin_right = 95.0
+margin_bottom = 60.0
+text = "Max iterations:"
+
+[node name="Precision" type="LineEdit" parent="Buttons"]
+margin_top = 64.0
+margin_right = 95.0
+margin_bottom = 88.0
+focus_mode = 1
+text = "0.01"
+focus_mode = 1
+
+[connection signal="mouse_entered" from="Background" to="." method="unfocus"]
+[connection signal="mouse_entered" from="Canvas" to="." method="unfocus"]

@@ -36,3 +36,10 @@ func _process(delta):
 	$OutputLabel.text = str(position)
 	$Canvas.material.set_shader_param("position", position)
 	$Canvas.material.set_shader_param("direction", direction)
+	
+	$Canvas.material.set_shader_param("maxIter", int($Buttons/MaxIter.text))
+	$Canvas.material.set_shader_param("precision", float($Buttons/Precision.text))
+
+func unfocus():
+	set_focus_mode(Control.FOCUS_ALL);
+	grab_focus();

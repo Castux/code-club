@@ -22,3 +22,42 @@ run/main_scene="res://Root.tscn"
 
 window/size/test_width=1024
 window/size/test_height=600
+
+[input]
+
+ui_focus_next={
+"deadzone": 0.5,
+"events": [  ]
+}
+ui_focus_prev={
+"deadzone": 0.5,
+"events": [  ]
+}
+ui_left={
+"deadzone": 0.5,
+"events": [ Object(InputEventJoypadButton,"resource_local_to_scene":false,"resource_name":"","device":0,"button_index":14,"pressure":0.0,"pressed":false,"script":null)
+ ]
+}
+ui_right={
+"deadzone": 0.5,
+"events": [ Object(InputEventJoypadButton,"resource_local_to_scene":false,"resource_name":"","device":0,"button_index":15,"pressure":0.0,"pressed":false,"script":null)
+ ]
+}
+ui_up={
+"deadzone": 0.5,
+"events": [ Object(InputEventJoypadButton,"resource_local_to_scene":false,"resource_name":"","device":0,"button_index":12,"pressure":0.0,"pressed":false,"script":null)
+ ]
+}
+ui_down={
+"deadzone": 0.5,
+"events": [ Object(InputEventJoypadButton,"resource_local_to_scene":false,"resource_name":"","device":0,"button_index":13,"pressure":0.0,"pressed":false,"script":null)
+ ]
+}
+ui_page_up={
+"deadzone": 0.5,
+"events": [  ]
+}
+ui_page_down={
+"deadzone": 0.5,
+"events": [  ]
+}

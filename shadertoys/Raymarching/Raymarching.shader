@@ -4,20 +4,32 @@ render_mode unshaded;
 uniform vec3 position;
 uniform vec3 direction;
 uniform float fov = 1;
+uniform int maxIter = 1000;
+uniform float precision = 0.01;
+
+
+float union(float d1, float d2)
+{
+	return min(d1, d2);
+}
 
 float sphere(vec3 x, vec3 center, float rad)
 {
 	return length(x - center) - rad;
 }
 
-float distanceFunction(vec3 pos)
-{
-	return sphere(pos, vec3(0,0,-5), 2);
-}
-
 float plane(vec3 pos, vec3 normal, float offset)
 {
 	return dot(pos, normal) - offset;
+}
+
+float distanceFunction(vec3 pos)
+{
+	float s = sphere(pos, vec3(0,0,-5), 2);
+	float p = plane(pos, vec3(0,1,0), -1);
+	
+	
+	return union(s,p);
 }
 
 vec3 gradient(vec3 pos)
@@ -31,7 +43,7 @@ vec3 gradient(vec3 pos)
 	return vec3(dx,dy,dz)/(2.0*eps);
 }
 
-vec3 march(vec3 start, vec3 ray, float precision, int maxIter, out bool maxedOut)
+vec3 march(vec3 start, vec3 ray, out bool maxedOut)
 {
 	vec3 pos = start;
 	maxedOut = false;
@@ -65,7 +77,7 @@ void fragment()
 	ray = normalize(ray);
 	
 	bool maxedOut;
-	vec3 intersection = march(position, ray, 0.01, 100, maxedOut);
+	vec3 intersection = march(position, ray, maxedOut);
 	
 	if(maxedOut)
 	{
