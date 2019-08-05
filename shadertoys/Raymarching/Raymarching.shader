@@ -5,7 +5,8 @@ uniform vec3 position;
 uniform vec3 direction;
 uniform float fov = 1;
 uniform int maxIter = 1000;
-uniform float precision = 0.01;
+uniform float precision = 0.001;
+uniform bool useMod = false;
 
 uniform int op = 0;
 
@@ -42,9 +43,14 @@ float plane(vec3 pos, vec3 normal, float offset)
 
 float distanceFunction(vec3 pos)
 {
-	float s = sphere(pos, vec3(0,0,-5), 1.5);
+	if(useMod)
+	{
+		pos = mod(pos, vec3(6.0,0,6.0));
+	}
+	
+	float s = sphere(pos, vec3(3,0,3), 1.5);
 	float p = plane(pos, vec3(0,1,0), -1);
-	float c = cube(pos, vec3(0,0,-5), 1);
+	float c = cube(pos, vec3(3,0,3), 1);
 	
 	float mainObj;
 	if(op == 0)

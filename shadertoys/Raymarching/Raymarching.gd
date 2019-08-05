@@ -1,7 +1,7 @@
 extends Control
 
-var position = Vector3(0,0,0)
-var direction = Vector3(0,0,-1);
+var position = Vector3(3,1,0)
+var direction = Vector3(0,-0.5,1);
 var speed = 2
 var rotSpeed = 2 * PI * 0.25
 
@@ -44,7 +44,8 @@ func _process(delta):
 	$Canvas.material.set_shader_param("maxIter", int($Buttons/MaxIter.text))
 	$Canvas.material.set_shader_param("precision", float($Buttons/Precision.text))
 	$Canvas.material.set_shader_param("op", float($Buttons/Op.selected))
-
+	$Canvas.material.set_shader_param("useMod", float($Buttons/UseMod.pressed))
+	
 func unfocus():
 	set_focus_mode(Control.FOCUS_ALL);
 	grab_focus();
