@@ -3,6 +3,7 @@ render_mode unshaded;
 
 uniform vec3 position;
 uniform vec3 direction;
+uniform bool addPlane = false;
 uniform float fov = 1;
 uniform int maxIter = 1000;
 uniform float precision = 0.001;
@@ -49,7 +50,6 @@ float distanceFunction(vec3 pos)
 	}
 	
 	float s = sphere(pos, vec3(3,0,3), 1.5);
-	float p = plane(pos, vec3(0,1,0), -1);
 	float c = cube(pos, vec3(3,0,3), 1);
 	
 	float mainObj;
@@ -66,7 +66,12 @@ float distanceFunction(vec3 pos)
 		mainObj = difference(s,c);
 	}
 	
-	return union(mainObj,p);
+	if(addPlane)
+	{
+		mainObj = union(mainObj, plane(pos, vec3(0,1,0), -1));
+	}
+	
+	return mainObj;
 }
 
 vec3 gradient(vec3 pos)

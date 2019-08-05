@@ -7,6 +7,7 @@
 shader = ExtResource( 2 )
 shader_param/position = null
 shader_param/direction = null
+shader_param/addPlane = false
 shader_param/fov = 1.0
 shader_param/maxIter = 1000
 shader_param/precision = 0.001
@@ -47,48 +48,54 @@ margin_top = 38.0
 margin_right = -269.0
 margin_bottom = -429.0
 
-[node name="Label" type="Label" parent="Buttons"]
+[node name="Plane" type="CheckBox" parent="Buttons"]
 margin_right = 95.0
-margin_bottom = 14.0
+margin_bottom = 24.0
+text = "Add plane"
+
+[node name="Label" type="Label" parent="Buttons"]
+margin_top = 28.0
+margin_right = 95.0
+margin_bottom = 42.0
 text = "Max iterations:"
 
 [node name="MaxIter" type="LineEdit" parent="Buttons"]
-margin_top = 18.0
+margin_top = 46.0
 margin_right = 95.0
-margin_bottom = 42.0
+margin_bottom = 70.0
 focus_mode = 1
 text = "1000"
 focus_mode = 1
 
 [node name="Label2" type="Label" parent="Buttons"]
-margin_top = 46.0
+margin_top = 74.0
 margin_right = 95.0
-margin_bottom = 60.0
+margin_bottom = 88.0
 text = "Precision:"
 
 [node name="Precision" type="LineEdit" parent="Buttons"]
-margin_top = 64.0
+margin_top = 92.0
 margin_right = 95.0
-margin_bottom = 88.0
+margin_bottom = 116.0
 focus_mode = 1
 text = "0.001"
 focus_mode = 1
 
 [node name="Label3" type="Label" parent="Buttons"]
-margin_top = 92.0
+margin_top = 120.0
 margin_right = 95.0
-margin_bottom = 106.0
+margin_bottom = 134.0
 text = "Operation:"
 
 [node name="Op" type="OptionButton" parent="Buttons"]
-margin_top = 110.0
-margin_right = 95.0
-margin_bottom = 130.0
-
-[node name="UseMod" type="CheckBox" parent="Buttons"]
-margin_top = 134.0
+margin_top = 138.0
 margin_right = 95.0
 margin_bottom = 158.0
+
+[node name="UseMod" type="CheckBox" parent="Buttons"]
+margin_top = 162.0
+margin_right = 95.0
+margin_bottom = 186.0
 text = "Use mod()"
 
 [connection signal="mouse_entered" from="Background" to="." method="unfocus"]

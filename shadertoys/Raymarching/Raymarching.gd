@@ -41,6 +41,7 @@ func _process(delta):
 	$Canvas.material.set_shader_param("position", position)
 	$Canvas.material.set_shader_param("direction", direction)
 	
+	$Canvas.material.set_shader_param("addPlane", int($Buttons/Plane.pressed))
 	$Canvas.material.set_shader_param("maxIter", int($Buttons/MaxIter.text))
 	$Canvas.material.set_shader_param("precision", float($Buttons/Precision.text))
 	$Canvas.material.set_shader_param("op", float($Buttons/Op.selected))
