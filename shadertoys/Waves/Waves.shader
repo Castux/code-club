@@ -15,6 +15,12 @@ float hash( float n )
   return fract(cos(n)*41415.92653);
 }
 
+vec2 randDir(float n)
+{
+	float phi = hash(n) * 6.28318530718;
+	return vec2(cos(phi), sin(phi));
+}
+
 float noise2d(vec2 x)
 {
 	vec2 p  = floor(x);
@@ -38,19 +44,18 @@ float water(vec2 p)
 	w += sin(dot(p, vec2(0.017, 0.01)) + tshift * 1.1)*4.1;
 	w += sin(dot(p, vec2(0.00104, 0.005)) + tshift * 0.121)*4.0;
 	
-	shift1 *= 0.3;
-	float amp = 6.0;
-	
-	mat2 m2 = mat2(vec2(1.6,1.2), vec2(-1.2,1.6));
+	float amp = 4.0;
+	float noiseLen = 50.0;
 	
 	for (int i = 0; i < 7; i++)
-	  {
-	    w += -abs(sin(noise2d(p*0.01 + shift1) - 0.5) * 3.14) * amp; 
-	    amp *= .51;
-	    shift1 *= 1.841;
-	    p *= m2*0.9331;
-	  }
-	
+	{
+		vec2 dir = randDir(float(i));
+		vec2 p2 = p / noiseLen + dir * (time * 0.05);
+		
+		w += -abs(sin(noise2d(p2) - 0.5) * 3.14) * amp;
+		amp *= .5;
+		noiseLen /= 1.8;
+	}
 	
 	return w;
 }
@@ -69,6 +74,10 @@ vec3 march(vec3 start, vec3 ray, out bool maxedOut, out int iters)
 	for(iters = 0 ; iters < maxIter && dist < clip ; iters++)
 	{
 		vec3 pos = start + ray * dist;
+		
+		// Too high to hit anything
+		if(pos.y > 100.0 || ray.y > 0.0)
+			break;
 		
 		float d = pos.y - water(pos.xz);
 		if(d < precision)
@@ -144,8 +153,8 @@ void fragment()
 {	
 	vec2 uv = vec2((UV.x - 0.5) * ratio, UV.y - 0.5);
 	
-	vec3 eye = vec3(0,30,0);
-	vec3 forward = vec3(sin(time / 15.0),-0.25,cos(time / 15.0));
+	vec3 eye = vec3(0,25,0);
+	vec3 forward = vec3(sin(time / 15.0),-0.35,cos(time / 15.0));
 	vec3 ray = screenRay(eye, forward, uv);
 
 	bool maxedOut;
