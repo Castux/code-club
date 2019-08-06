@@ -1,15 +1,16 @@
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://Root.gd" type="Script" id=1]
 [ext_resource path="res://Mandelbrot/Mandelbrot.tscn" type="PackedScene" id=2]
 [ext_resource path="res://Primes/Primes.tscn" type="PackedScene" id=3]
 [ext_resource path="res://Raymarching/Raymarching.tscn" type="PackedScene" id=4]
+[ext_resource path="res://Waves/Waves.tscn" type="PackedScene" id=5]
 
 [node name="Root" type="Control"]
 anchor_right = 1.0
 anchor_bottom = 1.0
 script = ExtResource( 1 )
-scenes = [ ExtResource( 2 ), ExtResource( 3 ), ExtResource( 4 ) ]
+scenes = [ ExtResource( 2 ), ExtResource( 3 ), ExtResource( 4 ), ExtResource( 5 ) ]
 
 [node name="DummyScene" type="Node" parent="."]
 
