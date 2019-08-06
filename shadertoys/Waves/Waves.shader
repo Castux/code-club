@@ -95,11 +95,11 @@ vec3 normal(vec3 pos)
 {
 	float eps = precision / 2.0;
 	
-	vec3 c = surface(pos.xz);
-	vec3 dx = surface(pos.xz + vec2(eps, 0.0));
-	vec3 dz = surface(pos.xz + vec2(0.0, eps));
-
-	return normalize(cross(dz - c, dx - c));
+	float c = water(pos.xz);
+	float dx = water(pos.xz + vec2(eps,0.0)) - c;
+	float dz = water(pos.xz + vec2(0.0,eps)) - c;
+	
+	return normalize(vec3(-dx/eps, 1.0, -dz/eps));
 }
 
 vec3 sky(vec3 dir)
