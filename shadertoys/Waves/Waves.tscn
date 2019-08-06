@@ -1,23 +1,19 @@
 [gd_scene load_steps=4 format=2]
 
-[ext_resource path="res://Waves/Waves.gd" type="Script" id=1]
-[ext_resource path="res://Waves/Waves.shader" type="Shader" id=2]
+[ext_resource path="res://Waves/Waves.shader" type="Shader" id=1]
+[ext_resource path="res://Waves/Waves.gd" type="Script" id=2]
 
 [sub_resource type="ShaderMaterial" id=2]
-shader = ExtResource( 2 )
+shader = ExtResource( 1 )
 shader_param/ratio = 2.0
 shader_param/maxIter = 1000
 shader_param/precision = 0.001
 shader_param/clip = 1000.0
 shader_param/fov = 1.0
 
-[node name="Waves" type="Control"]
-anchor_right = 1.0
-anchor_bottom = 1.0
-script = ExtResource( 1 )
-
-[node name="Canvas" type="ColorRect" parent="."]
+[node name="Canvas" type="ColorRect"]
 material = SubResource( 2 )
 anchor_right = 1.0
 anchor_bottom = 1.0
-[connection signal="item_rect_changed" from="Canvas" to="." method="updateRatio"]
+script = ExtResource( 2 )
+[connection signal="item_rect_changed" from="." to="." method="updateRatio"]
