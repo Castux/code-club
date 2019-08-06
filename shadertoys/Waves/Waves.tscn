@@ -3,17 +3,23 @@
 [ext_resource path="res://Waves/Waves.shader" type="Shader" id=1]
 [ext_resource path="res://Waves/Waves.gd" type="Script" id=2]
 
-[sub_resource type="ShaderMaterial" id=2]
+[sub_resource type="ShaderMaterial" id=1]
 shader = ExtResource( 1 )
 shader_param/ratio = 2.0
 shader_param/maxIter = 1000
 shader_param/precision = 0.001
 shader_param/clip = 1000.0
 shader_param/fov = 1.0
+shader_param/time = 0.0
+shader_param/sunDir = Vector3( 1, 1, 1 )
 
 [node name="Canvas" type="ColorRect"]
-material = SubResource( 2 )
+material = SubResource( 1 )
 anchor_right = 1.0
 anchor_bottom = 1.0
 script = ExtResource( 2 )
+__meta__ = {
+"_edit_lock_": true
+}
+
 [connection signal="item_rect_changed" from="." to="." method="updateRatio"]
