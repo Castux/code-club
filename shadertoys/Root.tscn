@@ -36,6 +36,5 @@ margin_right = 97.0
 margin_bottom = 40.0
 rect_min_size = Vector2( 40, 0 )
 text = ">"
-
 [connection signal="pressed" from="HBoxContainer/Prev" to="." method="_on_Prev_pressed"]
 [connection signal="pressed" from="HBoxContainer/Next" to="." method="_on_Next_pressed"]

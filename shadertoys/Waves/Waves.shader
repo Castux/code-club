@@ -5,10 +5,13 @@ uniform float ratio = 2;
 
 uniform int maxIter = 100;
 uniform float precision = 0.1;
-uniform float clip = 1000.0;
+uniform float clip = 500.0;
 uniform float fov = 2.0;
 uniform float time = 0.0;
-uniform vec3 sunDir = vec3(1,1,1);
+uniform vec3 sunDir = vec3(0,0.5,1);
+
+uniform vec4 skyColor : hint_color = vec4(0, 0.62, 0.95, 1.0);
+uniform vec4 waterColor : hint_color; // = vec4(35.0 / 255.0, 158.0 / 255.0, 133.0 / 255.0, 1.0);
 
 float hash( float n )
 {
@@ -21,10 +24,21 @@ vec2 randDir(float n)
 	return vec2(cos(phi), sin(phi));
 }
 
+mat2 rotation2d(float phi)
+{
+	float c = cos(phi);
+	float s = sin(phi);
+	
+	return mat2(
+		vec2(c, s),
+		vec2(-s, c)
+	);
+}
+
 float noise2d(vec2 x)
 {
 	vec2 p  = floor(x);
-	vec2 f  = smoothstep(0.0, 1.0, fract(x));
+	vec2 f  = fract(x);
 	float n = p.x + p.y*57.0;
 	
 	return mix(
@@ -49,8 +63,10 @@ float water(vec2 p)
 	
 	for (int i = 0; i < 7; i++)
 	{
-		vec2 dir = randDir(float(i));
-		vec2 p2 = p / noiseLen + dir * (time * 0.05);
+		vec2 p2 = p / noiseLen + vec2(1,0) * (time * 0.15);
+		
+		float randAngle = hash(float(10 * i)) * 6.28318530718;
+		p2 = rotation2d(randAngle) * p2;
 		
 		w += -abs(sin(noise2d(p2) - 0.5) * 3.14) * amp;
 		amp *= .5;
@@ -105,22 +121,16 @@ vec3 normal(vec3 pos)
 vec3 sky(vec3 dir)
 {
 	float sundot = dot(dir, normalize(sunDir));
-	
-	vec3 skycol = vec3(0,0.62,0.95);
-	vec3 suncol = pow(clamp(sundot,0,1), 10.0) * vec3(1.0,1.0,1.0);
+	vec3 suncol = pow(clamp(sundot,0,1), 20.0) * vec3(1.0,1.0,1.0);
 	
 	vec3 one = vec3(1);
 	
-    return one - (one - skycol) * (one - suncol);
+    return one - (one - skyColor.xyz) * (one - suncol);
 }
 
 vec3 shade(vec3 pos, vec3 ray)
 {
 	vec3 n = normal(pos);
-	
-	// Own color
-	
-	vec3 ownCol = vec3(0.03,0.34,0.64);
 	
 	// Reflect
 	
@@ -131,10 +141,11 @@ vec3 shade(vec3 pos, vec3 ray)
 	// Sun shading
 	
 	float d = dot(n,normalize(sunDir));
+	d = clamp(d, 0, 1) * 2.0 - 0.5;
 	
 	// Combine!
 	
-	vec3 total = ownCol * d * 0.5 + skyRefl * 0.5;
+	vec3 total = waterColor.xyz * d * 0.40 + skyRefl * 0.60;
 	return total;
 }
 
@@ -154,7 +165,7 @@ void fragment()
 	vec2 uv = vec2((UV.x - 0.5) * ratio, UV.y - 0.5);
 	
 	vec3 eye = vec3(0,25,0);
-	vec3 forward = vec3(sin(time / 15.0),-0.35,cos(time / 15.0));
+	vec3 forward = vec3(sin(time / 15.0),-0.05,cos(time / 15.0));
 	vec3 ray = screenRay(eye, forward, uv);
 
 	bool maxedOut;

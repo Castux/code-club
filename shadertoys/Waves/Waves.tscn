@@ -11,7 +11,9 @@ shader_param/precision = 0.001
 shader_param/clip = 1000.0
 shader_param/fov = 1.0
 shader_param/time = 0.0
-shader_param/sunDir = Vector3( 1, 1, 1 )
+shader_param/sunDir = Vector3( 0, 0.5, 1 )
+shader_param/skyColor = Color( 0.15564, 0.560865, 0.78125, 1 )
+shader_param/waterColor = Color( 0.0186157, 0.220939, 0.238281, 1 )
 
 [node name="Canvas" type="ColorRect"]
 material = SubResource( 1 )
@@ -21,5 +23,4 @@ script = ExtResource( 2 )
 __meta__ = {
 "_edit_lock_": true
 }
-
 [connection signal="item_rect_changed" from="." to="." method="updateRatio"]
