@@ -133,6 +133,7 @@ text = "Twist!"
 margin_top = 292.0
 margin_right = 95.0
 margin_bottom = 312.0
+
 [connection signal="mouse_entered" from="Background" to="." method="unfocus"]
 [connection signal="mouse_entered" from="Canvas" to="." method="unfocus"]
 [connection signal="toggled" from="Buttons/Twist" to="." method="_on_Twist_toggled"]

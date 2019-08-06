@@ -167,6 +167,19 @@ vec3 gradient(vec3 pos)
 	return vec3(dx,dy,dz)/(2.0*eps);
 }
 
+vec3 gradient2(vec3 pos)
+{
+	float eps = precision/2.0;
+	
+	float atCenter = distanceFunction(pos);
+	
+	float dx = distanceFunction(pos + vec3(eps,0,0)) - atCenter;
+	float dy = distanceFunction(pos + vec3(0,eps,0)) - atCenter;
+	float dz = distanceFunction(pos + vec3(0,0,eps)) - atCenter;
+
+	return vec3(dx,dy,dz)/eps;
+}
+
 vec3 march(vec3 start, vec3 ray, out bool maxedOut, out int iters)
 {
 	float dist = 0.0;
@@ -193,7 +206,7 @@ uniform float ambiant = 0.1;
 
 vec4 normalShade(vec3 inter)
 {
-	vec3 grad = normalize(gradient(inter));
+	vec3 grad = normalize(gradient2(inter));
 	float shade = dot(normalize(grad), normalize(vec3(1,1,1)));
 	
 	if(shade < 0.0)
@@ -222,11 +235,11 @@ vec4 shadowsShade(vec3 inter)
 	bool maxedOut;
 	int iters;
 	
-	vec3 normal = normalize(gradient(inter));
+	vec3 normal = normalize(gradient2(inter));
 	
 	// Direct illumination
 	
-	inter += normal * 0.001; 	// get out of the shape or it will intersect immediately!
+	inter += normal * (2.0 * precision); 	// get out of the shape or it will intersect immediately!
 	march(inter, dir, maxedOut, iters);
 	float direct = maxedOut ? 1.0 : 0.0;
 	
