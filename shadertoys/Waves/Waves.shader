@@ -138,8 +138,8 @@ vec3 march(vec3 start, vec3 ray, out bool maxedOut, out int iters)
 	{
 		vec3 pos = start + ray * dist;
 		
-		// Too high to hit anything
-		if(pos.y > 100.0 || ray.y > 0.0)
+		// Looking up!
+		if(ray.y > 0.0)
 			break;
 		
 		float d = pos.y - water(pos.xz);
