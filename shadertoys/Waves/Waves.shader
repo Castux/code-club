@@ -81,18 +81,18 @@ vec4 cloud(vec2 pos)
 	float amp = 1.0;
 	float totalWeight = 0.0;
 	
-	for(int i = 0 ; i < 4 ; i++)
+	for(int i = 0 ; i < 6 ; i++)
 	{
 		density += softNoise2d(pos) * amp;
 		totalWeight += amp;
 		
 		amp /= 2.0;
-		pos *= 3.0;
+		pos *= 2.7;
 	}
 	
 	density /= totalWeight;
-	density -= 0.45;
-	density *= 4.0;
+	density -= 0.5;
+	density *= 4.5;
 	density = clamp(density, 0.0, 1.0);
 	
 	return vec4(cloudColor.xyz, density);
