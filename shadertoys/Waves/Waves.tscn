@@ -17,6 +17,7 @@ shader_param/cameraUp = Vector3( 0, 1, 0 )
 shader_param/sunDir = Vector3( 0, 0.289506, 1 )
 shader_param/sunWidth = 31.3892
 shader_param/fogWidth = 0.044
+shader_param/fogAngle = 0.0
 shader_param/fogColor = Color( 0.75911, 0.85137, 0.977802, 0.500125 )
 shader_param/sunColor = Color( 1, 0.997478, 0.997478, 1 )
 shader_param/skyColor = Color( 0.611375, 0.839746, 0.935424, 1 )
@@ -116,7 +117,7 @@ tracks/6/keys = {
 [sub_resource type="GDScript" id=3]
 script/source = "extends Label
 
-var secPerFrame = 0.0
+var secPerFrame = 1.0
 var lastTime = 0.0
 
 var show = true
@@ -140,8 +141,8 @@ func _process(delta):
 	lastTime = now
 
 func _input(ev):
-    if Input.is_key_pressed(KEY_SPACE):
-        show = not show"
+	if Input.is_key_pressed(KEY_SPACE):
+		show = not show"
 
 [node name="Canvas" type="ColorRect"]
 material = SubResource( 1 )
@@ -171,5 +172,4 @@ margin_bottom = 14.0
 custom_colors/font_color = Color( 1, 0, 0, 1 )
 text = "?? FPS"
 script = SubResource( 3 )
-
 [connection signal="item_rect_changed" from="." to="." method="updateRatio"]
