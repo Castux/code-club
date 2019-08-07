@@ -1,4 +1,4 @@
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://Waves/Waves.shader" type="Shader" id=1]
 [ext_resource path="res://Waves/Waves.gd" type="Script" id=2]
@@ -113,6 +113,36 @@ tracks/6/keys = {
 "values": [ Color( 1, 1, 1, 1 ), Color( 1, 1, 1, 1 ), Color( 0.537255, 0.270588, 0.0313726, 1 ), Color( 0.231373, 0.231373, 0.231373, 1 ), Color( 0.231373, 0.231373, 0.231373, 1 ), Color( 0.231373, 0.231373, 0.231373, 1 ), Color( 0.705882, 0.615686, 0.615686, 1 ) ]
 }
 
+[sub_resource type="GDScript" id=3]
+script/source = "extends Label
+
+var secPerFrame = 0.0
+var lastTime = 0.0
+
+var show = true
+
+func _ready():
+	lastTime = OS.get_ticks_msec() / 1000.0
+
+func _process(delta):
+	
+	var now = OS.get_ticks_msec() / 1000.0
+	var d = now - lastTime
+	
+	secPerFrame += (d - secPerFrame) * 0.2  ## smoothing
+	var fps = 1.0 / secPerFrame
+	
+	if show:
+		text = str(round(fps), \" FPS\")
+	else:
+		text = \"\"
+	
+	lastTime = now
+
+func _input(ev):
+    if Input.is_key_pressed(KEY_SPACE):
+        show = not show"
+
 [node name="Canvas" type="ColorRect"]
 material = SubResource( 1 )
 anchor_right = 1.0
@@ -132,5 +162,14 @@ cloudColor = Color( 0.962163, 0.950559, 0.950559, 1 )
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 autoplay = "DayNight"
 anims/DayNight = SubResource( 2 )
+
+[node name="FPSCounter" type="Label" parent="."]
+anchor_left = 1.0
+anchor_right = 1.0
+margin_left = -56.0
+margin_bottom = 14.0
+custom_colors/font_color = Color( 1, 0, 0, 1 )
+text = "?? FPS"
+script = SubResource( 3 )
 
 [connection signal="item_rect_changed" from="." to="." method="updateRatio"]
