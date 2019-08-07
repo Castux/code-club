@@ -226,9 +226,15 @@ vec3 shade(vec3 pos, vec3 ray)
 	float d = dot(n,normalize(sunDir));
 	d = clamp(d, 0, 1) * 2.0 - 0.5;
 	
+	// Reflection factor: more when incident, less when orthogonal
+	
+	float reflFact = (1.0 - abs(nray));
+	
+	reflFact = map(reflFact, 0.0, 1.0, 0.6, 0.8); 
+	
 	// Combine!
 	
-	vec3 total = waterColor.xyz * d * 0.40 + skyRefl * 0.60;
+	vec3 total = waterColor.xyz * d * (1.0 - reflFact) + skyRefl * reflFact;
 	return total;
 }
 

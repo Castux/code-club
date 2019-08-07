@@ -21,7 +21,7 @@ func updateRatio():
 
 func camera(t):
 	var x = 0.0 + 40.0 * sin(t / 25.0 * 2.0 * PI);
-	var y = 45.0 + 7.0 * sin(t / 20.0 * 2.0 * PI + 1234.0);
+	var y = 75.0 + 7.0 * sin(t / 20.0 * 2.0 * PI + 1234.0);
 	var z = 30.0 * t
 	
 	return Vector3(x,y,z)
