@@ -47,6 +47,41 @@ float noise2d(vec2 x)
 		f.y);
 }
 
+float softNoise2d(vec2 x)
+{
+	vec2 p  = floor(x);
+	vec2 f  = smoothstep(0.0, 1.0, fract(x));
+	float n = p.x + p.y*57.0;
+	
+	return mix(
+		mix( hash(n +  0.0), hash(n +  1.0),f.x),
+    	mix( hash(n + 57.0), hash(n + 58.0),f.x),
+		f.y);
+}
+
+vec4 cloud(vec2 pos)
+{
+	float density = 0.0;
+	float amp = 1.0;
+	float totalWeight = 0.0;
+	
+	for(int i = 0 ; i < 6 ; i++)
+	{
+		density += softNoise2d(pos) * amp;
+		totalWeight += amp;
+		
+		amp /= 2.0;
+		pos *= 2.5;
+	}
+	
+	density /= totalWeight;
+	density -= 0.55;
+	density *= 4.0;
+	density = clamp(density, 0.0, 1.0);
+	
+	return vec4(1.0, 1.0, 1.0, density);
+}
+
 float water(vec2 p)
 {
 	float w = 0.0;
@@ -128,6 +163,23 @@ vec3 sky(vec3 dir)
     return one - (one - skyColor.xyz) * (one - suncol);
 }
 
+vec3 skyAndClouds(vec3 eye, vec3 ray)
+{
+	// Solve for cloud layer distance
+	
+	float cloudHeight = 300.0;
+	float d = (cloudHeight - eye.y) / ray.y;
+	
+	vec3 pos = eye + d * ray;
+	
+	// Shade!
+	
+	vec4 cloudCol = cloud(pos.xz / 1000.0);
+	vec3 skyCol = sky(ray);
+	
+	return cloudCol.xyz * cloudCol.a + skyCol * (1.0 - cloudCol.a);
+}
+
 vec3 shade(vec3 pos, vec3 ray)
 {
 	vec3 n = normal(pos);
@@ -136,7 +188,7 @@ vec3 shade(vec3 pos, vec3 ray)
 	
 	float nray = dot(n,ray);
 	vec3 reflected = normalize(ray - 2.0 * nray * n);
-	vec3 skyRefl = sky(reflected);
+	vec3 skyRefl = skyAndClouds(pos, reflected);
 	
 	// Sun shading
 	
@@ -172,7 +224,7 @@ void fragment()
 	int iters;
 	vec3 hit = march(eye, ray, maxedOut, iters);
 	
-	vec3 s = maxedOut ? sky(ray) : shade(hit, ray);
+	vec3 s = maxedOut ? skyAndClouds(eye, ray) : shade(hit, ray);
 	
 	COLOR = vec4(s,1);
 }
