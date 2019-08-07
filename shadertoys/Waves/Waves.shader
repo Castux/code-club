@@ -9,6 +9,10 @@ uniform float clip = 1000.0;
 uniform float fov = 2.0;
 uniform float time = 0.0;
 
+uniform vec3 camera = vec3(0,45,0);
+uniform vec3 cameraForward = vec3(0,-0.05,1);
+uniform vec3 cameraUp = vec3(0,1,0);
+
 uniform vec3 sunDir = vec3(0,0.5,1);
 uniform float sunWidth = 20.0;
 
@@ -228,31 +232,25 @@ vec3 shade(vec3 pos, vec3 ray)
 	return total;
 }
 
-vec3 screenRay(vec3 eye, vec3 forward, vec2 uv)
+vec3 screenRay(vec2 uv)
 {
-	vec3 up = vec3(0,1,0);
-	vec3 right = normalize(cross(forward, up));
+	vec3 right = normalize(cross(cameraForward, cameraUp));	
+	vec3 up = normalize(cross(right, cameraForward));
 	
-	up = normalize(cross(right, forward));
-	
-	vec3 ray = forward + uv.x * right * fov - uv.y * up * fov;
+	vec3 ray = cameraForward + uv.x * right * fov - uv.y * up * fov;
 	return normalize(ray);
 }
 
 void fragment()
 {	
 	vec2 uv = vec2((UV.x - 0.5) * ratio, UV.y - 0.5);
-	
-	vec3 eye = vec3(0,25,0);
-	//vec3 forward = vec3(sin(time / 15.0),-0.05,cos(time / 15.0));
-	vec3 forward = vec3(0,-0.05,1);
-	vec3 ray = screenRay(eye, forward, uv);
+	vec3 ray = screenRay(uv);
 
 	bool maxedOut;
 	int iters;
-	vec3 hit = march(eye, ray, maxedOut, iters);
+	vec3 hit = march(camera, ray, maxedOut, iters);
 	
-	vec3 s = maxedOut ? skyAndClouds(eye, ray) : shade(hit, ray);
+	vec3 s = maxedOut ? skyAndClouds(camera, ray) : shade(hit, ray);
 	
 	vec4 fogRes = fog(ray);
 	
