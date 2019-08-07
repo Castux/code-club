@@ -1,3 +1,4 @@
+tool
 extends Control
 
 var time = 0.0
@@ -57,3 +58,9 @@ func _process(delta):
 	material.set_shader_param("cloudColor", cloudColor)
 			
 	material.set_shader_param("time", time)
+	
+
+func _input(ev):
+	if(Input.is_action_just_pressed("toggle_fullscreen")):
+		 OS.window_fullscreen = not OS.window_fullscreen
+	

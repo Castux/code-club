@@ -17,6 +17,7 @@ uniform vec3 sunDir = vec3(0,0.5,1);
 uniform float sunWidth = 20.0;
 
 uniform float fogWidth = 0.2;
+uniform float fogAngle = 0.0;
 uniform vec4 fogColor : hint_color = vec4(1.0, 1.0, 1.0, 1.0);
 
 uniform vec4 sunColor : hint_color = vec4(1.0, 1.0, 1.0, 1.0);
@@ -259,7 +260,6 @@ void fragment()
 	vec3 s = maxedOut ? skyAndClouds(camera, ray) : shade(hit, ray);
 	
 	vec4 fogRes = fog(ray);
-	
 	s = fogRes.xyz * fogRes.a + s * (1.0 - fogRes.a);
 	
 	COLOR = vec4(s,1);

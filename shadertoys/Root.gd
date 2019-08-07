@@ -26,8 +26,3 @@ func _on_Next_pressed():
 	currentIndex += 1
 	currentIndex %= scenes.size()
 	set_scene()
-
-func _input(ev):
-	if(Input.is_action_just_pressed("toggle_fullscreen")):
-		 OS.window_fullscreen = not OS.window_fullscreen
-	
