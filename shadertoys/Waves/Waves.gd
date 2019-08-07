@@ -15,7 +15,6 @@ export(Color) var cloudColor;
 
 func _ready():
 	updateRatio()
-	$AnimationPlayer.play("DayNight")
 
 func updateRatio():
 	var ratio = rect_size.x / rect_size.y

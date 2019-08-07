@@ -244,7 +244,8 @@ void fragment()
 	vec2 uv = vec2((UV.x - 0.5) * ratio, UV.y - 0.5);
 	
 	vec3 eye = vec3(0,25,0);
-	vec3 forward = vec3(sin(time / 15.0),-0.05,cos(time / 15.0));
+	//vec3 forward = vec3(sin(time / 15.0),-0.05,cos(time / 15.0));
+	vec3 forward = vec3(0,-0.05,1);
 	vec3 ray = screenRay(eye, forward, uv);
 
 	bool maxedOut;
