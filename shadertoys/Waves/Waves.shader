@@ -81,17 +81,17 @@ vec4 cloud(vec2 pos)
 	float amp = 1.0;
 	float totalWeight = 0.0;
 	
-	for(int i = 0 ; i < 6 ; i++)
+	for(int i = 0 ; i < 4 ; i++)
 	{
 		density += softNoise2d(pos) * amp;
 		totalWeight += amp;
 		
 		amp /= 2.0;
-		pos *= 2.5;
+		pos *= 3.0;
 	}
 	
 	density /= totalWeight;
-	density -= 0.55;
+	density -= 0.45;
 	density *= 4.0;
 	density = clamp(density, 0.0, 1.0);
 	
@@ -109,7 +109,7 @@ float water(vec2 p)
 	w += sin(dot(p, vec2(0.017, 0.01)) + tshift * 1.1)*4.1;
 	w += sin(dot(p, vec2(0.00104, 0.005)) + tshift * 0.121)*4.0;
 	
-	float amp = 4.0;
+	float amp = 5.0;
 	float noiseLen = 50.0;
 	
 	for (int i = 0; i < 7; i++)
