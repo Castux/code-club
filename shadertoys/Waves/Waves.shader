@@ -174,8 +174,8 @@ vec3 sky(vec3 dir)
 	
 	vec3 one = vec3(1);
 	
-   // return one - (one - skyColor.xyz) * (one - suncol);
-	return suncol.xyz * suncol.a + skyColor.xyz * (1.0 - suncol.a);
+    return one - (one - skyColor.xyz) * (one - suncol.xyz);
+	//return suncol.xyz * suncol.a + skyColor.xyz * (1.0 - suncol.a);
 }
 
 vec3 skyAndClouds(vec3 eye, vec3 ray)

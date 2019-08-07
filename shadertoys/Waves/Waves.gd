@@ -1,3 +1,4 @@
+tool
 extends Control
 
 var time = 0.0
@@ -10,7 +11,7 @@ export(float) var fogWidth;
 export(Color) var fogColor;
 
 export(Color) var skyColor;
-
+export(Color) var cloudColor;
 
 func _ready():
 	updateRatio()
@@ -21,7 +22,9 @@ func updateRatio():
 	material.set_shader_param("ratio", ratio)
 
 func _process(delta):
-	time += delta
+	
+	if not Engine.editor_hint:
+		time += delta
 	
 	material.set_shader_param("sunWidth", sunWidth)
 	material.set_shader_param("sunColor", sunColor)
@@ -30,5 +33,6 @@ func _process(delta):
 	material.set_shader_param("fogColor", fogColor)
 	material.set_shader_param("sunWidth", sunWidth)
 	material.set_shader_param("skyColor", skyColor)
-		
+	material.set_shader_param("cloudColor", cloudColor)
+			
 	material.set_shader_param("time", time)
