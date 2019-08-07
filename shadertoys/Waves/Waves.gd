@@ -3,6 +3,8 @@ extends Control
 
 var time = 0.0
 
+var pause = true
+
 export(float) var sunWidth;
 export(Color) var sunColor;
 export(Vector3) var sunDir;
@@ -33,7 +35,7 @@ func cameraUp(t):
 
 func _process(delta):
 	
-	if not Engine.editor_hint:
+	if not Engine.editor_hint and not pause:
 		time += delta
 	
 	var pos = camera(time)
@@ -63,4 +65,13 @@ func _process(delta):
 func _input(ev):
 	if(Input.is_action_just_pressed("toggle_fullscreen")):
 		 OS.window_fullscreen = not OS.window_fullscreen
+	
+	if(Input.is_action_just_pressed("pause")):
+		pause = not pause
+		if(pause):
+			$AnimationPlayer.stop(false)
+		else:
+			$AnimationPlayer.play("DayNight")
+	
+	
 	
