@@ -20,14 +20,14 @@ func updateRatio():
 	material.set_shader_param("ratio", ratio)
 
 func camera(t):
-	var x = 0.0 + 40.0 * sin(t / 25.0 * 2.0 * PI);
-	var y = 75.0 + 7.0 * sin(t / 20.0 * 2.0 * PI + 1234.0);
-	var z = 30.0 * t
+	var x = 0.0 + 40.0 * sin(t / 35.0 * 2.0 * PI);
+	var y = 75.0 + 7.0 * sin(t / 31.0 * 2.0 * PI + 1234.0);
+	var z = 25.0 * t
 	
 	return Vector3(x,y,z)
 
 func cameraUp(t):
-	var roll = sin(t / 31.0 * 2.0 * PI) * 0.12;
+	var roll = sin(t / 39.0 * 2.0 * PI) * 0.12;
 	return Vector3(sin(roll), cos(roll), 0.0);
 
 func _process(delta):
