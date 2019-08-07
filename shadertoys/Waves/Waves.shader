@@ -8,7 +8,9 @@ uniform float precision = 0.1;
 uniform float clip = 1000.0;
 uniform float fov = 2.0;
 uniform float time = 0.0;
+
 uniform vec3 sunDir = vec3(0,0.5,1);
+uniform float sunWidth = 20.0;
 
 uniform float fogWidth = 0.2;
 uniform vec4 fogColor : hint_color = vec4(1.0, 1.0, 1.0, 1.0);
@@ -16,6 +18,7 @@ uniform vec4 fogColor : hint_color = vec4(1.0, 1.0, 1.0, 1.0);
 uniform vec4 sunColor : hint_color = vec4(1.0, 1.0, 1.0, 1.0);
 uniform vec4 skyColor : hint_color = vec4(0, 0.62, 0.95, 1.0);
 uniform vec4 waterColor : hint_color; // = vec4(35.0 / 255.0, 158.0 / 255.0, 133.0 / 255.0, 1.0);
+uniform vec4 cloudColor : hint_color;
 
 float map(float x, float a, float b, float u, float v)
 {
@@ -88,7 +91,7 @@ vec4 cloud(vec2 pos)
 	density *= 4.0;
 	density = clamp(density, 0.0, 1.0);
 	
-	return vec4(1.0, 1.0, 1.0, density);
+	return vec4(cloudColor.xyz, density);
 }
 
 float water(vec2 p)
@@ -165,11 +168,14 @@ vec3 normal(vec3 pos)
 vec3 sky(vec3 dir)
 {
 	float sundot = dot(dir, normalize(sunDir));
-	vec3 suncol = pow(clamp(sundot,0,1), 20.0) * sunColor.xyz * 1.2;
+	vec4 suncol = pow(clamp(sundot,0,1), sunWidth) * sunColor;
+	
+	suncol = clamp(suncol, 0.0, 1.0);
 	
 	vec3 one = vec3(1);
 	
-    return one - (one - skyColor.xyz) * (one - suncol);
+   // return one - (one - skyColor.xyz) * (one - suncol);
+	return suncol.xyz * suncol.a + skyColor.xyz * (1.0 - suncol.a);
 }
 
 vec3 skyAndClouds(vec3 eye, vec3 ray)
