@@ -5,13 +5,22 @@ uniform float ratio = 2;
 
 uniform int maxIter = 100;
 uniform float precision = 0.1;
-uniform float clip = 500.0;
+uniform float clip = 1000.0;
 uniform float fov = 2.0;
 uniform float time = 0.0;
 uniform vec3 sunDir = vec3(0,0.5,1);
 
+uniform float fogWidth = 0.2;
+uniform vec4 fogColor : hint_color = vec4(1.0, 1.0, 1.0, 1.0);
+
+uniform vec4 sunColor : hint_color = vec4(1.0, 1.0, 1.0, 1.0);
 uniform vec4 skyColor : hint_color = vec4(0, 0.62, 0.95, 1.0);
 uniform vec4 waterColor : hint_color; // = vec4(35.0 / 255.0, 158.0 / 255.0, 133.0 / 255.0, 1.0);
+
+float map(float x, float a, float b, float u, float v)
+{
+	return u + (x - a) / (b - a) * (v - u);
+}
 
 float hash( float n )
 {
@@ -156,7 +165,7 @@ vec3 normal(vec3 pos)
 vec3 sky(vec3 dir)
 {
 	float sundot = dot(dir, normalize(sunDir));
-	vec3 suncol = pow(clamp(sundot,0,1), 20.0) * vec3(1.0,1.0,1.0);
+	vec3 suncol = pow(clamp(sundot,0,1), 20.0) * sunColor.xyz * 1.2;
 	
 	vec3 one = vec3(1);
 	
@@ -178,6 +187,18 @@ vec3 skyAndClouds(vec3 eye, vec3 ray)
 	vec3 skyCol = sky(ray);
 	
 	return cloudCol.xyz * cloudCol.a + skyCol * (1.0 - cloudCol.a);
+}
+
+vec4 fog(vec3 ray)
+{
+	float ang = asin(ray.y / sqrt(ray.x * ray.x + ray.z * ray.z));
+	
+	float angFactor = exp(-ang*ang / fogWidth / fogWidth);
+	
+	vec4 res = fogColor;
+	res.a *= angFactor;
+	
+	return res;
 }
 
 vec3 shade(vec3 pos, vec3 ray)
@@ -225,6 +246,10 @@ void fragment()
 	vec3 hit = march(eye, ray, maxedOut, iters);
 	
 	vec3 s = maxedOut ? skyAndClouds(eye, ray) : shade(hit, ray);
+	
+	vec4 fogRes = fog(ray);
+	
+	s = fogRes.xyz * fogRes.a + s * (1.0 - fogRes.a);
 	
 	COLOR = vec4(s,1);
 }

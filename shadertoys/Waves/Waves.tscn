@@ -8,10 +8,13 @@ shader = ExtResource( 1 )
 shader_param/ratio = 2.0
 shader_param/maxIter = 1000
 shader_param/precision = 0.001
-shader_param/clip = 1000.0
+shader_param/clip = 10000.0
 shader_param/fov = 1.0
 shader_param/time = 0.0
 shader_param/sunDir = Vector3( 0, 0.5, 1 )
+shader_param/fogWidth = 0.04
+shader_param/fogColor = Color( 0.333333, 0.8, 1, 0.690196 )
+shader_param/sunColor = Color( 1, 1, 1, 1 )
 shader_param/skyColor = Color( 0.15564, 0.560865, 0.78125, 1 )
 shader_param/waterColor = Color( 0.0186157, 0.220939, 0.238281, 1 )
 
@@ -23,4 +26,5 @@ script = ExtResource( 2 )
 __meta__ = {
 "_edit_lock_": true
 }
+
 [connection signal="item_rect_changed" from="." to="." method="updateRatio"]
