@@ -16,6 +16,6 @@ Click for live demo:
 
 [![Thumbnail](http://i3.ytimg.com/vi/cXT5JclvHt8/maxresdefault.jpg)](https://castux.github.io/code-club/wave/)
 
-(Or check the ![video](https://www.youtube.com/watch?v=cXT5JclvHt8) if it's too power hungry...)
+(Or check the [video](https://www.youtube.com/watch?v=cXT5JclvHt8) if it's too power hungry...)
 
 More info about raymarching and signed distance fields [here](https://www.iquilezles.org/www/articles/raymarchingdf/raymarchingdf.htm).
