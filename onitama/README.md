@@ -14,7 +14,7 @@ Check the official [rulebook](http://www.arcanewonders.com/resources/Onitama_Rul
 
 **Note:** The starting player will be determined randomly, instead of using the method described in the rules. The colored stamps on the cards can be entirely ignored.
 
-**Note 2:** The rules indicate that if you do not have a valid move, you still play a card but do not move a pawn. In practice this situation never happens and can be ignored. It is not handled by the judge, and will therefore result in a timeout and elimination for the current player, as no valid move can be submitted.
+**Note 2:** The rules indicate that if you do not have a valid move, you still play a card but do not move a pawn. In practice this situation never happens, so you can ignore it. If by cosmic chance it would, the rule in this competition is instead: if a player has no valid move, they lose. The judge handles this already with the timeout, since no valid move can be submitted in time.
 
 ## The judge
 
