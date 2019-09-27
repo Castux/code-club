@@ -75,7 +75,7 @@ The cells of the 5x5 board are denoted using the following notation:
 
 With this notation, Top's pawns start on row 1, and Bottom's pawns start on row 5.
 
-The server accepts moves following this format:
+The server accepts moves (and broadcasts them) following this format:
 
 `<card> <origin> <destination>`
 
@@ -108,6 +108,12 @@ Requirements:
 
 - Lua 5.1 or above
 - luasocket
+
+Usage:
+
+`lua judge.lua <port> <timeout>`
+
+(timeout is in seconds)
 
 ## Competition
 
