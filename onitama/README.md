@@ -8,9 +8,7 @@ For this code club challenge, you will be tasked with writing an AI player for a
 
 Onitama is a simple abstract strategy board game. The goal is to either capture the opponent's Master pawn, or to move your own Master across the board. Each turn you will use one of your two movement cards that indicate your valid moves. The twist is that movement cards rotate between the players as they are used, making it a pretty tricky game!
 
-Check the official [rulebook](http://www.arcanewonders.com/resources/Onitama_Rulebook.PDF).
-
-And this photo of the 16 available cards:
+Check the official [rulebook](http://www.arcanewonders.com/resources/Onitama_Rulebook.PDF) for complete rules, and this photo of the 16 available cards:
 
 ![Cards](cards.jpg)
 
