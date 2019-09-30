@@ -70,6 +70,10 @@ local function printState(game)
 	for i,move in ipairs(moves) do
 		io.write(moveToString(move), i == #moves and "\n" or " / ")
 	end
+	
+	if #moves == 0 then
+		print "none"
+	end
 
 end
 
@@ -148,7 +152,7 @@ local function handleInput(game, from, msg, clients)
 			move.to[1] == drow and
 			move.to[2] == dcol then
 			
-			print(playerName(from) .. " player plays ", msg)
+			print(playerName(from) .. " player plays " .. msg)
 			
 			onitama.applyMove(game, move)
 			printState(game)
@@ -165,7 +169,7 @@ local function handleInput(game, from, msg, clients)
 		end
 	end
 	
-	print(playerName(from) .. " player submitted an invalid move: ", msg)
+	print(playerName(from) .. " player submitted an invalid move: " .. msg)
 	return "abort"
 end
 
@@ -211,18 +215,24 @@ end
 
 function main(args)
 
+	local timeout, ip
+
 	if not args[1] or not args[2] then
 		print("Usage: lua judge.lua <port> <timeout>")
-		return
+		print("Using defaults: port 8000, 15 seconds timeout")
+		
+		port = 8000
+		timeout = 15
+	else
+		port = tonumber(args[1])
+		timeout = tonumber(args[2])
 	end
 	
-	local timeout = tonumber(args[2])
 	print("Timeout set to " .. timeout .. " seconds")
 	
-	local clients = startServer(args[1])
+	local clients = startServer(port)
 	local game = startGame(clients)
 	run(game, clients, timeout)
-
 end
 
 main({...})
