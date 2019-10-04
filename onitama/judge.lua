@@ -26,7 +26,7 @@ local function moveToString(move)
 		columnNames[move.to[2]] .. move.to[1]
 end
 
-local function startServer(PORT)
+local function startServer(PORT, dumbot)
 
 	local PORT = PORT or 8000
 	local server = socket.bind("*", PORT)
@@ -38,8 +38,9 @@ local function startServer(PORT)
 	print("Server running on port " .. PORT)
 
 	local clients = {}
+	local expectedCount = dumbot and 1 or 2
 
-	while #clients < 2 do
+	while #clients < expectedCount do
 
 		local client = server:accept()
 		local ip,port = client:getpeername()
@@ -173,7 +174,30 @@ local function handleInput(game, from, msg, clients)
 	return "abort"
 end
 
-local function run(game, clients, timeout)
+local function playDumb(game, clients)
+	
+	local moves = onitama.validMoves(game)
+	local index = math.random(#moves)
+	local move = moves[index]
+	
+	local msg = moveToString(move)
+	
+	print("dumbot plays " .. msg)
+	
+	onitama.applyMove(game, move)
+	printState(game)
+	
+	for _,client in ipairs(clients) do
+		client:send(msg .. "\n")
+	end
+	
+end
+
+local function run(game, clients, timeout, dumbot)
+
+	if dumbot and (clients[clients[1]] ~= game.currentPlayer) then
+		playDumb(game, clients)
+	end
 
 	local turnStart = os.time()
 
@@ -203,6 +227,11 @@ local function run(game, clients, timeout)
 				end
 				
 				if status == "played" then
+					
+					if dumbot then
+						playDumb(game, clients)
+					end
+					
 					turnStart = os.time()
 				end
 			end
@@ -215,10 +244,10 @@ end
 
 function main(args)
 
-	local timeout, ip
+	local timeout, ip, dumbot
 
 	if not args[1] or not args[2] then
-		print("Usage: lua judge.lua <port> <timeout>")
+		print("Usage: lua judge.lua <port> <timeout> [dumbot]")
 		print("Using defaults: port 8000, 15 seconds timeout")
 		
 		port = 8000
@@ -226,13 +255,18 @@ function main(args)
 	else
 		port = tonumber(args[1])
 		timeout = tonumber(args[2])
+		dumbot = args[3] == "dumbot"
+	end
+	
+	if dumbot then
+		math.randomseed(os.time())
 	end
 	
 	print("Timeout set to " .. timeout .. " seconds")
 	
-	local clients = startServer(port)
+	local clients = startServer(port, dumbot)
 	local game = startGame(clients)
-	run(game, clients, timeout)
+	run(game, clients, timeout, dumbot)
 end
 
 main({...})
