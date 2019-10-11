@@ -169,22 +169,17 @@ local function find_anagrams(dict, word, current)
 	end
 end
 
-local function main()
-
-	local dict,count = load_dict "dict.txt"
-	print("Loaded " .. count .. " words")
-
-	local phrase = count_chars "thewitchisalive"
-
-	local iter = coroutine.wrap(function() find_anagrams(dict, phrase) end)
+local function run(dict_path, word)
 	
-	for result in iter do
-		for _,w in ipairs(result) do
-			io.write(w.word, " ")
-		end
-		io.write "\n"
-	end
+	local dict,count = load_dict(dict_path)
+	print("Loaded " .. count .. " words from " .. dict_path)
+	
+	word = count_chars(word)
+	
+	return coroutine.wrap(function() find_anagrams(dict, word) end)
 end
 
-main()
-
+return
+{
+	find = run
+}
