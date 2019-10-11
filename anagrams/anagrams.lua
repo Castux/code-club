@@ -11,60 +11,64 @@ end
 
 local function load_word(w)
 
-	local counts = {}
-	local total = 0
+	local res = {}
 
 	for pos,code in utf8.codes(w) do
-		counts[code] = (counts[code] or 0) + 1
-		total = total + 1
+		res[#res + 1] = code
 	end
+	
+	table.sort(res)
+	res.string = w
 
-	counts.word = w
-	counts.total = total
-
-	return counts
+	return res
 end
 
 -- Check if all the letters in a are found in b
+-- We use the fact that both arrays are sorted
 
 local function is_subword(a,b)
 
-	for char,count in pairs(a) do
-		if char ~= "word"  and char ~= "total" then
-
-			if count > (b[char] or 0) then
-				return false
-			end
-
+	local i,j = 1,1
+	
+	while i <= #a and j <= #b do
+		
+		if a[i] < b[j] then		-- the letter in a is not in b
+			return false
+		
+		
+		elseif a[i] == b[j] then	-- found the a letter in b
+			i = i+1
+			j = j+1
+		
+		else					-- a[i] > b[j]: skip the b letter which a doesn't have
+			j = j+1
 		end
 	end
-
-	return true
+	
+	return i > #a	-- we found all the a letters
 end
 
--- Result is big - small
+-- Subtract words (assume small is a subword of big, and they are both sorted)
 
-local function count_diff(big,small)
-
+local function word_diff(b,a)
+	
 	local res = {}
-	local total = 0
-
-	for char,count in pairs(big) do
-		if char ~= "word"  and char ~= "total" then
-
-			local diff = big[char] - (small[char] or 0)
-			assert(diff >= 0)
-
-			if diff > 0 then
-				res[char] = diff
-				total = total + diff
-			end
-
+	
+	local i,j = 1,1
+	
+	while i <= #a and j <= #b do
+		
+		if b[j] == a[i] then	-- skip it, since it's in small
+			-- skip it
+			j = j+1
+			i = i+1
+		else
+			res[#res+1] = b[j]
+			j = j+1
 		end
+		
 	end
-
-	res.total = total
-
+	
 	return res
 end
 
@@ -83,11 +87,11 @@ local function load_dict(path)
 
 		word = load_word(word)
 
-		if not words[word.total] then
-			words[word.total] = {}
+		if not words[#word] then
+			words[#word] = {}
 		end
 
-		table.insert(words[word.total], word)
+		table.insert(words[#word], word)
 		count = count + 1
 	end
 
@@ -101,14 +105,14 @@ local function find_all_subwords(dict, word, start_at)
 	-- Only look for words that "come after" start_at: shorter ones, or 
 	-- larger lexicographically
 
-	local max_length = start_at and start_at.total or #dict
+	local max_length = start_at and #start_at or #dict
 
 	for length = max_length,1,-1 do
 		for _,w in ipairs(dict[length]) do
 			
 			local skip = false
 			if start_at and length == max_length then
-				skip = w.word < start_at.word
+				skip = w.string < start_at.string
 			end
 			
 			if (not skip) and is_subword(w, word) then
@@ -138,7 +142,9 @@ local function find_anagrams(dict, word, current)
 
 	for _,v in ipairs(subs) do
 
-		local rest = count_diff(word, v)
+		print(v.string)
+
+		local rest = word_diff(word, v)
 
 		current[#current + 1] = v
 
