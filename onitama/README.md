@@ -115,6 +115,8 @@ Usage:
 
 (timeout is in seconds)
 
+Invoked with `dumbot` as third parameter, the judge accepts only one connection and plays random moves for the opponent. This can be used for testing purposes.
+
 ## Competition
 
 The competition mode is yet to be determined. Depending on the number of participants, a single-elimination bracket or Swiss-style tournament could be used.
