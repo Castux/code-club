@@ -9,7 +9,7 @@ end
 
 --[[ Words are represented as table of counts of their characters ]]--
 
-local function count_chars(w)
+local function load_word(w)
 
 	local counts = {}
 	local total = 0
@@ -23,27 +23,6 @@ local function count_chars(w)
 	counts.total = total
 
 	return counts
-end
-
-local function counts_to_string(counts)
-
-	local chars = {}
-
-	for char,count in pairs(counts) do
-		if char ~= "word" and char ~= "total" then
-			for i = 1,count do
-				table.insert(chars, char)
-			end
-		end
-	end
-
-	table.sort(chars)
-
-	for i,v in ipairs(chars) do
-		chars[i] = utf8.char(v)
-	end
-
-	return table.concat(chars)
 end
 
 -- Check if all the letters in a are found in b
@@ -102,7 +81,7 @@ local function load_dict(path)
 		local word = line:match "%w+"
 		word = word:lower()
 
-		word = count_chars(word)
+		word = load_word(word)
 
 		if not words[word.total] then
 			words[word.total] = {}
@@ -174,7 +153,7 @@ local function run(dict_path, word)
 	local dict,count = load_dict(dict_path)
 	print("Loaded " .. count .. " words from " .. dict_path)
 	
-	word = count_chars(word)
+	word = load_word(word)
 	
 	return coroutine.wrap(function() find_anagrams(dict, word) end)
 end
