@@ -5,6 +5,7 @@ local function main(args)
 	local dict_path = args[1]
 	local phrase = args[2]
 	local includes = {}
+	local excludes = {}
 
 	if not dict_path or not phrase then
 		print("Usage: lua main.lua <dict_path> <phrase> [+include] [-exclude]")
@@ -12,12 +13,20 @@ local function main(args)
 	end
 
 	for i = 3,#args do
-		if args[i]:sub(1,1) == "+" then
-			table.insert(includes, args[i]:sub(2))
-		end		
+		
+		local head,tail = args[i]:sub(1,1), args[i]:sub(2)
+		
+		if head == "+" then
+			table.insert(includes, tail)
+		elseif head == "-" then
+			table.insert(excludes, tail)
+		else
+			print("Unexpected argument: " .. args[i])
+			return
+		end
 	end
 
-	local iter = anagrams.find(dict_path, phrase, includes)
+	local iter = anagrams.find(dict_path, phrase, includes, excludes)
 	
 	if not iter then
 		print("Includes are too restrictive")

@@ -19,7 +19,7 @@ local function load_word(w)
 			res[#res + 1] = code
 		end
 	end
-	
+
 	table.sort(res)
 	res.string = w
 
@@ -32,35 +32,35 @@ end
 local function is_subword(a,b)
 
 	local i,j = 1,1
-	
+
 	while i <= #a and j <= #b do
-		
+
 		if a[i] < b[j] then		-- the letter in a is not in b
 			return false
-		
-		
+
+
 		elseif a[i] == b[j] then	-- found the a letter in b
 			i = i+1
 			j = j+1
-		
+
 		else					-- a[i] > b[j]: skip the b letter which a doesn't have
 			j = j+1
 		end
 	end
-	
+
 	return i > #a	-- we found all the a letters
 end
 
 -- Subtract words (assume small is a subword of big, and they are both sorted)
 
 local function word_diff(b,a)
-	
+
 	local res = {}
-	
+
 	local i,j = 1,1
-	
+
 	while j <= #b do
-		
+
 		if b[j] == a[i] then	-- skip it, since it's in small
 			-- skip it
 			j = j+1
@@ -71,9 +71,9 @@ local function word_diff(b,a)
 		else
 			i = i+1
 		end
-		
+
 	end
-	
+
 	return res
 end
 
@@ -114,12 +114,12 @@ local function find_all_subwords(dict, word, start_at)
 
 	for length = max_length,1,-1 do
 		for _,w in ipairs(dict[length]) do
-			
+
 			local skip = false
 			if start_at and length == max_length then
 				skip = w.string < start_at.string
 			end
-			
+
 			if (not skip) and is_subword(w, word) then
 				table.insert(res, w)
 			end
@@ -131,48 +131,50 @@ end
 
 --[[ The algorithm itself: straightforward recursion ]]--
 
-local function find_anagrams(dict, word, current)
-
-	current = current or {}
+local function find_anagrams(dict, word, current, excludes)
 
 	if #word == 0 then
 		coroutine.yield(current)
 	end
 
 	-- To avoid duplicate answers, always go in decreasing word length
-	
+
 	local start_at = current[#current]
-	
+
 	local subs = find_all_subwords(dict, word, start_at)
 
 	for _,v in ipairs(subs) do
+		if not excludes[v.string] then
 
-		local rest = word_diff(word, v)
-		
-		current[#current + 1] = v
+			local rest = word_diff(word, v)
 
-		find_anagrams(dict, rest, current)
-
-		current[#current] = nil		
+			current[#current + 1] = v
+			find_anagrams(dict, rest, current, excludes)
+			current[#current] = nil		
+		end
 	end
 end
 
 -- Do not modify the returned array! It is used internally!
 
-local function run(dict_path, word, includes)
-	
+local function run(dict_path, word, includes, excludes)
+
 	local dict,count = load_dict(dict_path)
 	print("Loaded " .. count .. " words from " .. dict_path)
-	
+
 	word = load_word(word)
-	
+
 	include = load_word(table.concat(includes))
 	if not is_subword(include, word) then
 		return nil
 	end
 	word = word_diff(word, include)
-	
-	return coroutine.wrap(function() find_anagrams(dict, word) end)
+
+	for i,v in ipairs(excludes) do
+		excludes[v] = true
+	end
+
+	return coroutine.wrap(function() find_anagrams(dict, word, {}, excludes) end)
 end
 
 return
