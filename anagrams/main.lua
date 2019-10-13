@@ -13,7 +13,7 @@ local function main(args)
 	for res in anagrams.find(dict_path, phrase) do
 
 		for _,v in ipairs(res) do
-			io.write(v.word, " ")
+			io.write(v.string, " ")
 		end
 		io.write "\n"
 

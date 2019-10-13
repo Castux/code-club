@@ -56,15 +56,17 @@ local function word_diff(b,a)
 	
 	local i,j = 1,1
 	
-	while i <= #a and j <= #b do
+	while j <= #b do
 		
 		if b[j] == a[i] then	-- skip it, since it's in small
 			-- skip it
 			j = j+1
 			i = i+1
-		else
+		elseif i >= #a or b[j] < a[i] then
 			res[#res+1] = b[j]
 			j = j+1
+		else
+			i = i+1
 		end
 		
 	end
@@ -130,7 +132,7 @@ local function find_anagrams(dict, word, current)
 
 	current = current or {}
 
-	if word.total == 0 then
+	if #word == 0 then
 		coroutine.yield(table_copy(current))
 	end
 
@@ -142,10 +144,8 @@ local function find_anagrams(dict, word, current)
 
 	for _,v in ipairs(subs) do
 
-		print(v.string)
-
 		local rest = word_diff(word, v)
-
+		
 		current[#current + 1] = v
 
 		find_anagrams(dict, rest, current)
