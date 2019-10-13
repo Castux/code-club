@@ -12,9 +12,12 @@ end
 local function load_word(w)
 
 	local res = {}
+	local space = utf8.codepoint " "
 
 	for pos,code in utf8.codes(w) do
-		res[#res + 1] = code
+		if code ~= space then
+			res[#res + 1] = code
+		end
 	end
 	
 	table.sort(res)
@@ -156,12 +159,18 @@ end
 
 -- Do not modify the returned array! It is used internally!
 
-local function run(dict_path, word)
+local function run(dict_path, word, includes)
 	
 	local dict,count = load_dict(dict_path)
 	print("Loaded " .. count .. " words from " .. dict_path)
 	
 	word = load_word(word)
+	
+	include = load_word(table.concat(includes))
+	if not is_subword(include, word) then
+		return nil
+	end
+	word = word_diff(word, include)
 	
 	return coroutine.wrap(function() find_anagrams(dict, word) end)
 end
