@@ -133,7 +133,7 @@ local function find_anagrams(dict, word, current)
 	current = current or {}
 
 	if #word == 0 then
-		coroutine.yield(table_copy(current))
+		coroutine.yield(current)
 	end
 
 	-- To avoid duplicate answers, always go in decreasing word length
@@ -153,6 +153,8 @@ local function find_anagrams(dict, word, current)
 		current[#current] = nil		
 	end
 end
+
+-- Do not modify the returned array! It is used internally!
 
 local function run(dict_path, word)
 	
