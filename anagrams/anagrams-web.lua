@@ -11,6 +11,7 @@ local excludes_div
 local includes_input
 local length_input
 local body
+local resultbox_model
 
 local dict
 local current_search
@@ -51,10 +52,35 @@ local function clearResults()
 	
 end
 
-local function add_result(str)
+local add_include, add_exclude
+
+local function create_result_word(str)
+	
+	local elem = resultbox_model:cloneNode(true)
+	
+	elem.children[0].innerHTML = str
+	
+	elem.children[1].onclick = function()
+		add_include(str)
+	end
+	
+	elem.children[2].onclick = function()
+		add_exclude(str)
+	end
+	
+	return elem
+end
+
+local function add_result(t)
 	
 	local div = js.global.document:createElement "div"
-	div.innerHTML = str
+	div.classList:add "resultline"
+	
+	for i,v in ipairs(t) do
+		local elem = create_result_word(v)
+		div:appendChild(elem)
+	end
+
 	results_div:appendChild(div)
 	
 end
@@ -70,7 +96,7 @@ progress_search = function()
 	local result = current_search()
 	if not result then
 		current_search = nil
-		add_result "(done)"
+		add_result {"(done)"}
 		
 		body.classList:remove "loading"
 		
@@ -79,17 +105,17 @@ progress_search = function()
 	
 	if result ~= "pause" then
 		
-		local str = ""
+		local t = {}
 		
 		for i = 0, includes_div.children.length - 1 do
-			str = str .. includes_div.children[i].children[0].innerHTML .. " "
+			table.insert(t, includes_div.children[i].children[0].innerHTML)
 		end
 		
 		for _,word in ipairs(result) do
-			str = str .. word.string .. " "
+			table.insert(t, word.string)
 		end
 		
-		add_result(str)
+		add_result(t)
 	end
 	
 	js.global:setTimeout(progress_search, 1)
@@ -120,7 +146,7 @@ local function restart_search()
 	current_search = anagrams.find(dict, phrase, includes, excludes, min_len or 1, "yield_often")
 	
 	if not current_search then
-		add_result "(invalid includes)"
+		add_result {"(invalid includes)"}
 		return
 	end
 	
@@ -128,8 +154,6 @@ local function restart_search()
 	
 	js.global:setTimeout(progress_search, 1)
 end
-
-local add_include, add_exclude
 
 add_include = function(str)
 	
@@ -224,6 +248,9 @@ local function setup()
 
 	wordbox_model = includes_div.firstElementChild
 	includes_div:removeChild(wordbox_model)
+	
+	resultbox_model = results_div.firstElementChild
+	results_div:removeChild(resultbox_model)
 	
 	phrase_input.onchange = restart_search
 	includes_input.onchange = on_includes_input

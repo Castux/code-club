@@ -28,6 +28,24 @@ input
 	margin: 5px;
 }
 
+.wordboxtext
+{
+}
+
+.resultline
+{
+}
+
+.resultbox
+{
+	display: inline-block;
+	margin-right: 5px;
+}
+
+.resultboxtext
+{
+}
+
 .include
 {
 	background: #b0fffb;
@@ -36,10 +54,6 @@ input
 .exclude
 {
 	background: #ffc4ec;
-}
-
-.wordboxtext
-{
 }
 
 .hidedot
@@ -63,7 +77,11 @@ input
 	cursor: pointer;
 }
 
-.wordbox:hover .hidedot, .wordbox:hover  .includedot, .wordbox:hover .excludedot
+.wordbox:hover .hidedot,
+.wordbox:hover .includedot,
+.wordbox:hover .excludedot,
+.resultbox:hover .includedot,
+.resultbox:hover .excludedot
 {
 	display: inline;
 }
