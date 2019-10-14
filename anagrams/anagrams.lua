@@ -90,7 +90,7 @@ local function load_dict(words_array)
 	return words
 end
 
-local function find_all_subwords(dict, word, start_at, min_len)
+local function find_all_subwords(dict, word, start_at, min_len, yield_often)
 
 	local res = {}
 	local diffs = {}
@@ -101,7 +101,11 @@ local function find_all_subwords(dict, word, start_at, min_len)
 	local max_length = start_at and #start_at or #dict
 
 	for length = max_length,min_len,-1 do
-		for _,w in ipairs(dict[length]) do
+		for i,w in ipairs(dict[length]) do
+			
+			if yield_often and i % 5000 == 0 then
+				coroutine.yield("pause")
+			end
 
 			local skip = false
 			if start_at and length == max_length then
@@ -123,7 +127,7 @@ end
 
 --[[ The algorithm itself: straightforward recursion ]]--
 
-local function find_anagrams(dict, word, current, excludes, min_len)
+local function find_anagrams(dict, word, current, excludes, min_len, yield_often)
 
 	if #word == 0 then
 		coroutine.yield(current)
@@ -133,15 +137,16 @@ local function find_anagrams(dict, word, current, excludes, min_len)
 
 	local start_at = current[#current]
 
-	local subs,diffs = find_all_subwords(dict, word, start_at, min_len)
+	local subs,diffs = find_all_subwords(dict, word, start_at, min_len, yield_often)
 
 	for i,subword in ipairs(subs) do
+		
 		if not excludes[subword.string] then
 
 			local diff = diffs[i]
 
 			current[#current + 1] = subword
-			find_anagrams(dict, diff, current, excludes, min_len)
+			find_anagrams(dict, diff, current, excludes, min_len, yield_often)
 			current[#current] = nil
 		end
 	end
@@ -149,7 +154,7 @@ end
 
 -- Do not modify the returned array! It is used internally!
 
-local function run(dict_words, word, includes, excludes, min_len)
+local function run(dict_words, word, includes, excludes, min_len, yield_often)
 
 	local dict = load_dict(dict_words)
 
@@ -166,7 +171,7 @@ local function run(dict_words, word, includes, excludes, min_len)
 		excludes[v] = true
 	end
 
-	return coroutine.wrap(function() find_anagrams(dict, word, {}, excludes, min_len) end)
+	return coroutine.wrap(function() find_anagrams(dict, word, {}, excludes, min_len, yield_often) end)
 end
 
 return

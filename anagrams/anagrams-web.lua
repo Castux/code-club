@@ -68,13 +68,16 @@ progress_search = function()
 		return
 	end
 	
-	local str = ""
-	
-	for _,word in ipairs(result) do
-		str = str .. word.string .. " "
+	if result ~= "pause" then
+		
+		local str = ""
+		
+		for _,word in ipairs(result) do
+			str = str .. word.string .. " "
+		end
+		
+		add_result(str)
 	end
-	
-	add_result(str)
 	
 	js.global:setTimeout(progress_search, 1)
 end
@@ -86,7 +89,7 @@ local function on_input(str)
 	
 	local phrase = phrase_input.value
 	
-	current_search = anagrams.find(dict, phrase, {}, {}, 1)
+	current_search = anagrams.find(dict, phrase, {}, {}, 1, "yield_often")
 	
 	js.global:setTimeout(progress_search, 1)
 end
