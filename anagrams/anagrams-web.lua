@@ -8,6 +8,7 @@ local results_div
 local wordbox_model
 local includes_div
 local excludes_div
+local includes_input
 
 local dict
 local current_search
@@ -116,6 +117,26 @@ local function add_exclude(str)
 	excludes_div:appendChild(elem)
 end
 
+local function on_includes_input()
+	
+	local word = includes_input.value	
+	includes_input.value = ""
+	
+	if word ~= "" then
+		add_include(word)
+	end
+end
+
+local function on_excludes_input()
+	
+	local word = excludes_input.value	
+	excludes_input.value = ""
+	
+	if word ~= "" then
+		add_exclude(word)
+	end
+end
+
 local function setup()
 	
 	loading_div = js.global.document:getElementById "loading"
@@ -124,11 +145,15 @@ local function setup()
 	results_div = js.global.document:getElementById "results"
 	includes_div = js.global.document:getElementById "includes"
 	excludes_div = js.global.document:getElementById "excludes"
+	includes_input = js.global.document:getElementById "includes_input"
+	excludes_input = js.global.document:getElementById "excludes_input"
 
 	wordbox_model = includes_div.firstElementChild
 	includes_div:removeChild(wordbox_model)
 	
 	phrase_input.onchange = on_input
+	includes_input.onchange = on_includes_input
+	excludes_input.onchange = on_excludes_input
 end
 
 setup()
