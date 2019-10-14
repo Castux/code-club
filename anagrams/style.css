@@ -1,6 +1,13 @@
 body
 {
 	font-family: sans-serif;
+	background-color: lightgrey;
+}
+
+input
+{
+	height: 2em;
+	border: none;
 }
 
 .wordbox
@@ -27,18 +34,21 @@ body
 
 .hidedot
 {
+	display: none;
 	color: black;
 	cursor: pointer;
 }
 
 .includedot
 {
+	display: none;
 	color: #b0fffb;
 	cursor: pointer;
 }
 
 .excludedot
 {
+	display: none;
 	color: #ffc4ec;
 	cursor: pointer;
 }
@@ -46,4 +56,29 @@ body
 .wordbox:hover .hidedot, .wordbox:hover  .includedot, .wordbox:hover .excludedot
 {
 	display: inline;
+}
+
+.lds-dual-ring {
+	display: inline-block;
+	width: 2em;
+	height: 2em;
+}
+.lds-dual-ring:after {
+	content: " ";
+	display: block;
+	width: 66%;
+	height: 66%;
+	margin: 1px;
+	border-radius: 50%;
+	border: 5px solid #fff;
+	border-color: #fff transparent #fff transparent;
+	animation: lds-dual-ring 1.2s linear infinite;
+}
+@keyframes lds-dual-ring {
+	0% {
+		transform: rotate(0deg);
+	}
+	100% {
+		transform: rotate(360deg);
+	}
 }

@@ -9,6 +9,7 @@ local wordbox_model
 local includes_div
 local excludes_div
 local includes_input
+local loading_indicator
 
 local dict
 local current_search
@@ -69,12 +70,19 @@ progress_search = function()
 	if not result then
 		current_search = nil
 		add_result "(done)"
+		
+		loading_indicator.style.display = "none"
+		
 		return
 	end
 	
 	if result ~= "pause" then
 		
 		local str = ""
+		
+		for i = 0, includes_div.children.length - 1 do
+			str = str .. includes_div.children[i].children[0].innerHTML .. " "
+		end
 		
 		for _,word in ipairs(result) do
 			str = str .. word.string .. " "
@@ -86,16 +94,35 @@ progress_search = function()
 	js.global:setTimeout(progress_search, 1)
 end
 
-local function on_input(str)
+local function restart_search()
 	
 	clearResults()
 	current_search = nil
 	
 	local phrase = phrase_input.value
 	
-	current_search = anagrams.find(dict, phrase, {}, {}, 1, "yield_often")
+	local includes = {}
+	
+	for i = 0, includes_div.children.length - 1 do
+		table.insert(includes, includes_div.children[i].children[0].innerHTML)
+	end
+	
+	local excludes = {}
+	
+	for i = 0, excludes_div.children.length - 1 do
+		table.insert(excludes, excludes_div.children[i].children[0].innerHTML)
+	end
+	
+	current_search = anagrams.find(dict, phrase, includes, excludes, 1, "yield_often")
+	
+	loading_indicator.style.display = "inline-block"
 	
 	js.global:setTimeout(progress_search, 1)
+end
+
+local function on_phrase_input()
+
+	restart_search()
 end
 
 local add_include, add_exclude
@@ -110,6 +137,7 @@ add_include = function(str)
 	-- hide dot
 	elem.children[1].onclick = function()
 		includes_div:removeChild(elem)
+		restart_search()
 	end
 	
 	-- exclude dot
@@ -125,6 +153,7 @@ add_include = function(str)
 	
 	includes_div:appendChild(elem)
 	
+	restart_search()
 end
 
 add_exclude = function(str)
@@ -137,6 +166,7 @@ add_exclude = function(str)
 	-- hide dot
 	elem.children[1].onclick = function()
 		excludes_div:removeChild(elem)
+		restart_search()
 	end
 	
 	-- include dot
@@ -151,6 +181,8 @@ add_exclude = function(str)
 	elem.classList:add "exclude"
 	
 	excludes_div:appendChild(elem)
+	
+	restart_search()
 end
 
 local function on_includes_input()
@@ -176,6 +208,7 @@ end
 local function setup()
 	
 	loading_div = js.global.document:getElementById "loading"
+	loading_indicator = js.global.document:getElementById "loading-indicator"
 	ui_div = js.global.document:getElementById "ui"
 	phrase_input = js.global.document:getElementById "phrase_input"
 	results_div = js.global.document:getElementById "results"
@@ -187,9 +220,11 @@ local function setup()
 	wordbox_model = includes_div.firstElementChild
 	includes_div:removeChild(wordbox_model)
 	
-	phrase_input.onchange = on_input
+	phrase_input.onchange = on_phrase_input
 	includes_input.onchange = on_includes_input
 	excludes_input.onchange = on_excludes_input
+	
+	loading_indicator.style.display = "none"
 end
 
 setup()
