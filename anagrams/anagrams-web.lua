@@ -98,20 +98,56 @@ local function on_input(str)
 	js.global:setTimeout(progress_search, 1)
 end
 
-local function add_include(str)
+local add_include, add_exclude
+
+add_include = function(str)
 	
 	local elem = wordbox_model:cloneNode(true)
-	elem.firstElementChild.innerHTML = str
+	
+	-- text
+	elem.children[0].innerHTML = str
+	
+	-- hide dot
+	elem.children[1].onclick = function()
+		includes_div:removeChild(elem)
+	end
+	
+	-- exclude dot
+	elem.children[3].onclick = function()
+		includes_div:removeChild(elem)
+		add_exclude(str)
+	end
+	
+	-- include dot
+	elem:removeChild(elem.children[2])
+	
 	elem.classList:add "include"
 	
 	includes_div:appendChild(elem)
 	
 end
 
-local function add_exclude(str)
+add_exclude = function(str)
 
 	local elem = wordbox_model:cloneNode(true)
-	elem.firstElementChild.innerHTML = str
+	
+	-- text
+	elem.children[0].innerHTML = str
+	
+	-- hide dot
+	elem.children[1].onclick = function()
+		excludes_div:removeChild(elem)
+	end
+	
+	-- include dot
+	elem.children[2].onclick = function()
+		excludes_div:removeChild(elem)
+		add_include(str)
+	end
+	
+	-- exclude dot
+	elem:removeChild(elem.children[3])
+	
 	elem.classList:add "exclude"
 	
 	excludes_div:appendChild(elem)

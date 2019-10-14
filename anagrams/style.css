@@ -27,33 +27,23 @@ body
 
 .hidedot
 {
-	display: none;
 	color: black;
+	cursor: pointer;
 }
 
 .includedot
 {
-	display: none;
 	color: #b0fffb;
+	cursor: pointer;
 }
 
 .excludedot
 {
-	display: none;
 	color: #ffc4ec;
+	cursor: pointer;
 }
 
 .wordbox:hover .hidedot, .wordbox:hover  .includedot, .wordbox:hover .excludedot
 {
 	display: inline;
-}
-
-.include .includedot
-{
-	display: none	!important;
-}
-
-.exclude .excludedot
-{
-	display: none  !important;
 }
