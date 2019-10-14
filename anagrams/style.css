@@ -64,6 +64,8 @@ input.phrase
 
 .resultline
 {
+	display: inline-block;
+	margin: 0 10px;
 }
 
 .resultbox
