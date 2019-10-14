@@ -1,7 +1,7 @@
 .main
 {
 	font-family: sans-serif;
-	font-size: 18px;
+	font-size: 20px;
 	background-color: #f2f2f2;
 	color: #616161;
 
@@ -53,6 +53,11 @@ input.phrase
 	margin: 5px;
 }
 
+.wordbox > span
+{
+	line-height: 20px;
+}
+
 .wordboxtext
 {
 }
@@ -65,6 +70,11 @@ input.phrase
 {
 	display: inline-block;
 	margin-right: 5px;
+}
+
+.resultbox > span
+{
+	line-height: 20px;
 }
 
 .resultboxtext
