@@ -62,8 +62,6 @@ local function word_diff(b,a)
 	end	
 end
 
-local is_subword = word_diff
-
 --[[ Dictionary ]]--
 
 -- All the words, indexed by their length
@@ -93,6 +91,7 @@ end
 local function find_all_subwords(dict, word, start_at)
 
 	local res = {}
+	local diffs = {}
 
 	-- Only look for words that "come after" start_at: shorter ones, or 
 	-- larger lexicographically
@@ -107,13 +106,17 @@ local function find_all_subwords(dict, word, start_at)
 				skip = w.string < start_at.string
 			end
 
-			if (not skip) and is_subword(word, w) then
-				table.insert(res, w)
+			if not skip then
+				local diff = word_diff(word, w)
+				if diff then
+					table.insert(res, w)
+					table.insert(diffs, diff)
+				end
 			end
 		end
 	end
 
-	return res
+	return res,diffs
 end
 
 --[[ The algorithm itself: straightforward recursion ]]--
@@ -128,15 +131,15 @@ local function find_anagrams(dict, word, current, excludes)
 
 	local start_at = current[#current]
 
-	local subs = find_all_subwords(dict, word, start_at)
+	local subs,diffs = find_all_subwords(dict, word, start_at)
 
-	for _,v in ipairs(subs) do
-		if not excludes[v.string] then
+	for i,subword in ipairs(subs) do
+		if not excludes[subword.string] then
 
-			local rest = word_diff(word, v)
+			local diff = diffs[i]
 
-			current[#current + 1] = v
-			find_anagrams(dict, rest, current, excludes)
+			current[#current + 1] = subword
+			find_anagrams(dict, diff, current, excludes)
 			current[#current] = nil		
 		end
 	end
@@ -152,10 +155,11 @@ local function run(dict_path, word, includes, excludes)
 	word = load_word(word)
 
 	include = load_word(table.concat(includes))
-	if not is_subword(word, include) then
+	local rest = word_diff(word, include)
+	if not rest then
 		return nil
 	end
-	word = word_diff(word, include)
+	word = rest
 
 	for i,v in ipairs(excludes) do
 		excludes[v] = true
