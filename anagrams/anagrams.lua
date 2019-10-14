@@ -56,24 +56,21 @@ local function word_diff(b,a)
 			res[#res + 1] = b[k]
 		end
 		return res
-	
+
 	else							-- we didn't find all the a letter, not a subword
 		return nil
-	end	
+	end
 end
 
 --[[ Dictionary ]]--
 
 -- All the words, indexed by their length
 
-local function load_dict(path)
+local function load_dict(words_array)
 
 	local words = {}
-	local count = 0
 
-	for line in io.lines(path) do
-		local word = line:match "%w+"
-		word = word:lower()
+	for _,word in ipairs(words_array) do
 
 		word = load_word(word)
 
@@ -82,10 +79,9 @@ local function load_dict(path)
 		end
 
 		table.insert(words[#word], word)
-		count = count + 1
 	end
 
-	return words,count
+	return words
 end
 
 local function find_all_subwords(dict, word, start_at, min_len)
@@ -93,7 +89,7 @@ local function find_all_subwords(dict, word, start_at, min_len)
 	local res = {}
 	local diffs = {}
 
-	-- Only look for words that "come after" start_at: shorter ones, or 
+	-- Only look for words that "come after" start_at: shorter ones, or
 	-- larger lexicographically
 
 	local max_length = start_at and #start_at or #dict
@@ -140,17 +136,17 @@ local function find_anagrams(dict, word, current, excludes, min_len)
 
 			current[#current + 1] = subword
 			find_anagrams(dict, diff, current, excludes, min_len)
-			current[#current] = nil		
+			current[#current] = nil
 		end
 	end
 end
 
 -- Do not modify the returned array! It is used internally!
 
-local function run(dict_path, word, includes, excludes, min_len)
+local function run(dict_words, word, includes, excludes, min_len)
 
-	local dict,count = load_dict(dict_path)
-	print("Loaded " .. count .. " words from " .. dict_path)
+	local dict = load_dict(dict_words)
+	print("Loaded " .. #dict_words .. " words")
 
 	word = load_word(word)
 

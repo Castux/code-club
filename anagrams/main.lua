@@ -14,9 +14,9 @@ local function main(args)
 	end
 
 	for i = 3,#args do
-		
+
 		local head,tail = args[i]:sub(1,1), args[i]:sub(2)
-		
+
 		if head == "+" then
 			table.insert(includes, tail)
 		elseif head == "-" then
@@ -29,19 +29,27 @@ local function main(args)
 		end
 	end
 
-	local iter = anagrams.find(dict_path, phrase, includes, excludes, min_len)
-	
+	local words = {}
+	for line in io.lines(dict_path) do
+		local w = line:match "%w+"
+		w = w:lower()
+
+		table.insert(words, w)
+	end
+
+	local iter = anagrams.find(words, phrase, includes, excludes, min_len)
+
 	if not iter then
 		print("Includes are too restrictive")
 		return
 	end
 
 	for res in iter do
-		
+
 		for _,v in ipairs(includes) do
 			io.write(v, " ")
 		end
-		
+
 		for _,v in ipairs(res) do
 			io.write(v.string, " ")
 		end
