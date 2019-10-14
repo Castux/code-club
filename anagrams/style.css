@@ -1,0 +1,59 @@
+body
+{
+	font-family: sans-serif;
+}
+
+.wordbox
+{
+	display: inline-block;
+	border-radius: 10px;
+	padding: 10px;
+	margin: 5px;
+}
+
+.include
+{
+	background: #b0fffb;
+}
+
+.exclude
+{
+	background: #ffc4ec;
+}
+
+.wordboxtext
+{
+}
+
+.hidedot
+{
+	display: none;
+	color: black;
+}
+
+.includedot
+{
+	display: none;
+	color: #b0fffb;
+}
+
+.excludedot
+{
+	display: none;
+	color: #ffc4ec;
+}
+
+.wordbox:hover .hidedot, .wordbox:hover  .includedot, .wordbox:hover .excludedot
+{
+	display: inline;
+}
+
+.include .includedot
+{
+	display: none	!important;
+}
+
+.exclude .excludedot
+{
+	display: none  !important;
+}

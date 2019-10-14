@@ -5,6 +5,9 @@ local ui_div
 local loading_div
 local phrase_input
 local results_div
+local wordbox_model
+local includes_div
+local excludes_div
 
 local dict
 local current_search
@@ -94,12 +97,36 @@ local function on_input(str)
 	js.global:setTimeout(progress_search, 1)
 end
 
+local function add_include(str)
+	
+	local elem = wordbox_model:cloneNode(true)
+	elem.firstElementChild.innerHTML = str
+	elem.classList:add "include"
+	
+	includes_div:appendChild(elem)
+	
+end
+
+local function add_exclude(str)
+
+	local elem = wordbox_model:cloneNode(true)
+	elem.firstElementChild.innerHTML = str
+	elem.classList:add "exclude"
+	
+	excludes_div:appendChild(elem)
+end
+
 local function setup()
 	
 	loading_div = js.global.document:getElementById "loading"
 	ui_div = js.global.document:getElementById "ui"
 	phrase_input = js.global.document:getElementById "phrase_input"
 	results_div = js.global.document:getElementById "results"
+	includes_div = js.global.document:getElementById "includes"
+	excludes_div = js.global.document:getElementById "excludes"
+
+	wordbox_model = includes_div.firstElementChild
+	includes_div:removeChild(wordbox_model)
 	
 	phrase_input.onchange = on_input
 end
