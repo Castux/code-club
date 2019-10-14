@@ -15,6 +15,7 @@ local resultbox_model
 
 local dict
 local current_search
+local start_time
 
 local function on_dict_loaded(str)
 
@@ -96,7 +97,7 @@ progress_search = function()
 	local result = current_search()
 	if not result then
 		current_search = nil
-		add_result {"(done)"}
+		add_result {"(done in " .. (os.time() - start_time) .. " sec.)"}
 		
 		body.classList:remove "loading"
 		
@@ -151,6 +152,7 @@ local function restart_search()
 	end
 	
 	body.classList:add "loading"
+	start_time = os.time()
 	
 	js.global:setTimeout(progress_search, 1)
 end
