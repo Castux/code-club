@@ -9,7 +9,7 @@ local wordbox_model
 local includes_div
 local excludes_div
 local includes_input
-local loading_indicator
+local body
 
 local dict
 local current_search
@@ -71,7 +71,7 @@ progress_search = function()
 		current_search = nil
 		add_result "(done)"
 		
-		loading_indicator.style.display = "none"
+		body.classList:remove "loading"
 		
 		return
 	end
@@ -114,8 +114,7 @@ local function restart_search()
 	end
 	
 	current_search = anagrams.find(dict, phrase, includes, excludes, 1, "yield_often")
-	
-	loading_indicator.style.display = "inline-block"
+	body.classList:add "loading"
 	
 	js.global:setTimeout(progress_search, 1)
 end
@@ -208,7 +207,6 @@ end
 local function setup()
 	
 	loading_div = js.global.document:getElementById "loading"
-	loading_indicator = js.global.document:getElementById "loading-indicator"
 	ui_div = js.global.document:getElementById "ui"
 	phrase_input = js.global.document:getElementById "phrase_input"
 	results_div = js.global.document:getElementById "results"
@@ -216,6 +214,7 @@ local function setup()
 	excludes_div = js.global.document:getElementById "excludes"
 	includes_input = js.global.document:getElementById "includes_input"
 	excludes_input = js.global.document:getElementById "excludes_input"
+	body = js.global.document:getElementsByTagName("body")[0]
 
 	wordbox_model = includes_div.firstElementChild
 	includes_div:removeChild(wordbox_model)
@@ -223,8 +222,6 @@ local function setup()
 	phrase_input.onchange = on_phrase_input
 	includes_input.onchange = on_includes_input
 	excludes_input.onchange = on_excludes_input
-	
-	loading_indicator.style.display = "none"
 end
 
 setup()
