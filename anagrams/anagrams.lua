@@ -68,6 +68,10 @@ end
 
 local function load_dict(words_array)
 
+	if words_array.is_dict then
+		return words_array
+	end
+
 	local words = {}
 
 	for _,word in ipairs(words_array) do
@@ -80,6 +84,8 @@ local function load_dict(words_array)
 
 		table.insert(words[#word], word)
 	end
+
+	words.is_dict = true
 
 	return words
 end
@@ -146,7 +152,6 @@ end
 local function run(dict_words, word, includes, excludes, min_len)
 
 	local dict = load_dict(dict_words)
-	print("Loaded " .. #dict_words .. " words")
 
 	word = load_word(word)
 
@@ -166,5 +171,6 @@ end
 
 return
 {
+	load_dict = load_dict,
 	find = run
 }
