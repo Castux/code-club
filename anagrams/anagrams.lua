@@ -65,7 +65,7 @@ local function word_diff(b,a)
 			-- skip it
 			j = j+1
 			i = i+1
-		elseif i >= #a or b[j] < a[i] then
+		elseif i > #a or b[j] < a[i] then
 			res[#res+1] = b[j]
 			j = j+1
 		else
