@@ -98,6 +98,7 @@ local function restart_search()
 	
 	clearResults()
 	current_search = nil
+	body.classList:remove "loading"
 	
 	local phrase = phrase_input.value
 	
@@ -114,6 +115,12 @@ local function restart_search()
 	end
 	
 	current_search = anagrams.find(dict, phrase, includes, excludes, 1, "yield_often")
+	
+	if not current_search then
+		add_result "(invalid includes)"
+		return
+	end
+	
 	body.classList:add "loading"
 	
 	js.global:setTimeout(progress_search, 1)
