@@ -88,7 +88,7 @@ local function load_dict(path)
 	return words,count
 end
 
-local function find_all_subwords(dict, word, start_at)
+local function find_all_subwords(dict, word, start_at, min_len)
 
 	local res = {}
 	local diffs = {}
@@ -98,7 +98,7 @@ local function find_all_subwords(dict, word, start_at)
 
 	local max_length = start_at and #start_at or #dict
 
-	for length = max_length,1,-1 do
+	for length = max_length,min_len,-1 do
 		for _,w in ipairs(dict[length]) do
 
 			local skip = false
@@ -121,7 +121,7 @@ end
 
 --[[ The algorithm itself: straightforward recursion ]]--
 
-local function find_anagrams(dict, word, current, excludes)
+local function find_anagrams(dict, word, current, excludes, min_len)
 
 	if #word == 0 then
 		coroutine.yield(current)
@@ -131,7 +131,7 @@ local function find_anagrams(dict, word, current, excludes)
 
 	local start_at = current[#current]
 
-	local subs,diffs = find_all_subwords(dict, word, start_at)
+	local subs,diffs = find_all_subwords(dict, word, start_at, min_len)
 
 	for i,subword in ipairs(subs) do
 		if not excludes[subword.string] then
@@ -139,7 +139,7 @@ local function find_anagrams(dict, word, current, excludes)
 			local diff = diffs[i]
 
 			current[#current + 1] = subword
-			find_anagrams(dict, diff, current, excludes)
+			find_anagrams(dict, diff, current, excludes, min_len)
 			current[#current] = nil		
 		end
 	end
@@ -147,7 +147,7 @@ end
 
 -- Do not modify the returned array! It is used internally!
 
-local function run(dict_path, word, includes, excludes)
+local function run(dict_path, word, includes, excludes, min_len)
 
 	local dict,count = load_dict(dict_path)
 	print("Loaded " .. count .. " words from " .. dict_path)
@@ -165,7 +165,7 @@ local function run(dict_path, word, includes, excludes)
 		excludes[v] = true
 	end
 
-	return coroutine.wrap(function() find_anagrams(dict, word, {}, excludes) end)
+	return coroutine.wrap(function() find_anagrams(dict, word, {}, excludes, min_len) end)
 end
 
 return

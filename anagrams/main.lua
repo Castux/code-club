@@ -6,9 +6,10 @@ local function main(args)
 	local phrase = args[2]
 	local includes = {}
 	local excludes = {}
+	local min_len = 1
 
 	if not dict_path or not phrase then
-		print("Usage: lua main.lua <dict_path> <phrase> [+include] [-exclude]")
+		print("Usage: lua main.lua <dict_path> <phrase> [+include] [-exclude] [>min_len]")
 		return
 	end
 
@@ -20,13 +21,15 @@ local function main(args)
 			table.insert(includes, tail)
 		elseif head == "-" then
 			table.insert(excludes, tail)
+		elseif head == ">" then
+			min_len = tonumber(tail)
 		else
 			print("Unexpected argument: " .. args[i])
 			return
 		end
 	end
 
-	local iter = anagrams.find(dict_path, phrase, includes, excludes)
+	local iter = anagrams.find(dict_path, phrase, includes, excludes, min_len)
 	
 	if not iter then
 		print("Includes are too restrictive")
