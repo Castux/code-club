@@ -27,55 +27,42 @@ local function load_word(w)
 end
 
 -- Check if all the letters in a are found in b
+-- And return (b - a) if it is the case.
 -- We use the fact that both arrays are sorted
-
-local function is_subword(a,b)
-
-	local i,j = 1,1
-
-	while i <= #a and j <= #b do
-
-		if a[i] < b[j] then		-- the letter in a is not in b
-			return false
-
-
-		elseif a[i] == b[j] then	-- found the a letter in b
-			i = i+1
-			j = j+1
-
-		else					-- a[i] > b[j]: skip the b letter which a doesn't have
-			j = j+1
-		end
-	end
-
-	return i > #a	-- we found all the a letters
-end
-
--- Subtract words (assume small is a subword of big, and they are both sorted)
 
 local function word_diff(b,a)
 
+	local i,j = 1,1
 	local res = {}
 
-	local i,j = 1,1
+	while i <= #a and j <= #b do
 
-	while j <= #b do
+		if a[i] < b[j] then			-- the letter in a is not in b: not a subword
+			return false
 
-		if b[j] == a[i] then	-- skip it, since it's in small
-			-- skip it
-			j = j+1
+
+		elseif a[i] == b[j] then	-- found the a letter in b: ignore it in the diff
 			i = i+1
-		elseif i > #a or b[j] < a[i] then
-			res[#res+1] = b[j]
 			j = j+1
-		else
-			i = i+1
+
+		else						-- a[i] > b[j]: skip the b letter which a doesn't have: add it to the diff
+			res[#res + 1] = b[j]
+			j = j+1
 		end
-
 	end
 
-	return res
+	if i > #a then 					-- we found all the a letters, add the rest of b to the diff
+		for k = j,#b do
+			res[#res + 1] = b[k]
+		end
+		return res
+	
+	else							-- we didn't find all the a letter, not a subword
+		return nil
+	end	
 end
+
+local is_subword = word_diff
 
 --[[ Dictionary ]]--
 
@@ -120,7 +107,7 @@ local function find_all_subwords(dict, word, start_at)
 				skip = w.string < start_at.string
 			end
 
-			if (not skip) and is_subword(w, word) then
+			if (not skip) and is_subword(word, w) then
 				table.insert(res, w)
 			end
 		end
@@ -165,7 +152,7 @@ local function run(dict_path, word, includes, excludes)
 	word = load_word(word)
 
 	include = load_word(table.concat(includes))
-	if not is_subword(include, word) then
+	if not is_subword(word, include) then
 		return nil
 	end
 	word = word_diff(word, include)
