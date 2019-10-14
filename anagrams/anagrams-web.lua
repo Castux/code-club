@@ -9,6 +9,7 @@ local wordbox_model
 local includes_div
 local excludes_div
 local includes_input
+local length_input
 local body
 
 local dict
@@ -114,7 +115,9 @@ local function restart_search()
 		table.insert(excludes, excludes_div.children[i].children[0].innerHTML)
 	end
 	
-	current_search = anagrams.find(dict, phrase, includes, excludes, 1, "yield_often")
+	local min_len = tonumber(length_input.value)
+	
+	current_search = anagrams.find(dict, phrase, includes, excludes, min_len or 1, "yield_often")
 	
 	if not current_search then
 		add_result "(invalid includes)"
@@ -124,11 +127,6 @@ local function restart_search()
 	body.classList:add "loading"
 	
 	js.global:setTimeout(progress_search, 1)
-end
-
-local function on_phrase_input()
-
-	restart_search()
 end
 
 local add_include, add_exclude
@@ -221,14 +219,16 @@ local function setup()
 	excludes_div = js.global.document:getElementById "excludes"
 	includes_input = js.global.document:getElementById "includes_input"
 	excludes_input = js.global.document:getElementById "excludes_input"
+	length_input = js.global.document:getElementById "length_input"
 	body = js.global.document:getElementsByTagName("body")[0]
 
 	wordbox_model = includes_div.firstElementChild
 	includes_div:removeChild(wordbox_model)
 	
-	phrase_input.onchange = on_phrase_input
+	phrase_input.onchange = restart_search
 	includes_input.onchange = on_includes_input
 	excludes_input.onchange = on_excludes_input
+	length_input.onchange = restart_search
 end
 
 setup()
