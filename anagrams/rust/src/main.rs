@@ -1,5 +1,7 @@
 use std::env;
 
+mod anagrams;
+
 fn main() {
     let args: Vec<String> = env::args().collect();
 
@@ -43,4 +45,12 @@ fn main() {
     if let Some(n) = min_len {
         println!("Min len: {}", n);
     }
+
+    // Testing
+
+    let foo = anagrams::load_word("foobar");
+    let bar = anagrams::load_word("rab");
+
+    let diff = anagrams::word_diff(&foo, &bar);
+    println!("Diff {:?}", diff);
 }
