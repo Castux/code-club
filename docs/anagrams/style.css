@@ -1,0 +1,124 @@
+.main
+{
+	font-family: sans-serif;
+	font-size: 20px;
+	background-color: #f2f2f2;
+	color: #616161;
+
+	max-width: 800px;
+	margin: 20px auto;
+
+	border: 2px solid #c9c9c9;
+	border-radius: 15px;
+	padding: 30px;
+}
+
+h1
+{
+	text-align: center;
+}
+
+body.loading
+{
+	cursor: wait;
+}
+
+div.section
+{
+	margin: 10px auto;
+}
+
+input
+{
+	height: 2em;
+	border: none;
+	border-radius: 15px;
+	text-align: center;
+	font: inherit;
+	color: inherit;
+}
+
+input.phrase
+{
+	display: block;
+	width: 90%;
+	margin: 0 auto;
+}
+
+.wordbox
+{
+	display: inline-block;
+	border-radius: 10px;
+	padding: 10px;
+	margin: 5px;
+}
+
+.wordbox > span
+{
+	line-height: 20px;
+}
+
+.wordboxtext
+{
+}
+
+.resultline
+{
+	display: inline-block;
+	margin: 0 10px;
+}
+
+.resultbox
+{
+	display: inline-block;
+	margin-right: 5px;
+}
+
+.resultbox > span
+{
+	line-height: 20px;
+}
+
+.resultboxtext
+{
+}
+
+.include
+{
+	background: #64bbb7;
+}
+
+.exclude
+{
+	background: #ffc4ec;
+}
+
+.hidedot
+{
+	display: none;
+	color: black;
+	cursor: pointer;
+}
+
+.includedot
+{
+	display: none;
+	color: #64bbb7;
+	cursor: pointer;
+}
+
+.excludedot
+{
+	display: none;
+	color: #ffc4ec;
+	cursor: pointer;
+}
+
+.wordbox:hover .hidedot,
+.wordbox:hover .includedot,
+.wordbox:hover .excludedot,
+.resultbox:hover .includedot,
+.resultbox:hover .excludedot
+{
+	display: inline;
+}
