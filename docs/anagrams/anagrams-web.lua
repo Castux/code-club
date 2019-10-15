@@ -17,6 +17,24 @@ local dict
 local current_search
 local start_time
 
+local function continue_loading_dict(co, total_count)
+	
+	local status,result = coroutine.resume(co)
+	
+	if type(result) == "table" then
+		
+		dict = result
+		
+		loading_div.style.display = "none"
+		ui_div.style.display = "block"
+		
+	else
+		
+		loading_div.innerHTML = "Loading dictionary... " .. math.ceil(result / total_count * 100) .. "%"
+		js.global:setTimeout(function() continue_loading_dict(co, total_count) end, 1)
+	end
+end
+
 local function on_dict_loaded(str)
 
 	local words = {}
@@ -24,11 +42,12 @@ local function on_dict_loaded(str)
 		w = w:lower()
 		table.insert(words, w)
 	end
+	
+	local co = coroutine.create(function()
+		return anagrams.load_dict(words, "yield_often")
+	end)
 
-	dict = anagrams.load_dict(words)
-
-	loading_div.style.display = "none"
-	ui_div.style.display = "block"
+	continue_loading_dict(co, #words)
 end
 
 local function load_dict()

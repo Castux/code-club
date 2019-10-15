@@ -75,7 +75,7 @@ end
 
 -- All the words, in "decreasing" order
 
-local function load_dict(words_array)
+local function load_dict(words_array, yield_often)
 
 	if words_array.is_dict then
 		return words_array
@@ -85,7 +85,11 @@ local function load_dict(words_array)
 
 	local words = {}
 
-	for _,word in ipairs(words_array) do
+	for i,word in ipairs(words_array) do
+		
+		if yield_often and i % 1000 == 0 then
+			coroutine.yield(i)
+		end
 
 		word = load_word(word)
 		table.insert(words, word)
