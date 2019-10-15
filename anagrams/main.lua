@@ -32,7 +32,6 @@ local function main(args)
 	local words = {}
 	for line in io.lines(dict_path) do
 		local w = line:match "%w+"
-		w = w:lower()
 
 		table.insert(words, w)
 	end
