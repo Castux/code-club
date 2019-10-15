@@ -122,3 +122,8 @@ input.phrase
 {
 	display: inline;
 }
+
+#loading, #ui
+{
+	display: none;
+}
