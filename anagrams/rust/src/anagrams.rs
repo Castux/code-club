@@ -1,3 +1,5 @@
+use std::cmp::Ordering;
+
 pub struct Word {
     chars: Vec<char>,
     string: String,
@@ -8,6 +10,30 @@ impl Word {
         self.chars.len()
     }
 }
+
+impl Ord for Word {
+    fn cmp(&self, other: &Self) -> Ordering {
+        match self.len().cmp(&other.len()) {
+            Ordering::Greater => Ordering::Less,
+            Ordering::Less => Ordering::Greater,
+            Ordering::Equal => self.string.cmp(&other.string),
+        }
+    }
+}
+
+impl PartialOrd for Word {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl PartialEq for Word {
+    fn eq(&self, other: &Self) -> bool {
+        self.string == other.string
+    }
+}
+
+impl Eq for Word {}
 
 pub fn load_word(word: &str) -> Word {
     let mut chars: Vec<char> = word.chars().collect();
@@ -44,4 +70,10 @@ pub fn word_diff(b: &Word, a: &Word) -> Option<Vec<char>> {
 
     res.extend_from_slice(&b.chars[j..]);
     Some(res)
+}
+
+pub fn load_dict(words: &Vec<String>) -> Vec<Word> {
+    let mut res: Vec<Word> = words.iter().map(|w| load_word(&w)).collect();
+    res.sort();
+    res
 }
