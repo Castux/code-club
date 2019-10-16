@@ -31,9 +31,7 @@ local function main(args)
 
 	local words = {}
 	for line in io.lines(dict_path) do
-		local w = line:match "%w+"
-
-		table.insert(words, w)
+		table.insert(words, line)
 	end
 
 	local iter = anagrams.find(words, phrase, includes, excludes, min_len)

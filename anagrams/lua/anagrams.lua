@@ -9,14 +9,16 @@ end
 
 --[[ Words are represented as table of counts of their characters ]]--
 
+local space_cp = utf8.codepoint " "
+
 local function load_word(w)
 
 	local res = {}
 
-	w = w:lower()
-
-	for char in w:gmatch "%w" do
-		res[#res + 1] = string.byte(char)
+	for _,code in utf8.codes(w) do
+		if code ~= space_cp then
+			res[#res + 1] = code
+		end
 	end
 
 	table.sort(res)
