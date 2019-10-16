@@ -86,7 +86,7 @@ local function load_dict(words_array, yield_often)
 	local words = {}
 
 	for i,word in ipairs(words_array) do
-		
+
 		if yield_often and i % 1000 == 0 then
 			coroutine.yield(i)
 		end
@@ -135,6 +135,7 @@ local function find_anagrams(dict, word, current, excludes, min_len, yield_often
 
 	if #word == 0 then
 		coroutine.yield(current)
+		return
 	end
 
 	local start_at = current[#current]
