@@ -62,7 +62,5 @@ fn main() {
 	let words: Vec<&str> = dict_str.split_whitespace().collect();
 	let dictionary = anagrams::load_dict(&words);
 
-	// Testing
-
 	println!("Loaded {} words", dictionary.len());
 }
