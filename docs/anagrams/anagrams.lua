@@ -1,4 +1,4 @@
-local char_classes = 
+local char_classes =
 {
 	a = "àäáåâ",
 	e = "éèëê",
@@ -8,28 +8,35 @@ local char_classes =
 	c = "ç",
 }
 
+local ignores = " -'!.,;:?"
+
 do
 	local tmp = {}
 	for k,v in pairs(char_classes) do
-		
+
 		for _,code in utf8.codes(v) do
 			tmp[code] = utf8.codepoint(k)
 		end
-		
+
 	end
 	char_classes = tmp
+
+	local tmp = {}
+	for _,code in utf8.codes(ignores) do
+		tmp[code] = true
+	end
+
+	ignores = tmp
 end
 
 --[[ Words are represented as table of counts of their characters ]]--
-
-local space_cp = utf8.codepoint " "
 
 local function load_word(w)
 
 	local res = {}
 
 	for _,code in utf8.codes(w) do
-		if code ~= space_cp then
+		if not ignores[code] then
 			res[#res + 1] = char_classes[code] or code
 		end
 	end
