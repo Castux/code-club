@@ -127,3 +127,21 @@ input.phrase
 {
 	display: none;
 }
+
+.subtitle
+{
+	text-align: right;
+	font-size: 90%;
+	margin: 0;
+}
+
+a:link, a:visited
+{
+	text-decoration: none;
+	color: inherit;
+}
+
+a:hover
+{
+	text-decoration: underline;
+}
