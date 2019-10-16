@@ -32,6 +32,8 @@ Requires Lua 5.1 or later.
 
 Using the [Fengari](https://fengari.io/) implementation of Lua in native Javascript, we can run Lua in the browser transparently, with trivial interop between the two languages.
 
+See the [web tool live](https://castux.github.io/code-club/anagrams/).
+
 All the DOM manipulation and event management is even written in Lua (see `anagrams-web.lua`).
 
 Note that since in-browser Javascript is single-threaded, we need to split the work in small units, or the page would become unresponsive until the solving call would return.
