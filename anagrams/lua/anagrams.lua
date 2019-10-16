@@ -1,10 +1,23 @@
-local function table_copy(t)
-	local res = {}
-	for k,v in pairs(t) do
-		res[k] = v
-	end
+local char_classes = 
+{
+	a = "àäáåâ",
+	e = "éèëê",
+	i = "îïíì",
+	o = "ôóòö",
+	u = "úùûü",
+	c = "ç",
+}
 
-	return res
+do
+	local tmp = {}
+	for k,v in pairs(char_classes) do
+		
+		for _,code in utf8.codes(v) do
+			tmp[code] = utf8.codepoint(k)
+		end
+		
+	end
+	char_classes = tmp
 end
 
 --[[ Words are represented as table of counts of their characters ]]--
@@ -17,7 +30,7 @@ local function load_word(w)
 
 	for _,code in utf8.codes(w) do
 		if code ~= space_cp then
-			res[#res + 1] = code
+			res[#res + 1] = char_classes[code] or code
 		end
 	end
 
