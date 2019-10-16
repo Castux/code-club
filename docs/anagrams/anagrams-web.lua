@@ -18,18 +18,18 @@ local current_search
 local start_time
 
 local function continue_loading_dict(co, total_count)
-	
+
 	local status,result = coroutine.resume(co)
-	
+
 	if type(result) == "table" then
-		
+
 		dict = result
-		
+
 		loading_div.style.display = "none"
 		ui_div.style.display = "block"
-		
+
 	else
-		
+
 		loading_div.innerHTML = "Loading dictionary... " .. math.ceil(result / total_count * 100) .. "%"
 		js.global:setTimeout(function() continue_loading_dict(co, total_count) end, 1)
 	end
@@ -42,12 +42,21 @@ local function on_dict_loaded(str)
 		w = w:lower()
 		table.insert(words, w)
 	end
-	
+
 	local co = coroutine.create(function()
 		return anagrams.load_dict(words, "yield_often")
 	end)
 
 	continue_loading_dict(co, #words)
+end
+
+local function get_lang()
+
+	local url_str = js.global.document.location
+	local url = js.new(js.global.URL, url_str)
+	local lang = url.searchParams:get("lang")
+
+	return lang ~= js.null and lang or "en"
 end
 
 local function load_dict()
@@ -57,8 +66,10 @@ local function load_dict()
 
 	-- Load the dictionary
 
+	local path = "./" .. get_lang() .. ".txt"
+
 	local req = js.new(js.global.XMLHttpRequest)
-	req:open('GET', './dict.txt')
+	req:open('GET', path)
 	req.onload = function() on_dict_loaded(req.responseText) end
 	req:send()
 

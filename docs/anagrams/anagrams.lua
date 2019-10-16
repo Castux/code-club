@@ -1,22 +1,37 @@
-local function table_copy(t)
-	local res = {}
-	for k,v in pairs(t) do
-		res[k] = v
-	end
+local char_classes = 
+{
+	a = "àäáåâ",
+	e = "éèëê",
+	i = "îïíì",
+	o = "ôóòö",
+	u = "úùûü",
+	c = "ç",
+}
 
-	return res
+do
+	local tmp = {}
+	for k,v in pairs(char_classes) do
+		
+		for _,code in utf8.codes(v) do
+			tmp[code] = utf8.codepoint(k)
+		end
+		
+	end
+	char_classes = tmp
 end
 
 --[[ Words are represented as table of counts of their characters ]]--
+
+local space_cp = utf8.codepoint " "
 
 local function load_word(w)
 
 	local res = {}
 
-	w = w:lower()
-
-	for char in w:gmatch "%w" do
-		res[#res + 1] = string.byte(char)
+	for _,code in utf8.codes(w) do
+		if code ~= space_cp then
+			res[#res + 1] = char_classes[code] or code
+		end
 	end
 
 	table.sort(res)
@@ -86,7 +101,7 @@ local function load_dict(words_array, yield_often)
 	local words = {}
 
 	for i,word in ipairs(words_array) do
-		
+
 		if yield_often and i % 1000 == 0 then
 			coroutine.yield(i)
 		end
@@ -135,6 +150,7 @@ local function find_anagrams(dict, word, current, excludes, min_len, yield_often
 
 	if #word == 0 then
 		coroutine.yield(current)
+		return
 	end
 
 	local start_at = current[#current]
