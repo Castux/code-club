@@ -83,19 +83,9 @@ local function word_diff(b,a)
 	end
 end
 
-local function compare_words(a,b)
-
-	if #a == #b then
-		return a < b
-	else
-		return #a > #b
-	end
-
-end
-
 --[[ Dictionary ]]--
 
--- All the words, in "decreasing" order
+-- All the words, in decreasing order of sizes
 
 local function load_dict(words_array, yield_often)
 
@@ -103,9 +93,8 @@ local function load_dict(words_array, yield_often)
 		return words_array
 	end
 
-	table.sort(words_array, compare_words)
-
-	local words = {}
+	local sizes = {}
+	local largest = 1
 
 	for i,word in ipairs(words_array) do
 
@@ -114,36 +103,68 @@ local function load_dict(words_array, yield_often)
 		end
 
 		word = load_word(word)
-		table.insert(words, word)
+		
+		if not sizes[#word] then
+			sizes[#word] = {}
+			largest = math.max(largest, #word)
+		end
+		
+		table.insert(sizes[#word], word)
 	end
 
+	local words = {}
 	words.is_dict = true
 
+	for size = largest,1,-1 do
+		for _,word in ipairs(sizes[size]) do
+			table.insert(words, word)
+		end
+	end
+
 	return words
+end
+
+local function filter_dict_by_size(dict, min_len)
+	
+	local res = {}
+	
+	for _,v in ipairs(dict) do
+		if #v < min_len then
+			break
+		end
+		
+		res[#res + 1] = v
+	end
+	return res
 end
 
 -- Return only the subwords of `word`. This is a still a valid dictionary.
 -- To avoid duplicate answers, always go in decreasing order
 
-local function filter_dict(dict, word, start_at, min_len, yield_often)
+local function filter_dict(dict, word, start_at, yield_often)
 
 	local res = {}
 	local diffs = {}
 
-	for i,v in ipairs(dict) do
+	local start_index = 1
+	
+	if start_at then
+		while dict[start_index] ~= start_at do
+			start_index = start_index + 1
+		end
+	end
 
+	for i = start_index,#dict do
+
+		local v = dict[i]
 		if yield_often and i % 5000 == 0 then
 			coroutine.yield("pause")
 		end
 
-		local skip = #v < min_len or (start_at and compare_words(v.string, start_at.string))
-
-		if not skip then
 		local diff = word_diff(word, v)
-			if diff then
-				table.insert(res, v)
-				table.insert(diffs, diff)
-			end
+		if diff then
+			table.insert(res, v)
+			table.insert(diffs, diff)
 		end
 
 	end
@@ -153,7 +174,7 @@ end
 
 --[[ The algorithm itself: straightforward recursion ]]--
 
-local function find_anagrams(dict, word, current, excludes, min_len, yield_often)
+local function find_anagrams(dict, word, current, excludes, yield_often)
 
 	if #word == 0 then
 		coroutine.yield(current)
@@ -162,7 +183,7 @@ local function find_anagrams(dict, word, current, excludes, min_len, yield_often
 
 	local start_at = current[#current]
 
-	local subs,diffs = filter_dict(dict, word, start_at, min_len, yield_often)
+	local subs,diffs = filter_dict(dict, word, start_at, yield_often)
 
 	for i,subword in ipairs(subs) do
 
@@ -174,7 +195,7 @@ local function find_anagrams(dict, word, current, excludes, min_len, yield_often
 			-- The subwords of the "rest" are a subset of the subwords of the whole.
 
 			current[#current + 1] = subword
-			find_anagrams(subs, diff, current, excludes, min_len, yield_often)
+			find_anagrams(subs, diff, current, excludes, yield_often)
 			current[#current] = nil
 		end
 	end
@@ -185,6 +206,7 @@ end
 local function run(dict_words, word, includes, excludes, min_len, yield_often)
 
 	local dict = load_dict(dict_words)
+	dict = filter_dict_by_size(dict, min_len)
 
 	word = load_word(word)
 
@@ -199,7 +221,7 @@ local function run(dict_words, word, includes, excludes, min_len, yield_often)
 		excludes[v] = true
 	end
 
-	return coroutine.wrap(function() find_anagrams(dict, word, {}, excludes, min_len, yield_often) end)
+	return coroutine.wrap(function() find_anagrams(dict, word, {}, excludes, yield_often) end)
 end
 
 return
