@@ -21,7 +21,7 @@ fn main() {
 	let mut includes: Vec<String> = Vec::new();
 	let mut excludes: Vec<String> = Vec::new();
 
-	let mut min_len: Option<u32> = None;
+	let mut min_len: u32 = 1;
 
 	for arg in &args[3..] {
 		if arg.starts_with("+") && arg.len() > 1 {
@@ -30,7 +30,7 @@ fn main() {
 			excludes.push(arg[1..].to_string());
 		} else if arg.starts_with(">") && arg.len() > 1 {
 			match arg[1..].parse() {
-				Ok(n) => min_len = Some(n),
+				Ok(n) => min_len = n,
 				Err(_) => {
 					println!("Invalid argument: {}", arg);
 					return;
@@ -44,10 +44,7 @@ fn main() {
 
 	println!("Includes: {}", includes.join(", "));
 	println!("Excludes: {}", excludes.join(", "));
-
-	if let Some(n) = min_len {
-		println!("Min len: {}", n);
-	}
+	println!("Min len: {}", min_len);
 
 	// Loading dictionary
 
@@ -63,4 +60,6 @@ fn main() {
 	let dictionary = anagrams::load_dict(&words);
 
 	println!("Loaded {} words", dictionary.len());
+
+	anagrams::find_anagrams(&dictionary, phrase, &excludes, min_len);
 }
