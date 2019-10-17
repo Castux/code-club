@@ -33,8 +33,9 @@ local function main(args)
 	end
 
 	local words = {}
-	for line in io.lines(dict_path) do
-		table.insert(words, line)
+	local str = io.open(dict_path, "r"):read "*a"
+	for word in str:gmatch("[^\r\n]+") do
+		table.insert(words, word)
 	end
 
 	local config =
@@ -45,7 +46,11 @@ local function main(args)
 		ignore_diacritics = ignore_diacritics
 	}
 
-	local iter = anagrams.find(words, phrase, config)
+	local dictionary = anagrams.load_dict(words, config)
+
+	--config.yield_often = true
+
+	local iter = anagrams.find(dictionary, phrase, config)
 
 	if not iter then
 		print("Includes are too restrictive")
@@ -54,14 +59,17 @@ local function main(args)
 
 	for res in iter do
 
-		for _,v in ipairs(includes) do
-			io.write(v, " ")
-		end
+		if res ~= "pause" then
 
-		for _,v in ipairs(res) do
-			io.write(v.string, " ")
+			for _,v in ipairs(includes) do
+				io.write(v, " ")
+			end
+
+			for _,v in ipairs(res) do
+				io.write(v.string, " ")
+			end
+			io.write "\n"
 		end
-		io.write "\n"
 
 	end
 end

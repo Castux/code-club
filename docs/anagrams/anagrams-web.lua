@@ -41,7 +41,7 @@ end
 local function on_dict_loaded(str)
 
 	local words = {}
-	for w in str:gmatch "%S+" do
+	for w in str:gmatch "[^\r\n]+" do
 		table.insert(words, w)
 	end
 
