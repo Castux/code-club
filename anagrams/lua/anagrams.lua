@@ -98,7 +98,7 @@ local function load_dict(words_array, config)
 
 	for i,word in ipairs(words_array) do
 
-		if config.yield_often and i % 1000 == 0 then
+		if config.yield_often and i % 3000 == 0 then
 			coroutine.yield(i)
 		end
 
