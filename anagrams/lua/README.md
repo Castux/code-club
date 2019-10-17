@@ -24,6 +24,16 @@ This generates garbage in memory, but makes the algorithm much faster. These arr
 
 Furthermore, to avoid duplicate entries with the whole words rearranged, when filtering down the dictionary, we ignore all words before the last word added to the solution. That way we always naturally find solutions where words are "in order" (decreasing size, then alphabetical), and ignore the others, which also makes the search faster.
 
+## Shortcomings
+
+Except for ASCII characters (which are fine for the English language), converting to lower/uppercase is not trivial. Since the program handles UTF-8 dictionary and input, and breaks it down properly into Unicode codepoints, we would have to implement the whole Unicode [Case Mapping](https://www.unicode.org/charts/case/) information in order to properly handle case.
+
+Therefore, I didn't :D Input should be in lowercase, as are the dictionary files.
+
+Similarly, some languages consider letters with diacritics variants of the base letter (like French), while others consider them different letters. Anagrams probably should reflect that.
+
+This solver has the option to ignore diacritics, although I have half-assedly  hardcoded a only handful of them, covering mostly French and possibly a few other latin languages.
+
 ## Command line tool
 
 Requires Lua 5.3 or later.
