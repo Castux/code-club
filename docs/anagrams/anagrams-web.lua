@@ -34,7 +34,9 @@ local function continue_loading_dict(co, total_count)
 	else
 
 		loading_div.innerHTML = "Loading dictionary... " .. math.ceil(result / total_count * 100) .. "%"
-		js.global:setTimeout(function() continue_loading_dict(co, total_count) end, 1)
+		js.global:requestAnimationFrame(function()
+			continue_loading_dict(co, total_count)
+		end)
 	end
 end
 
@@ -148,7 +150,7 @@ progress_search = function()
 		add_result(t)
 	end
 
-	js.global:setTimeout(progress_search, 1)
+	js.global:requestAnimationFrame(progress_search)
 end
 
 local function restart_search()
@@ -192,7 +194,7 @@ local function restart_search()
 	body.classList:add "loading"
 	start_time = os.time()
 
-	js.global:setTimeout(progress_search, 1)
+	js.global:requestAnimationFrame(progress_search)
 end
 
 add_include = function(str)
