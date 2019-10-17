@@ -42,8 +42,10 @@ local function on_dict_loaded(str)
 		table.insert(words, w)
 	end
 
+	local config = { yield_often = true }
+
 	local co = coroutine.create(function()
-		return anagrams.load_dict(words, "yield_often")
+		return anagrams.load_dict(words, config)
 	end)
 
 	continue_loading_dict(co, #words)
@@ -173,7 +175,15 @@ local function restart_search()
 
 	local min_len = tonumber(length_input.value)
 
-	current_search = anagrams.find(dict, phrase, includes, excludes, min_len or 1, "yield_often")
+	local config =
+	{
+		includes = includes,
+		excludes = excludes,
+		min_len = min_len or 1,
+		yield_often = true
+	}
+
+	current_search = anagrams.find(dict, phrase, config)
 
 	if not current_search then
 		add_result {"(invalid includes)"}

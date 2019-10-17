@@ -34,7 +34,14 @@ local function main(args)
 		table.insert(words, line)
 	end
 
-	local iter = anagrams.find(words, phrase, includes, excludes, min_len)
+	local config =
+	{
+		includes = includes,
+		excludes = excludes,
+		min_len = min_len
+	}
+	
+	local iter = anagrams.find(words, phrase, config)
 
 	if not iter then
 		print("Includes are too restrictive")

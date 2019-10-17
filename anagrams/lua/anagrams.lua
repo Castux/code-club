@@ -31,7 +31,7 @@ end
 
 --[[ Words are represented as table of counts of their characters ]]--
 
-local function load_word(w)
+local function load_word(w, config)
 
 	local res = {}
 
@@ -87,7 +87,7 @@ end
 
 -- All the words, in decreasing order of sizes
 
-local function load_dict(words_array, yield_often)
+local function load_dict(words_array, config)
 
 	if words_array.is_dict then
 		return words_array
@@ -98,11 +98,11 @@ local function load_dict(words_array, yield_often)
 
 	for i,word in ipairs(words_array) do
 
-		if yield_often and i % 1000 == 0 then
+		if config.yield_often and i % 1000 == 0 then
 			coroutine.yield(i)
 		end
 
-		word = load_word(word)
+		word = load_word(word, config)
 
 		if not sizes[#word] then
 			sizes[#word] = {}
@@ -143,7 +143,7 @@ end
 -- Return only the subwords of `word`. This is a still a valid dictionary.
 -- To avoid duplicate answers, always go in decreasing order
 
-local function filter_dict(dict, word, start_at, yield_often)
+local function filter_dict(dict, word, start_at, config)
 
 	local res = {}
 	local diffs = {}
@@ -159,7 +159,7 @@ local function filter_dict(dict, word, start_at, yield_often)
 	for i = start_index,#dict do
 
 		local v = dict[i]
-		if yield_often and i % 5000 == 0 then
+		if config.yield_often and i % 5000 == 0 then
 			coroutine.yield("pause")
 		end
 
@@ -176,7 +176,7 @@ end
 
 --[[ The algorithm itself: straightforward recursion ]]--
 
-local function find_anagrams(dict, word, current, excludes, yield_often)
+local function find_anagrams(dict, word, current, config)
 
 	if #word == 0 then
 		coroutine.yield(current)
@@ -185,11 +185,11 @@ local function find_anagrams(dict, word, current, excludes, yield_often)
 
 	local start_at = current[#current]
 
-	local subs,diffs = filter_dict(dict, word, start_at, yield_often)
+	local subs,diffs = filter_dict(dict, word, start_at, config)
 
 	for i,subword in ipairs(subs) do
 
-		if not excludes[subword.string] then
+		if not config.excludes[subword.string] then
 
 			local diff = diffs[i]
 
@@ -197,7 +197,7 @@ local function find_anagrams(dict, word, current, excludes, yield_often)
 			-- The subwords of the "rest" are a subset of the subwords of the whole.
 
 			current[#current + 1] = subword
-			find_anagrams(subs, diff, current, excludes, yield_often)
+			find_anagrams(subs, diff, current, config)
 			current[#current] = nil
 		end
 	end
@@ -205,25 +205,25 @@ end
 
 -- Do not modify the returned array! It is used internally!
 
-local function run(dict_words, word, includes, excludes, min_len, yield_often)
+local function run(dict_words, word, config)
 
-	local dict = load_dict(dict_words)
-	dict = filter_dict_by_size(dict, min_len)
+	local dict = load_dict(dict_words, config)
+	dict = filter_dict_by_size(dict, config.min_len)
 
-	word = load_word(word)
+	word = load_word(word, config)
 
-	include = load_word(table.concat(includes))
+	local include = load_word(table.concat(config.includes), config)
 	local rest = word_diff(word, include)
 	if not rest then
 		return nil
 	end
 	word = rest
 
-	for i,v in ipairs(excludes) do
-		excludes[v] = true
+	for i,v in ipairs(config.excludes) do
+		config.excludes[v] = true
 	end
 
-	return coroutine.wrap(function() find_anagrams(dict, word, {}, excludes, yield_often) end)
+	return coroutine.wrap(function() find_anagrams(dict, word, {}, config) end)
 end
 
 return
