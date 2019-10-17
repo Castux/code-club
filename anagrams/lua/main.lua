@@ -7,6 +7,7 @@ local function main(args)
 	local includes = {}
 	local excludes = {}
 	local min_len = 1
+	local ignore_diacritics
 
 	if not dict_path or not phrase then
 		print("Usage: lua main.lua <dict_path> <phrase> [+include] [-exclude] [>min_len]")
@@ -17,7 +18,9 @@ local function main(args)
 
 		local head,tail = args[i]:sub(1,1), args[i]:sub(2)
 
-		if head == "+" then
+		if args[i] == "--ignore_diacritics" then
+			ignore_diacritics = true
+		elseif head == "+" then
 			table.insert(includes, tail)
 		elseif head == "-" then
 			table.insert(excludes, tail)
@@ -38,9 +41,10 @@ local function main(args)
 	{
 		includes = includes,
 		excludes = excludes,
-		min_len = min_len
+		min_len = min_len,
+		ignore_diacritics = ignore_diacritics
 	}
-	
+
 	local iter = anagrams.find(words, phrase, config)
 
 	if not iter then

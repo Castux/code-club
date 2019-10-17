@@ -37,7 +37,7 @@ local function load_word(w, config)
 
 	for _,code in utf8.codes(w) do
 		if not ignores[code] then
-			res[#res + 1] = char_classes[code] or code
+			res[#res + 1] = config.ignore_diacritics and char_classes[code] or code
 		end
 	end
 
