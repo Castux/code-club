@@ -103,12 +103,12 @@ local function load_dict(words_array, yield_often)
 		end
 
 		word = load_word(word)
-		
+
 		if not sizes[#word] then
 			sizes[#word] = {}
 			largest = math.max(largest, #word)
 		end
-		
+
 		table.insert(sizes[#word], word)
 	end
 
@@ -116,8 +116,10 @@ local function load_dict(words_array, yield_often)
 	words.is_dict = true
 
 	for size = largest,1,-1 do
-		for _,word in ipairs(sizes[size]) do
-			table.insert(words, word)
+		if sizes[size] then
+			for _,word in ipairs(sizes[size]) do
+				table.insert(words, word)
+			end
 		end
 	end
 
@@ -125,14 +127,14 @@ local function load_dict(words_array, yield_often)
 end
 
 local function filter_dict_by_size(dict, min_len)
-	
+
 	local res = {}
-	
+
 	for _,v in ipairs(dict) do
 		if #v < min_len then
 			break
 		end
-		
+
 		res[#res + 1] = v
 	end
 	return res
@@ -147,7 +149,7 @@ local function filter_dict(dict, word, start_at, yield_often)
 	local diffs = {}
 
 	local start_index = 1
-	
+
 	if start_at then
 		while dict[start_index] ~= start_at do
 			start_index = start_index + 1
