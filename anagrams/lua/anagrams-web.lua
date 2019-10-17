@@ -17,6 +17,9 @@ local dict
 local current_search
 local start_time
 
+local lang_opt
+local diac_opt
+
 local function continue_loading_dict(co, total_count)
 
 	local status,result = coroutine.resume(co)
@@ -42,22 +45,17 @@ local function on_dict_loaded(str)
 		table.insert(words, w)
 	end
 
-	local config = { yield_often = true }
+	local config =
+	{
+		ignore_diacritics = diac_opt,
+		yield_often = true
+	}
 
 	local co = coroutine.create(function()
 		return anagrams.load_dict(words, config)
 	end)
 
 	continue_loading_dict(co, #words)
-end
-
-local function get_lang()
-
-	local url_str = js.global.document.location
-	local url = js.new(js.global.URL, url_str)
-	local lang = url.searchParams:get("lang")
-
-	return lang ~= js.null and lang or "en"
 end
 
 local function load_dict()
@@ -67,7 +65,7 @@ local function load_dict()
 
 	-- Load the dictionary
 
-	local path = "./" .. get_lang() .. ".txt"
+	local path = "./" .. lang_opt .. ".txt"
 
 	local req = js.new(js.global.XMLHttpRequest)
 	req:open('GET', path)
@@ -180,6 +178,7 @@ local function restart_search()
 		includes = includes,
 		excludes = excludes,
 		min_len = min_len or 1,
+		ignore_diacritics = diac_opt,
 		yield_often = true
 	}
 
@@ -297,6 +296,16 @@ local function setup()
 	includes_input.onchange = on_includes_input
 	excludes_input.onchange = on_excludes_input
 	length_input.onchange = restart_search
+
+	-- URL options
+
+	local url_str = js.global.document.location
+	local url = js.new(js.global.URL, url_str)
+	local lang = url.searchParams:get("lang")
+	local diac = url.searchParams:get("diac")
+
+	lang_opt = lang ~= js.null and lang or "en"
+	diac_opt = diac == "true"
 end
 
 setup()
