@@ -10,7 +10,7 @@ local function main(args)
 	local ignore_diacritics
 
 	if not dict_path or not phrase then
-		print("Usage: lua main.lua <dict_path> <phrase> [+include] [-exclude] [>min_len]")
+		print("Usage: lua main.lua <dict_path> <phrase> [+include] [-exclude] [>min_len] [--ignore_diacritics]")
 		return
 	end
 

@@ -8,13 +8,13 @@
 
 ## Algorithm
 
-Words are represented as sorted arrays of their characters codepoints. This allows checking if `a` is a subword of `b` in one pass. The function actually returns the difference `b-a` when it exists (all the letters of `b`, minus those of `a`).
+Words are represented as sorted arrays of their characters' codepoints. This allows checking if `a` is a subword of `b` in one pass. The function actually returns the difference `b-a` when it exists (all the letters of `b`, minus those of `a`).
 
 When loading the list of dictionary words, we sort it first according to decreasing length, and then lexicographically for equal lengths.
 
-Then at each step, filter the dictionary down to subwords of the current phrase. For each subword, recurse on the difference `phrase - subword`.
+Then at each step, filter the dictionary down to subwords of the current phrase. For each subword, recurse on the difference `phrase - subword`, saving the subword on a stack.
 
-When the phrase has 0 characters, the current branch of subwords is a solution.
+When the phrase has 0 characters, the current stack of subwords is a solution.
 
 ## Improvement
 
@@ -22,11 +22,13 @@ A simple but efficient improvement is to pass down the *filtered* dictionary to 
 
 This generates garbage in memory, but makes the algorithm much faster. These arrays of subwords could even be pre-allocated for even better performance.
 
+Furthermore, to avoid duplicate entries with the whole words rearranged, when filtering down the dictionary, we ignore all words before the last word added to the solution. That way we always naturally find solutions where words are "in order" (decreasing size, then alphabetical), and ignore the others, which also makes the search faster.
+
 ## Command line tool
 
-Requires Lua 5.1 or later.
+Requires Lua 5.3 or later.
 
-`Usage: lua main.lua <dict_path> <phrase> [+include] [-exclude] [>min_len]`
+`Usage: lua main.lua <dict_path> <phrase> [+include] [-exclude] [>min_len] [--ignore_diacritics]`
 
 ## Web interface
 
