@@ -47,9 +47,6 @@ local function main(args)
 	}
 
 	local dictionary = anagrams.load_dict(words, config)
-
-	--config.yield_often = true
-
 	local iter = anagrams.find(dictionary, phrase, config)
 
 	if not iter then
