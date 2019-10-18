@@ -163,12 +163,13 @@ local function filter_dict(dict, word, start_at, config)
 			coroutine.yield("pause")
 		end
 
-		local diff = word_diff(word, v)
-		if diff then
-			table.insert(res, v)
-			table.insert(diffs, diff)
+		if not config.excludes[v.string] then
+			local diff = word_diff(word, v)
+			if diff then
+				table.insert(res, v)
+				table.insert(diffs, diff)
+			end
 		end
-
 	end
 
 	return res,diffs
@@ -189,17 +190,14 @@ local function find_anagrams(dict, word, current, config)
 
 	for i,subword in ipairs(subs) do
 
-		if not config.excludes[subword.string] then
+		local diff = diffs[i]
 
-			local diff = diffs[i]
+		-- The trick is to pass the filtered dictionary down the recursion.
+		-- The subwords of the "rest" are a subset of the subwords of the whole.
 
-			-- The trick is to pass the filtered dictionary down the recursion.
-			-- The subwords of the "rest" are a subset of the subwords of the whole.
-
-			current[#current + 1] = subword
-			find_anagrams(subs, diff, current, config)
-			current[#current] = nil
-		end
+		current[#current + 1] = subword
+		find_anagrams(subs, diff, current, config)
+		current[#current] = nil
 	end
 end
 
