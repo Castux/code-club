@@ -112,15 +112,15 @@ local function add_result(t)
 
 	for i,v in ipairs(t) do
 		for j,w in ipairs(v) do
-			
+
 			local elem = create_result_word(w)
 			div:appendChild(elem)
-			
+
 			if j < #v then
 				div:appendChild(js.global.document:createTextNode("/"))
 			end
 		end
-		
+
 		if i < #t then
 			div:appendChild(js.global.document:createTextNode(" "))
 		end
@@ -288,6 +288,22 @@ local function on_excludes_input()
 	end
 end
 
+local function toggle_collapse_param()
+
+	local params = js.new(js.global.URLSearchParams, js.global.document.location.search)
+
+	local current = params:get("collapse")
+
+	if current == "true" then
+		params:set("collapse", "false")
+	else
+		params:set("collapse", "true")
+	end
+
+	js.global.window.location.search = params:toString()
+
+end
+
 local function setup()
 
 	loading_div = js.global.document:getElementById "loading"
@@ -311,6 +327,11 @@ local function setup()
 	includes_input.onchange = on_includes_input
 	excludes_input.onchange = on_excludes_input
 	length_input.onchange = restart_search
+
+	-- Collapse button
+
+	local collapse_text = js.global.document:getElementById "collapse"
+	collapse_text.onclick = toggle_collapse_param
 
 	-- URL options
 
