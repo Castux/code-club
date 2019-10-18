@@ -24,6 +24,8 @@ This generates garbage in memory, but makes the algorithm much faster. These arr
 
 Furthermore, to avoid duplicate entries with the whole words rearranged, when filtering down the dictionary, we ignore all words before the last word added to the solution. That way we always naturally find solutions where words are "in order" (decreasing size, then alphabetical), and ignore the others, which also makes the search faster.
 
+Finally, one can collapse self-anagrams into a single entry in the dictionary. This makes loading the words a bit slower, but searching the tree much faster.
+
 ## Shortcomings
 
 Except for ASCII characters (which are fine for the English language), converting to lower/uppercase is not trivial. Since the program handles UTF-8 dictionary and input, and breaks it down properly into Unicode codepoints, we would have to implement the whole Unicode [Case Mapping](https://www.unicode.org/charts/case/) information in order to properly handle case.
@@ -38,7 +40,7 @@ This solver has the option to ignore diacritics, although I have half-assedly  h
 
 Requires Lua 5.3 or later.
 
-`Usage: lua main.lua <dict_path> <phrase> [+include] [-exclude] [>min_len] [--ignore_diacritics]`
+`Usage: lua main.lua <dict_path> <phrase> [+include] [-exclude] [>min_len] [--ignore_diacritics] [--collapse]`
 
 ## Web interface
 

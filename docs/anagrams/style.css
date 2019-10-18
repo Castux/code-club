@@ -65,13 +65,12 @@ input.phrase
 .resultline
 {
 	display: inline-block;
-	margin: 0 10px;
+	margin: 0 15px;
 }
 
 .resultbox
 {
 	display: inline-block;
-	margin-right: 5px;
 }
 
 .resultbox > span

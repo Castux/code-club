@@ -19,6 +19,7 @@ local start_time
 
 local lang_opt
 local diac_opt
+local collapse_opt
 
 local function continue_loading_dict(co, total_count)
 
@@ -50,6 +51,7 @@ local function on_dict_loaded(str)
 	local config =
 	{
 		ignore_diacritics = diac_opt,
+		collapse = collapse_opt,
 		yield_often = true
 	}
 
@@ -109,12 +111,22 @@ local function add_result(t)
 	div.classList:add "resultline"
 
 	for i,v in ipairs(t) do
-		local elem = create_result_word(v)
-		div:appendChild(elem)
+		for j,w in ipairs(v) do
+			
+			local elem = create_result_word(w)
+			div:appendChild(elem)
+			
+			if j < #v then
+				div:appendChild(js.global.document:createTextNode("/"))
+			end
+		end
+		
+		if i < #t then
+			div:appendChild(js.global.document:createTextNode(" "))
+		end
 	end
 
 	results_div:appendChild(div)
-
 end
 
 local progress_search
@@ -128,7 +140,7 @@ progress_search = function()
 	local result = current_search()
 	if not result then
 		current_search = nil
-		add_result {"(done in " .. (os.time() - start_time) .. " sec.)"}
+		add_result {{"(done in " .. (os.time() - start_time) .. " sec.)"}}
 
 		body.classList:remove "loading"
 
@@ -140,11 +152,11 @@ progress_search = function()
 		local t = {}
 
 		for i = 0, includes_div.children.length - 1 do
-			table.insert(t, includes_div.children[i].children[0].innerHTML)
+			table.insert(t, {includes_div.children[i].children[0].innerHTML})
 		end
 
 		for _,word in ipairs(result) do
-			table.insert(t, word.string)
+			table.insert(t, word.strings)
 		end
 
 		add_result(t)
@@ -181,13 +193,14 @@ local function restart_search()
 		excludes = excludes,
 		min_len = min_len or 1,
 		ignore_diacritics = diac_opt,
+		collapse = collapse_opt,
 		yield_often = true
 	}
 
 	current_search = anagrams.find(dict, phrase, config)
 
 	if not current_search then
-		add_result {"(invalid includes)"}
+		add_result {{"(invalid includes)"}}
 		return
 	end
 
@@ -305,9 +318,11 @@ local function setup()
 	local url = js.new(js.global.URL, url_str)
 	local lang = url.searchParams:get("lang")
 	local diac = url.searchParams:get("diac")
+	local collapse = url.searchParams:get("collapse")
 
 	lang_opt = lang ~= js.null and lang or "en"
 	diac_opt = diac == "true"
+	collapse_opt = collapse == "true"
 end
 
 setup()

@@ -8,9 +8,10 @@ local function main(args)
 	local excludes = {}
 	local min_len = 1
 	local ignore_diacritics
+	local collapse
 
 	if not dict_path or not phrase then
-		print("Usage: lua main.lua <dict_path> <phrase> [+include] [-exclude] [>min_len] [--ignore_diacritics]")
+		print("Usage: lua main.lua <dict_path> <phrase> [+include] [-exclude] [>min_len] [--ignore_diacritics] [--collapse]")
 		return
 	end
 
@@ -20,6 +21,8 @@ local function main(args)
 
 		if args[i] == "--ignore_diacritics" then
 			ignore_diacritics = true
+		elseif args[i] == "--collapse" then
+			collapse = true
 		elseif head == "+" then
 			table.insert(includes, tail)
 		elseif head == "-" then
@@ -43,7 +46,8 @@ local function main(args)
 		includes = includes,
 		excludes = excludes,
 		min_len = min_len,
-		ignore_diacritics = ignore_diacritics
+		ignore_diacritics = ignore_diacritics,
+		collapse = collapse
 	}
 
 	local dictionary = anagrams.load_dict(words, config)
@@ -63,7 +67,7 @@ local function main(args)
 			end
 
 			for _,v in ipairs(res) do
-				io.write(v.string, " ")
+				io.write(table.concat(v.strings, "/"), " ")
 			end
 			io.write "\n"
 		end

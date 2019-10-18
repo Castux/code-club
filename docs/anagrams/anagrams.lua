@@ -42,9 +42,14 @@ local function load_word(w, config)
 	end
 
 	table.sort(res)
-	res.string = w
+	res.strings = {w}
 
-	return res
+	local hash
+	if config.collapse then 
+		hash = utf8.char(table.unpack(res))
+	end
+
+	return res,hash
 end
 
 -- Check if all the letters in a are found in b
@@ -93,6 +98,8 @@ local function load_dict(words_array, config)
 		return words_array
 	end
 
+	local hashes = {}
+
 	local sizes = {}
 	local largest = 1
 
@@ -102,14 +109,24 @@ local function load_dict(words_array, config)
 			coroutine.yield(i)
 		end
 
-		word = load_word(word, config)
+		local word,hash = load_word(word, config)
 
 		if not sizes[#word] then
 			sizes[#word] = {}
 			largest = math.max(largest, #word)
 		end
 
-		table.insert(sizes[#word], word)
+		if config.collapse then
+			local previous = hashes[hash]
+			if previous then
+				table.insert(previous.strings, word.strings[1])
+			else
+				table.insert(sizes[#word], word)
+				hashes[hash] = word
+			end
+		else
+			table.insert(sizes[#word], word)
+		end
 	end
 
 	local words = {}
@@ -163,7 +180,15 @@ local function filter_dict(dict, word, start_at, config)
 			coroutine.yield("pause")
 		end
 
-		if not config.excludes[v.string] then
+		local exclude = false
+		for _,str in ipairs(v.strings) do
+			if config.excludes[str] then
+				exclude = true
+				break
+			end
+		end
+
+		if not exclude then
 			local diff = word_diff(word, v)
 			if diff then
 				table.insert(res, v)
