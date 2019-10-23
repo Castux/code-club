@@ -1,0 +1,37 @@
+function main(char, cond, up, down, dir)
+    in char
+    0 ~> up,down
+
+    while char
+
+        eq(char,40) ~> cond
+        while cond
+            0 ~> cond
+
+            up+
+        end
+
+        eq(char,41) ~> cond
+        while cond
+            0 ~> cond
+
+            down+
+        end
+
+        in char
+    end
+
+    43 ~> dir
+    lt(up,down) ~> cond
+
+    while cond
+        0 ~> cond
+        45 ~> dir
+    end
+
+    outChar(dir)
+
+    diff(up,down) ~> up
+    outDecimal(up)
+    outNewline()
+end
