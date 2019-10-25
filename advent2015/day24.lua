@@ -19,34 +19,36 @@ local function load_data()
 	return weights,total
 end
 
-local function split_rec(weights, total, start_at, result)
-
-	if total < 0 then
-		return
-	end
-
-	if total == 0 then
-		coroutine.yield(result, weights)
-		return
-	end
-
-	for i = start_at,#weights do
-
-		local v = weights[i]
-
-		table.insert(result, v)
-		table.remove(weights, i)
-
-		split_rec(weights, total - v, i, result)
-
-		table.insert(weights, i, v)
-		table.remove(result)
-
-	end
-end
-
 local function split(weights, total)
-	return coroutine.wrap(function() split_rec(weights, total, 1, {}) end)
+
+	local result = {}
+	local function split_rec(total, start_at)
+
+		if total < 0 then
+			return
+		end
+
+		if total == 0 then
+			coroutine.yield(result, weights)
+			return
+		end
+
+		for i = start_at,#weights do
+
+			local v = weights[i]
+
+			table.insert(result, v)
+			table.remove(weights, i)
+
+			split_rec(total - v, i)
+
+			table.insert(weights, i, v)
+			table.remove(result)
+
+		end
+	end
+
+	return coroutine.wrap(function() split_rec(total, 1) end)
 end
 
 local function product(arr)
@@ -71,11 +73,11 @@ local function part1()
 	local best_qe
 
 	for group1,rest in split(weights, each) do
-		
+
 		if smallest and #group1 > smallest then
 			goto continue
 		end
-		
+
 		for group2,group3 in split(table_copy(rest), each) do
 
 			-- There is at least one solution with this group1
@@ -89,10 +91,10 @@ local function part1()
 				local qe = product(group1)
 				best_qe = math.min(qe, best_qe)
 			end
-			
+
 			goto continue -- we only need to know that there's 1 solution per group1
 		end
-		
+
 		::continue::
 	end
 
@@ -113,11 +115,11 @@ local function part2()
 	local best_qe
 
 	for group1,rest in split(weights, each) do
-		
+
 		if smallest and #group1 > smallest then
 			goto continue
 		end
-		
+
 		for group2,rest2 in split(table_copy(rest), each) do
 			for group3,rest3 in split(table_copy(rest2), each) do
 
