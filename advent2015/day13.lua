@@ -100,7 +100,7 @@ end
 
 local function part2()
 
-	local people, happiness = load()	
+	local people, happiness = load()
 	table.insert(people, "Self")
 
 	run(people, happiness)
