@@ -140,8 +140,6 @@ local function part2()
 		::continue::
 	end
 
-	::finish::
-
 	print(best_qe)
 end
 
