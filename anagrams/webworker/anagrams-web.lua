@@ -311,6 +311,12 @@ local messages =
 		end
 
 		add_result(t)
+
+		postMessage('continue')
+	end,
+
+	pause = function()
+		postMessage('continue')
 	end
 }
 

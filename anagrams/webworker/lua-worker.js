@@ -1,5 +1,3 @@
-console.log("Worker loading");
-
 importScripts("fengari-webworker.js")
 
 const luaconf  = fengari.luaconf;

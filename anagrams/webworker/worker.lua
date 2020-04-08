@@ -2,7 +2,7 @@ local js = require "js"
 local anagrams = require "anagrams"
 local serialize = require "serialize"
 
-local dict
+local dict, current_search
 
 local function postMessage(cmd, arg)
     post_message_internal(cmd, serialize.serialize(arg))
@@ -23,8 +23,6 @@ end
 
 local function on_dict_loaded(str, args)
 
-    print("Downloaded dict: " .. #str)
-
 	local words = {}
 	for w in str:gmatch "[^\r\n]+" do
 		table.insert(words, w)
@@ -44,20 +42,25 @@ local function on_dict_loaded(str, args)
 	continue_loading_dict(co, #words)
 end
 
-local function progress_search(search)
+local function progress_search()
 
-    local result = search()
+    if not current_search then
+        return
+    end
+
+    local result = current_search()
 
     if not result then
+        current_search = nil
         postMessage('done')
         return
     end
 
     if result ~= "pause" then
         postMessage('result', result)
+    else
+        postMessage('pause')
     end
-
-    progress_search(search)
 end
 
 local messages =
@@ -72,14 +75,18 @@ local messages =
 
     search = function(config)
 
-        local search = anagrams.find(dict, config.phrase, config)
+        current_search = anagrams.find(dict, config.phrase, config)
 
-        if not search then
+        if not current_search then
             postMessage('invalid')
             return
         end
 
-        progress_search(search)
+        progress_search()
+    end,
+
+    continue = function()
+        progress_search()
     end
 }
 
