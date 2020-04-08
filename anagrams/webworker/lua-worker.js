@@ -60,6 +60,7 @@ function setup()
 
     const L = lauxlib.luaL_newstate();
     lualib.luaL_openlibs(L);
+    lauxlib.luaL_requiref(L, "js", interop.luaopen_js, 0);
 
     lua.lua_atnativeerror(L, (x) => {
         console.log("Native error:");

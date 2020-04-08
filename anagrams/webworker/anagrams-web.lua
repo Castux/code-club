@@ -32,47 +32,6 @@ local function postMessage(command, argument)
 	worker:postMessage(obj)
 end
 
-local function continue_loading_dict(co, total_count)
-
-	local status,result = coroutine.resume(co)
-
-	if type(result) == "table" then
-
-		dict = result
-
-		loading_div.style.display = "none"
-		ui_div.style.display = "block"
-
-	else
-
-		loading_div.innerHTML = "Loading dictionary... " .. math.ceil(result / total_count * 100) .. "%"
-		js.global:requestAnimationFrame(function()
-			continue_loading_dict(co, total_count)
-		end)
-	end
-end
-
-local function on_dict_loaded(str)
-
-	local words = {}
-	for w in str:gmatch "[^\r\n]+" do
-		table.insert(words, w)
-	end
-
-	local config =
-	{
-		ignore_diacritics = diac_opt,
-		collapse = collapse_opt,
-		yield_often = true
-	}
-
-	local co = coroutine.create(function()
-		return anagrams.load_dict(words, config)
-	end)
-
-	continue_loading_dict(co, #words)
-end
-
 local function load_dict()
 
 	ui_div.style.display = "none"
@@ -82,20 +41,22 @@ local function load_dict()
 
 	-- Ask the worker to load the dictionary
 
+	postMessage("set_ignore_diacritics", diac_opt)
+	postMessage("set_collapse", collapse_opt)
 	postMessage("load_dict", path)
-
-	do return end
-
-	-- Load the dictionary
-
-	local path = "./" .. lang_opt .. ".txt"
-
-	local req = js.new(js.global.XMLHttpRequest)
-	req:open('GET', path)
-	req.onload = function() on_dict_loaded(req.responseText) end
-	req:send()
-
 end
+
+local messages =
+{
+	dict_loading = function(progress)
+		loading_div.innerHTML = string.format("Loading dictionary... %d%%", math.ceil(progress * 100))
+	end,
+
+	dict_loaded = function()
+		loading_div.style.display = "none"
+		ui_div.style.display = "block"
+	end
+}
 
 local function start_worker()
 
@@ -103,6 +64,8 @@ local function start_worker()
 
 	worker:addEventListener('message', function(self, e)
 		print("Got from worker:", e.data.command, e.data.arg)
+
+		messages[e.data.command](e.data.arg)
 	end)
 end
 
