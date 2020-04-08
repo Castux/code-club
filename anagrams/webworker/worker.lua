@@ -1,8 +1,12 @@
 local js = require "js"
 local anagrams = require "anagrams"
+local serialize = require "serialize"
 
-local ignore_diacritics, collape
 local dict
+
+local function postMessage(cmd, arg)
+    post_message_internal(cmd, serialize.serialize(arg))
+end
 
 local function continue_loading_dict(co, total_count)
 
@@ -10,14 +14,14 @@ local function continue_loading_dict(co, total_count)
 
 	if type(result) == "table" then
 		dict = result
-        post_message('dict_loaded')
+        postMessage('dict_loaded')
 	else
-        post_message('dict_loading', result / total_count)
+        postMessage('dict_loading', result / total_count)
         continue_loading_dict(co, total_count)
 	end
 end
 
-local function on_dict_loaded(str)
+local function on_dict_loaded(str, args)
 
     print("Downloaded dict: " .. #str)
 
@@ -28,8 +32,8 @@ local function on_dict_loaded(str)
 
 	local config =
 	{
-		ignore_diacritics = ignore_diacritics,
-		collapse = collapse,
+		ignore_diacritics = args.ignore_diacritics,
+		collapse = args.collapse,
 		yield_often = true
 	}
 
@@ -40,28 +44,45 @@ local function on_dict_loaded(str)
 	continue_loading_dict(co, #words)
 end
 
+local function progress_search(search)
+
+    local result = search()
+
+    if not result then
+        postMessage('done')
+        return
+    end
+
+    if result ~= "pause" then
+        postMessage('result', result)
+    end
+
+    progress_search(search)
+end
+
 local messages =
 {
-    set_ignore_diacritics = function(v)
-        ignore_diacritics = v
-    end,
-
-    set_collapse = function(v)
-        collapse = v
-    end,
-
-    load_dict = function(path)
+    load_dict = function(args)
 
         local req = js.new(js.global.XMLHttpRequest)
-        req:open('GET', path)
-        req.onload = function() on_dict_loaded(req.responseText) end
+        req:open('GET', args.path)
+        req.onload = function() on_dict_loaded(req.responseText, args) end
         req:send()
+    end,
 
+    search = function(config)
+
+        local search = anagrams.find(dict, config.phrase, config)
+
+        if not search then
+            postMessage('invalid')
+            return
+        end
+
+        progress_search(search)
     end
 }
 
-
 function on_message(cmd, arg)
-    post_message('ack', cmd .. "," ..  arg)
-    messages[cmd](arg)
+    messages[cmd](serialize.deserialize(arg))
 end

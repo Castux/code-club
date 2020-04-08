@@ -70,7 +70,7 @@ function setup()
     // Expose "post"
 
     lua.lua_pushjsfunction(L, post_from_lua);
-    lua.lua_setglobal(L, fengari.to_luastring("post_message"));
+    lua.lua_setglobal(L, fengari.to_luastring("post_message_internal"));
 
     // Run worker code
 

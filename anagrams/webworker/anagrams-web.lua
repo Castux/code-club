@@ -1,5 +1,6 @@
 local anagrams = require "anagrams"
 local js = require "js"
+local serialize = require "serialize"
 
 local ui_div
 local loading_div
@@ -27,7 +28,7 @@ local function postMessage(command, argument)
 
 	local obj = js.new(js.global.Object)
 	obj.command = command
-	obj.arg = argument
+	obj.arg = serialize.serialize(argument)
 
 	worker:postMessage(obj)
 end
@@ -41,33 +42,16 @@ local function load_dict()
 
 	-- Ask the worker to load the dictionary
 
-	postMessage("set_ignore_diacritics", diac_opt)
-	postMessage("set_collapse", collapse_opt)
-	postMessage("load_dict", path)
+	local args =
+	{
+		ignore_diacritics = diac_opt,
+		collapse = collapse_opt,
+		path = path
+	}
+
+	postMessage("load_dict", args)
 end
 
-local messages =
-{
-	dict_loading = function(progress)
-		loading_div.innerHTML = string.format("Loading dictionary... %d%%", math.ceil(progress * 100))
-	end,
-
-	dict_loaded = function()
-		loading_div.style.display = "none"
-		ui_div.style.display = "block"
-	end
-}
-
-local function start_worker()
-
-	worker = js.new(js.global.Worker, "lua-worker.js");
-
-	worker:addEventListener('message', function(self, e)
-		print("Got from worker:", e.data.command, e.data.arg)
-
-		messages[e.data.command](e.data.arg)
-	end)
-end
 
 local function clearResults()
 
@@ -120,46 +104,9 @@ local function add_result(t)
 	results_div:appendChild(div)
 end
 
-local progress_search
-
-progress_search = function()
-
-	if not current_search then
-		return
-	end
-
-	local result = current_search()
-	if not result then
-		current_search = nil
-		add_result {{"(done in " .. (os.time() - start_time) .. " sec.)"}}
-
-		body.classList:remove "loading"
-
-		return
-	end
-
-	if result ~= "pause" then
-
-		local t = {}
-
-		for i = 0, includes_div.children.length - 1 do
-			table.insert(t, {includes_div.children[i].children[0].innerHTML})
-		end
-
-		for _,word in ipairs(result) do
-			table.insert(t, word.strings)
-		end
-
-		add_result(t)
-	end
-
-	js.global:requestAnimationFrame(progress_search)
-end
-
 local function restart_search()
 
 	clearResults()
-	current_search = nil
 	body.classList:remove "loading"
 
 	local phrase = phrase_input.value
@@ -180,6 +127,7 @@ local function restart_search()
 
 	local config =
 	{
+		phrase = phrase,
 		includes = includes,
 		excludes = excludes,
 		min_len = min_len or 1,
@@ -188,17 +136,10 @@ local function restart_search()
 		yield_often = true
 	}
 
-	current_search = anagrams.find(dict, phrase, config)
-
-	if not current_search then
-		add_result {{"(invalid includes)"}}
-		return
-	end
+	postMessage('search', config)
 
 	body.classList:add "loading"
 	start_time = os.time()
-
-	js.global:requestAnimationFrame(progress_search)
 end
 
 add_include = function(str)
@@ -335,6 +276,51 @@ local function setup()
 	lang_opt = lang ~= js.null and lang or "en"
 	diac_opt = diac == "true"
 	collapse_opt = collapse == "true"
+end
+
+local messages =
+{
+	dict_loading = function(progress)
+		loading_div.innerHTML = string.format("Loading dictionary... %d%%", math.ceil(progress * 100))
+	end,
+
+	dict_loaded = function()
+		loading_div.style.display = "none"
+		ui_div.style.display = "block"
+	end,
+
+	invalid = function()
+		add_result {{"(invalid includes)"}}
+		body.classList:remove "loading"
+	end,
+
+	done = function()
+		add_result {{"(done in " .. (os.time() - start_time) .. " sec.)"}}
+		body.classList:remove "loading"
+	end,
+
+	result = function(result)
+		local t = {}
+
+		for i = 0, includes_div.children.length - 1 do
+			table.insert(t, {includes_div.children[i].children[0].innerHTML})
+		end
+
+		for _,word in ipairs(result) do
+			table.insert(t, word.strings)
+		end
+
+		add_result(t)
+	end
+}
+
+local function start_worker()
+
+	worker = js.new(js.global.Worker, "lua-worker.js");
+
+	worker:addEventListener('message', function(self, e)
+		messages[e.data.command](serialize.deserialize(e.data.arg))
+	end)
 end
 
 setup()
