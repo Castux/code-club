@@ -7,8 +7,11 @@
     <script src="script.js"></script>
 </head>
 <body>
-<input id="input-line" type="text" onchange="on_input();">
-<button onclick="start();">Start</button>
-<button onclick="stop_all();">Stop all</button>
+<textarea readonly id="sent-messages"></textarea>
+<div>
+    <input id="input-line" type="text" onchange="on_input();">
+    <button onclick="start();">Start</button>
+    <button onclick="stop_all();">Stop all</button>
+</div>
 </body>
 </html>

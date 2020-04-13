@@ -96,13 +96,13 @@ function symbols_to_text(symbols, bits_per_symbol)
 function on_input()
 {
     var input = document.getElementById("input-line");
-    var symbols = text_to_symbols(input.value, 8);
+    var text = input.value;
 
-    console.log(symbols);
+    var log = document.getElementById("sent-messages");
+    log.value = log.value == "" ? text : log.value + "\n" + text;
 
+    var symbols = text_to_symbols(text, 8);
     var text = symbols_to_text(symbols, 8);
-
-    console.log(text);
 
     input.value = null;
 }
