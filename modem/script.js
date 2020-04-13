@@ -1,4 +1,4 @@
-var sine;
+var encoder;
 
 function byte_to_symbols(b, bits_per_symbol)
 {
@@ -101,39 +101,33 @@ function on_input()
     var log = document.getElementById("sent-messages");
     log.value = log.value == "" ? text : log.value + "\n" + text;
 
-    var symbols = text_to_symbols(text, 8);
-    var text = symbols_to_text(symbols, 8);
+    var bps = parseInt(document.getElementById("bits-per-symbol").value);
+
+    var symbols = text_to_symbols(text, bps);
+    var text = symbols_to_text(symbols, bps);
+
+    console.log("Decoded", text);
+
+    encoder.port.postMessage({'cmd': 'symbols', 'data': symbols});
 
     input.value = null;
 }
 
 function setup()
 {
-    var context = new AudioContext();
+    var sps = parseInt(document.getElementById("samples-per-symbol").value);
 
-    sine = context.createOscillator();
-    sine.frequency = 440;
-    sine.type = "sine";
+    var context = new AudioContext();
 
     context.audioWorklet.addModule('worklet.js').then( () =>
     {
-        var worklet = new AudioWorkletNode(context, 'my-worklet-processor');
+        encoder = new AudioWorkletNode(context, 'dpsk-encoder');
 
-        sine.connect(worklet);
-        worklet.connect(context.destination);
+        encoder.port.postMessage({ 'cmd': 'sps', 'data': sps});
 
+        encoder.connect(context.destination);
     });
 
+    var button = document.getElementById("start-button");
+    button.parentNode.removeChild(button);
 }
-
-function start()
-{
-    sine.start();
-}
-
-function stop_all()
-{
-    sine.stop();
-}
-
-//setup();

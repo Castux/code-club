@@ -10,8 +10,22 @@
 <textarea readonly id="sent-messages"></textarea>
 <div>
     <input id="input-line" type="text" onchange="on_input();">
-    <button onclick="start();">Start</button>
-    <button onclick="stop_all();">Stop all</button>
+</div>
+<form id="settings">
+    <label>Bits per symbol</label>
+    <select id="bits-per-symbol">
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="4">4</option>
+        <option value="8">8</option>
+    </select>
+    <br>
+
+    <label>Samples per symbol</label>
+    <input id="samples-per-symbol" type="number" value="200">
+
+</form>
+<button id="start-button" onclick="setup();">Start</button>
 </div>
 </body>
 </html>
