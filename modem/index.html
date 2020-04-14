@@ -7,25 +7,27 @@
     <script src="script.js"></script>
 </head>
 <body>
-<textarea readonly id="sent-messages"></textarea>
-<div>
-    <input id="input-line" type="text" onchange="on_input();">
-</div>
-<div id="settings">
-    <label>Bits per symbol</label>
-    <select id="bits-per-symbol">
-        <option value="1">1</option>
-        <option value="2">2</option>
-        <option value="4">4</option>
-        <option value="8">8</option>
-    </select>
-    <br>
+    <button id="start-button" onclick="setup();">Start</button>
+    <div id="container" style="display: none;">
+        <textarea readonly id="sent-messages"></textarea>
+        <div>
+            <input id="input-line" type="text" onchange="on_input();">
+        </div>
+        <div id="settings">
+            <label>Bits per symbol</label>
+            <select id="bits-per-symbol" onchange="update_parameters();">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="4">4</option>
+                <option value="8">8</option>
+            </select>
+            <br>
 
-    <label>Samples per symbol</label>
-    <input id="samples-per-symbol" type="number" value="200">
+            <label>Samples per symbol</label>
+            <input id="samples-per-symbol" type="number" value="200" onchange="update_parameters();">
 
-</div>
-<button id="start-button" onclick="setup();">Start</button>
+        </div>
+    </div>
 </div>
 </body>
 </html>

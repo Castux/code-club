@@ -1,6 +1,8 @@
 var encoder;
+var bits_per_symbol;
+var samples_per_symbol;
 
-function byte_to_symbols(b, bits_per_symbol)
+function byte_to_symbols(b)
 {
     var symbols = [];
     switch(bits_per_symbol)
@@ -33,7 +35,7 @@ function byte_to_symbols(b, bits_per_symbol)
     return symbols;
 }
 
-function symbols_to_byte(s, index, bits_per_symbol)
+function symbols_to_byte(s, index)
 {
     var byte = 0;
 
@@ -66,7 +68,7 @@ function symbols_to_byte(s, index, bits_per_symbol)
     return byte;
 }
 
-function text_to_symbols(str, bits_per_symbol)
+function text_to_symbols(str)
 {
     var codes = new TextEncoder().encode(str);
     var symbols = [];
@@ -79,7 +81,7 @@ function text_to_symbols(str, bits_per_symbol)
     return symbols.flat();
 }
 
-function symbols_to_text(symbols, bits_per_symbol)
+function symbols_to_text(symbols)
 {
     var codes = [];
 
@@ -101,10 +103,8 @@ function on_input()
     var log = document.getElementById("sent-messages");
     log.value = log.value == "" ? text : log.value + "\n" + text;
 
-    var bps = parseInt(document.getElementById("bits-per-symbol").value);
-
-    var symbols = text_to_symbols(text, bps);
-    var text = symbols_to_text(symbols, bps);
+    var symbols = text_to_symbols(text, bits_per_symbol);
+    var text = symbols_to_text(symbols, bits_per_symbol);
 
     console.log("Decoded", text);
 
@@ -113,21 +113,29 @@ function on_input()
     input.value = null;
 }
 
+function update_parameters()
+{
+    bits_per_symbol = parseInt(document.getElementById("bits-per-symbol").value);
+    samples_per_symbol = parseInt(document.getElementById("samples-per-symbol").value);
+
+    console.log("Udpated params");
+}
+
 function setup()
 {
-    var sps = parseInt(document.getElementById("samples-per-symbol").value);
+    update_parameters();
 
     var context = new AudioContext();
 
     context.audioWorklet.addModule('worklet.js').then( () =>
     {
         encoder = new AudioWorkletNode(context, 'dpsk-encoder');
-
-        encoder.port.postMessage({ 'cmd': 'sps', 'data': sps});
-
+        encoder.port.postMessage({ 'cmd': 'sps', 'data': samples_per_symbol});
         encoder.connect(context.destination);
     });
 
     var button = document.getElementById("start-button");
     button.parentNode.removeChild(button);
+
+    document.getElementById("container").style.display = "block";
 }
