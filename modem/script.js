@@ -106,9 +106,6 @@ function on_input()
     log.value = log.value == "" ? text : log.value + "\n" + text;
 
     var symbols = text_to_symbols(text, bits_per_symbol);
-    var text = symbols_to_text(symbols, bits_per_symbol);
-
-    console.log("Decoded", text);
 
     encoder.port.postMessage({'cmd': 'symbols', 'data': symbols});
 
@@ -122,6 +119,7 @@ function update_parameters()
     carrier_freq = parseInt(document.getElementById("carrier-freq").value);
 
     encoder.port.postMessage({ 'cmd': 'sps', 'data': samples_per_symbol});
+    encoder.port.postMessage({ 'cmd': 'bps', 'data': bits_per_symbol});
     modulator.port.postMessage({ 'cmd': 'carrier_freq', 'data': carrier_freq});
 }
 
