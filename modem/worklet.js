@@ -4,7 +4,6 @@ class DPSKEncoder extends AudioWorkletProcessor
     {
         super();
 
-        this.carrier_freq = 440;
         this.samples_per_symbol = 100;
         this.bits_per_symbol = 1;
         this.sample_index = 0;
@@ -15,8 +14,6 @@ class DPSKEncoder extends AudioWorkletProcessor
 
         this.port.onmessage = (event) =>
         {
-            console.log(event.data);
-
             var cmd = event.data.cmd;
             var data = event.data.data;
 
@@ -30,9 +27,6 @@ class DPSKEncoder extends AudioWorkletProcessor
                     break;
                 case "bps":
                     this.bits_per_symbol = data;
-                    break;
-                case "carrier_freq":
-                    this.carrier_freq = data;
                     break;
             }
         };
@@ -66,3 +60,48 @@ class DPSKEncoder extends AudioWorkletProcessor
 }
 
 registerProcessor('dpsk-encoder', DPSKEncoder);
+
+class Modulator extends AudioWorkletProcessor
+{
+    constructor()
+    {
+        super();
+
+        this.sample_index = 0;
+        this.carrier_freq = 440;
+
+        this.port.onmessage = (event) =>
+        {
+            var cmd = event.data.cmd;
+            var data = event.data.data;
+
+            switch(cmd)
+            {
+                case "carrier_freq":
+                    this.carrier_freq = data;
+                    break;
+            }
+        };
+    }
+
+    process(inputs, outputs, parameters)
+    {
+        const ins = inputs[0];
+        const out = outputs[0][0];
+
+        const twoPi = 2 * Math.PI;
+
+        for(var i = 0 ; i < ins[0].length ; i++)
+        {
+            var phi = this.sample_index / 44100 * twoPi * this.carrier_freq;
+
+            out[i] = ins[0][i] * Math.cos(phi) + ins[1][i] * Math.sin(phi);
+
+            this.sample_index++;
+        }
+
+        return true;
+    }
+}
+
+registerProcessor('modulator', Modulator);

@@ -1,6 +1,8 @@
 var encoder;
+var modulator;
 var bits_per_symbol;
 var samples_per_symbol;
+var carrier_freq;
 
 function byte_to_symbols(b)
 {
@@ -117,8 +119,10 @@ function update_parameters()
 {
     bits_per_symbol = parseInt(document.getElementById("bits-per-symbol").value);
     samples_per_symbol = parseInt(document.getElementById("samples-per-symbol").value);
+    carrier_freq = parseInt(document.getElementById("carrier-freq").value);
 
     encoder.port.postMessage({ 'cmd': 'sps', 'data': samples_per_symbol});
+    modulator.port.postMessage({ 'cmd': 'carrier_freq', 'data': carrier_freq});
 }
 
 function setup()
@@ -133,7 +137,15 @@ function setup()
             numberOfOutputs: 1,
             outputChannelCount: [2]
         });
-        encoder.connect(context.destination);
+
+        modulator = new AudioWorkletNode(context, 'modulator', {
+            numberOfInputs: 1,
+            numberOfOutputs: 1,
+            outputChannelCount: [1]
+        });
+
+        encoder.connect(modulator);
+        modulator.connect(context.destination);
 
         update_parameters();
     });
