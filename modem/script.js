@@ -118,20 +118,24 @@ function update_parameters()
     bits_per_symbol = parseInt(document.getElementById("bits-per-symbol").value);
     samples_per_symbol = parseInt(document.getElementById("samples-per-symbol").value);
 
-    console.log("Udpated params");
+    encoder.port.postMessage({ 'cmd': 'sps', 'data': samples_per_symbol});
 }
 
 function setup()
 {
-    update_parameters();
-
     var context = new AudioContext();
+    console.log(context.sampleRate);
 
     context.audioWorklet.addModule('worklet.js').then( () =>
     {
-        encoder = new AudioWorkletNode(context, 'dpsk-encoder');
-        encoder.port.postMessage({ 'cmd': 'sps', 'data': samples_per_symbol});
+        encoder = new AudioWorkletNode(context, 'dpsk-encoder', {
+            numberOfInputs: 0,
+            numberOfOutputs: 1,
+            outputChannelCount: [2]
+        });
         encoder.connect(context.destination);
+
+        update_parameters();
     });
 
     var button = document.getElementById("start-button");
