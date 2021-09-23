@@ -273,7 +273,7 @@ T4 has four related operators to move, copy and add variables.
 
 - `a -> b`:  `a` and `b` become `a` and `a`
 - `a ->> b`:  `a` and `b` become `a` and `a+b`
-- `a ~> b`:  `a` and `b` become `0` and `b`
+- `a ~> b`:  `a` and `b` become `0` and `a`
 - `a ~>> b`:  `a` and `b` become `0` and `a+b`
 
 Several destinations can be specified for simultaneous move/copy.
