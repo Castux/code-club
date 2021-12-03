@@ -13,11 +13,9 @@ most_common_at = (values, rank) ->
 filter = (values, most) ->
 	rank = 1
 	while #values > 1
-		chosen = most_common_at(values, rank)
-		values = if most
-			[value for value in *values when value[rank] == chosen]
-		else
-			[value for value in *values when value[rank] != chosen]
+		model = most_common_at(values, rank)
+		if not most then model = 1 - model
+		values = [value for value in *values when value[rank] == model]
 		rank += 1
 	values[1]
 
@@ -26,11 +24,8 @@ data = for line in io.lines "day03.txt"
 		tonumber line\sub(i,i)
 
 part1 = ->
-	most_common = [most_common_at(data, i) for i = 1,#data[1]]
-	least_common = [1 - v for v in *most_common]
-
-	gamma = bits_to_int most_common
-	epsilon = bits_to_int least_common
+	gamma = bits_to_int [most_common_at(data, i) for i = 1,#data[1]]
+	epsilon = ~gamma & ((1 << #data[1]) - 1)
 	print "Part 1", gamma * epsilon
 
 part2 = ->
