@@ -18,15 +18,14 @@ score_board = (board, number) ->
 	board.score = sum * number
 
 handle_board = (board, number) ->
-	for i,v in ipairs board
-		if v == number
-			board[i] = true
-			row, col = (i-1) // size + 1, (i-1) % size + 1
-			board.rows[row] += 1
-			board.cols[col] += 1
-			if board.rows[row] == size or board.cols[col] == size
-				score_board board, number
-			break
+	for i,v in ipairs board do if v == number
+		board[i] = true
+		row, col = (i-1) // size + 1, (i-1) % size + 1
+		board.rows[row] += 1
+		board.cols[col] += 1
+		if board.rows[row] == size or board.cols[col] == size
+			score_board board, number
+		break
 
 mark_next_number = (data) ->
 	number = table.remove data.draw, 1
