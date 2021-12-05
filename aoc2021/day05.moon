@@ -8,8 +8,8 @@ interp = (a,b,i) -> a + i * sign(a,b)
 
 iter = (segment) -> with segment
 	steps = math.max(math.abs(.x1 - .x2), math.abs(.y1 - .y2))
-	return for i = 0, steps
-		{x: interp(.x1, .x2, i), y: interp(.y1, .y2, i)}
+	return for i = 0, steps do
+		x: interp(.x1, .x2, i), y: interp(.y1, .y2, i)
 
 accumulate = (segments, diagonals) ->
 	map = {}
