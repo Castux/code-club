@@ -1,8 +1,5 @@
 count_increases = (data, window = 1) ->
-    count = 0
-    for i = window + 1, #data
-        if data[i] > data[i - window] then count += 1
-    count
+	#[1 for i = window + 1, #data when data[i] > data[i - window]]
 
 data = [tonumber(line) for line in io.lines "day01.txt"]
 
