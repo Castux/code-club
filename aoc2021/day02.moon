@@ -1,6 +1,6 @@
 process = (commands, functions) ->
 	for v in *commands
-		functions[v[1]](v[2])
+		functions[v[1]](tonumber(v[2]))
 
 part1 = (commands) ->
 	depth, position = 0, 0
