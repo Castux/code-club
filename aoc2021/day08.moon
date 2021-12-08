@@ -1,6 +1,6 @@
 data = for line in io.lines "day08.txt"
 	left = for s in line\gmatch "(%w+)"
-		chars = [s\sub(i,i) for i = 1,#s]
+		chars = [c for c in s\gmatch "."]
 		table.sort chars
 		table.concat chars
 	right = [table.remove left, 11 for i = 1,4]
