@@ -7,8 +7,8 @@ data = for line in io.lines "day08.txt"
 	:left, :right
 
 includes = (big, small) ->
-	for i = 1, #small
-		if not big\match small\sub(i,i) then return false
+	for c in small\gmatch "."
+		if not big\match c then return false
 	return true
 
 unique = {[2]: 1, [3]: 7, [4]: 4, [7]: 8}
