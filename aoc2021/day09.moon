@@ -1,51 +1,41 @@
-map = for line in io.lines "day09.txt"
+map = {}
+set = (row, col, v) -> map[row .. ":" .. col] = v
+get = (row, col) -> map[row .. ":" .. col]
+
+do
+	row = 1
+	for line in io.lines "day09.txt"
+		col = 1
 		for c in line\gmatch "."
-			{height: tonumber(c), from: {}, low: true}
+			set row, col, { height: tonumber(c), :row, :col }
+			col += 1
+		row += 1
 
-get = (row, col) ->
-	if row >= 1 and row <= #map and col >= 1 and col <= #map[row]
-		map[row][col]
+neighbours = (cell) ->
+	r, c = cell.row, cell.col
+	[get row, col for {row, col} in *{{r+1, c}, {r-1, c}, {r, c+1}, {r, c-1}} when get row, col]
 
-iter_map = () ->
-	coroutine.wrap () ->
-		for row = 1,#map do for col = 1,#map[row]
-			coroutine.yield get(row, col), row, col
+is_low = (cell) ->
+	for neighbour in *neighbours cell
+		if neighbour.height <= cell.height
+			return false
+	true
 
-neighbours = (row, col) -> {
-	{row + 1, col},
-	{row - 1, col},
-	{row, col + 1},
-	{row, col - 1}
-}
-
-low_points = do
-	for cell, row, col in iter_map()
-		if cell.height == 9
-			cell.low = false
-			continue
-
-		for {r2,c2} in *neighbours(row,col)
-			neighbour = get(r2, c2)
-			if neighbour and neighbour.height < cell.height
-				cell.low = false
-				table.insert neighbour.from, cell
-				break
-
-	[cell for cell in iter_map() when cell.low]
+low_points = [cell for _,cell in pairs map when is_low cell]
 
 basin_size = (cell) ->
-	if cell.basin_size then return cell.basin_size
-	sum = 1
-	for c2 in *cell.from do sum += basin_size c2
-	cell.basin_size = sum
-	sum
+	if cell.height == 9 or cell.counted then return 0
+	cell.counted = true
+	size = 1
+	for neighbour in *neighbours cell
+		size += basin_size neighbour
+	size
 
 do
 	part1 = 0
 	for cell in *low_points do part1 += cell.height + 1
 	print "Part 1", part1
 
-	part2 = 1
-	table.sort low_points, (a,b) -> basin_size(a) > basin_size(b)
-	for i = 1,3 do part2 *= basin_size low_points[i]
-	print "Part 2", part2
+	sizes = [basin_size cell for cell in *low_points]
+	table.sort sizes, (a, b) -> a > b
+	print "Part 2", sizes[1] * sizes[2] * sizes[3]
