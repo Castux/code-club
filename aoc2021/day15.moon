@@ -20,7 +20,7 @@ expand_map = () ->
 		for dr = 0,4 do for dc = 0,4
 			if dr == 0 and dc == 0 then continue
 			new =
-				row: cell.row + dr * size,
+				row: cell.row + dr * size
 				col: cell.col + dc * size
 				risk: cell.risk + dr + dc
 			if new.risk > 9 then new.risk -= 9
