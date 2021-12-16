@@ -25,7 +25,7 @@ parse_literal = () ->
 		if more == 0 then break
 	number
 
-parse_operator = () ->
+parse_subpackets = () ->
 	subs = {}
 	length_type_id = get_next 1
 	if length_type_id == 0
@@ -47,7 +47,7 @@ parse = () ->
 	if packet.type_id == 4
 		packet.value = parse_literal!
 	else
-		packet.subpackets = parse_operator!
+		packet.subpackets = parse_subpackets!
 	packet
 
 sum_version = (packet) ->
@@ -59,10 +59,10 @@ sum_version = (packet) ->
 
 local compute_value
 
-fold = (packet, op) ->
-	tmp = compute_value packet.subpackets[1]
-	for i = 2,#packet.subpackets
-		tmp = op tmp, compute_value packet.subpackets[i]
+fold = (packets, op) ->
+	tmp = compute_value packets[1]
+	for i = 2,#packets
+		tmp = op tmp, compute_value packets[i]
 	tmp
 
 ops =
@@ -78,7 +78,7 @@ compute_value = (packet) ->
 	if packet.type_id == 4
 		packet.value
 	else
-		fold packet, ops[packet.type_id]
+		fold packet.subpackets, ops[packet.type_id]
 
 packet = parse!
 print "Part 1", sum_version packet
