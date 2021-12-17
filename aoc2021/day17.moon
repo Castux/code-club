@@ -1,11 +1,11 @@
 target = do
 	nums = for num in io.open("day17.txt")\read("a")\gmatch("%-?%d+")
-		tonumber(num)
+		tonumber num
 	xmin: nums[1], xmax: nums[2], ymin: nums[3], ymax: nums[4]
 
 in_target = (x,y) -> with target
 	return x >= .xmin and x <= .xmax and y >= .ymin and y <= .ymax
-sign = (x) -> if x != 0 then x / math.abs(x) else 0
+sign = (x) -> if x != 0 then x / math.abs x else 0
 
 shoot = (vx, vy) ->
 	x,y = 0,0
@@ -13,7 +13,7 @@ shoot = (vx, vy) ->
 	while y >= target.ymin
 		x += vx
 		y += vy
-		top = math.max(top,y)
+		top = math.max top, y
 		vx -= sign vx
 		vy -= 1
 		if in_target x,y then return true, top
