@@ -1,24 +1,12 @@
-import p from require "moon"
-
 class Map
-	new: =>
-		@data = {}
-		@outside = 0
-		@min_row = math.maxinteger
-		@max_row = math.mininteger
-		@min_col = math.maxinteger
-		@max_col = math.mininteger
-
-	set: (row, col, v) =>
-		if not @data[row] then @data[row] = {}
-		@data[row][col] = v
-		@min_row = math.min @min_row, row
-		@max_row = math.max @max_row, row
-		@min_col = math.min @min_col, col
-		@max_col = math.max @max_col, col
+	new: (data, outside) =>
+		@data = data
+		@outside = outside
+		@num_rows = #data
+		@num_cols = #data[1]
 
 	get: (row, col) =>
-		if row < @min_row or row > @max_row or col < @min_col or col > @max_col
+		if not @data[row] or not @data[row][col]
 			@outside
 		else
 			@data[row][col]
@@ -31,38 +19,31 @@ class Map
 		num
 
 	enhance: (algo) =>
-		tmp = Map!
-		for row = @min_row - 1, @max_row + 1
-			for col = @min_col - 1, @max_col + 1
+		data = for row = -1, @num_rows + 1
+			for col = -1, @num_cols + 1
 				index = self\get_neighbourhood row, col
-				tmp\set row, col, algo[index + 1]
-		tmp.outside = algo[@outside == 0 and 1 or #algo]
-		tmp
+				algo[index + 1]
+		outside = algo[if @outside == 0 then 1 else #algo]
+		Map data, outside
 
 	count_lit: () =>
 		assert @outside == 0
 		count = 0
-		for row = @min_row, @max_row
-			for col = @min_col, @max_col
-				count += self\get row,col
+		for row in *@data do for value in *row
+			count += value
 		count
 
-load_data = () ->
+do
 	fp = io.open "day20.txt"
 	algo = for c in fp\read("l")\gmatch(".")
 		c == "#" and 1 or 0
 	fp\read "l"
 
-	map = Map!
-	map.data = for line in fp\lines "l"
+	data = for line in fp\lines "l"
 		for c in line\gmatch "."
-			c == "#" and 1 or 0
-	map.min_row, map.min_col = 1, 1
-	map.max_row, map.max_col = #map.data, #map.data[1]
-	algo, map
+			if c == "#" then 1 else 0
+	map = Map data, 0
 
-do
-	algo, map = load_data!
 	for i = 1,50
 		map = map\enhance algo
 		print "Part 1", map\count_lit! if i == 2
