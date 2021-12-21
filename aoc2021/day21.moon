@@ -2,25 +2,19 @@ data = [tonumber line\match ": (%d+)" for line in io.lines "day21.txt"]
 mod = (x, n) -> (x - 1) % n + 1
 other = (player) -> 3 - player
 
-class Die
-	new: () =>
-		@rolled = 0
-	roll: () =>
-		@rolled += 1
-		mod @rolled, 100
-	roll3: () =>
-		self\roll! + self\roll! + self\roll!
-
 part1 = () ->
 	positions = {data[1], data[2]}
 	scores = {0, 0}
 	player = 1
-	die = Die!
+	die_rolled = 0
+	roll = () ->
+		die_rolled += 1
+		mod die_rolled, 100
 	while true
-		positions[player] = mod (positions[player] + die\roll3!), 10
+		positions[player] = mod (positions[player] + roll! + roll! + roll!), 10
 		scores[player] += positions[player]
 		if scores[player] >= 1000
-			print "Part 1", scores[other player] * die.rolled
+			print "Part 1", scores[other player] * die_rolled
 			break
 		player = other player
 
